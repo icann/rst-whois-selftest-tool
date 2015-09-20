@@ -1,6 +1,6 @@
 package Net::Whois::Spec;
 
-use 5.006;
+use 5.014;
 use strict;
 use warnings;
 
@@ -15,7 +15,6 @@ Version 0.01
 =cut
 
 our $VERSION = '0.01';
-
 
 =head1 SYNOPSIS
 
@@ -133,4 +132,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1; # End of Net::Whois::Spec
+1;    # End of Net::Whois::Spec

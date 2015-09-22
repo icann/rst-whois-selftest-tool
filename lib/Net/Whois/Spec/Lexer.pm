@@ -1,4 +1,5 @@
 package Net::Whois::Spec::Lexer;
+
 use 5.014;
 use strict;
 use warnings;
@@ -6,6 +7,34 @@ use warnings;
 use Moo;
 use Carp;
 use File::Slurp;
+
+=head1 NAME
+
+Net::Whois::Spec::Lexer - Consumes a IO::Handle and produces a stream of line tokens.
+
+=cut
+
+=head1 SYNOPSIS
+
+A class for consuming L<IO::Handle>s and producing streams of line tokens.
+
+    use Net::Whois::Spec::Lexer;
+
+    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("    line 1\r\n    line 2\r\n"));
+    while (my ($line, $errors) = $lexer->peek_line() && defined $line) {
+        printf("%d: [%s] [%s]", $lexer->line_no(), $line, join(", ", @$errors));
+
+        $lexer->next_line();
+        ($line, $errors) = $lexer->peek_line();
+    }
+
+=head1 SUBROUTINES/METHODS
+
+=head2 new(io => $io)
+
+    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("    line 1\r\n    line 2\r\n"));
+
+=cut
 
 has io => ( is => 'ro', );
 
@@ -94,7 +123,55 @@ sub next_line {
         push @errors, sprintf( "line %d: trailing space", $self->line_no );
     }
 
-    $self->lookahead( [ $line, \@errors ] );
+    # Match token type
+    my $token;
+    if ( $line eq '' ) {
+        $token = ['empty line'];
+    }
+    elsif ( $line eq 'Query matched more than one name server:' ) {
+        $token = ['multiple name servers line'];
+    }
+    elsif ( $line =~ /^>>> Last update of Whois database: (.*) <<<$/ ) {
+        my $timestamp = $1;
+
+        # Note: validation is out of place here; move elsewhere if added complexity can be avoided
+        if ( $timestamp !~ /^\d\d\d\d-\d\d-\d\d[Tt]\d\d:\d\d:\d\dZ$/ ) {
+            push @errors, sprintf( 'line %d: invalid timestamp format' );
+        }
+        $token = ['last update line', $timestamp];
+    }
+    elsif ( $line =~ /^For more information on Whois status codes, please visit (.*)$/ ) {
+        my $url = $1;
+
+        # Note: validation is out of place here; move elsewhere if added complexity can be avoided
+        if ( $url ne 'https://icann.org/epp' && $url ne 'https://www\.icann\.org/resources/pages/epp-status-codes-2014-06-16-en' ) {
+            push @errors, sprintf( 'line %d: illegal url' );
+        }
+
+        $token = ['awip line'];
+    }
+    elsif ( $line =~ /^([^:]+)(?: \(([^()]+)\))?:(?: (.*))?$/ ) {
+        my $key          = $1;
+        my @translations = split '/', ($2 || '');
+        my $value        = $3;
+
+        if ( defined $value ) {
+            $token = [ 'field', $key, \@translations, $value ];
+        }
+        else {
+            $token = [ 'empty field', $key, \@translations ];
+        }
+    }
+    elsif ( $line =~ /^(.*) \((.*)\)$/ ) {
+        my $roid     = $1;
+        my $hostname = $2;
+        $token = [ 'roid line', $roid, $hostname ];
+    }
+    else {
+        $token = [ 'non-empty line', $line ];
+    }
+
+    $self->lookahead( [ $token, \@errors ] );
     return;
 }
 

@@ -73,7 +73,7 @@ subtest 'Token types' => sub {
     $lexer->next_line();
 
     my ($empty_field, $errors_empty_field) = $lexer->peek_line();
-    eq_or_diff($empty_field, ['empty field', 'Name Server', []], 'Should recognize empty fields');
+    eq_or_diff($empty_field, ['field', 'Name Server', [], undef], 'Should recognize empty fields');
     eq_or_diff($errors_empty_field, [], 'Should report no error');
     $lexer->next_line();
 

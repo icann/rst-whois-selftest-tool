@@ -21,11 +21,11 @@ A class for consuming L<IO::Handle>s and producing streams of line tokens.
     use Net::Whois::Spec::Lexer;
 
     my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("    line 1\r\n    line 2\r\n"));
-    while (my ($line, $errors) = $lexer->peek_line() && defined $line) {
-        printf("%d: [%s] [%s]", $lexer->line_no(), $line, join(", ", @$errors));
+    while (my ($token, $value, $errors) = $lexer->peek_line() && defined $line) {
+        printf("%d: [%s] [%s]", $lexer->line_no(), $token, join(", ", @$errors));
 
         $lexer->next_line();
-        ($line, $errors) = $lexer->peek_line();
+        ($token, $value, $errors) = $lexer->peek_line();
     }
 
 =head1 SUBROUTINES/METHODS
@@ -125,11 +125,14 @@ sub next_line {
 
     # Match token type
     my $token;
+    my $token_value;
     if ( $line eq '' ) {
-        $token = ['empty line'];
+        $token = 'empty line';
+        $token_value = undef;
     }
     elsif ( $line eq 'Query matched more than one name server:' ) {
-        $token = ['multiple name servers line'];
+        $token = 'multiple name servers line';
+        $token_value = undef;
     }
     elsif ( $line =~ /^>>> Last update of Whois database: (.*) <<<$/ ) {
         my $timestamp = $1;
@@ -138,7 +141,8 @@ sub next_line {
         if ( $timestamp !~ /^\d\d\d\d-\d\d-\d\d[Tt]\d\d:\d\d:\d\dZ$/ ) {
             push @errors, sprintf( 'line %d: invalid timestamp format' );
         }
-        $token = ['last update line', $timestamp];
+        $token = 'last update line';
+        $token_value = $timestamp;
     }
     elsif ( $line =~ /^For more information on Whois status codes, please visit (.*)$/ ) {
         my $url = $1;
@@ -148,27 +152,26 @@ sub next_line {
             push @errors, sprintf( 'line %d: illegal url' );
         }
 
-        $token = ['awip line'];
+        $token = 'awip line';
+        $token_value = undef;
     }
     elsif ( $line =~ /^([^:]+)(?: \(([^()]+)\))?:(?: (.*))?$/ ) {
         my $key          = $1;
-        my @translations = split '/', ($2 || '');
+        my @translations = split '/', ( $2 || '' );
         my $value        = $3;
 
-        if ( defined $value ) {
-            $token = [ 'field', $key, \@translations, $value ];
-        }
-        else {
-            $token = [ 'empty field', $key, \@translations ];
-        }
+        $token = 'field';
+        $token_value = [ $key, \@translations, $value ];
     }
     elsif ( $line =~ /^(.*) \((.*)\)$/ ) {
         my $roid     = $1;
         my $hostname = $2;
-        $token = [ 'roid line', $roid, $hostname ];
+        $token = 'roid line';
+        $token_value = [ $roid, $hostname ];
     }
     else {
-        $token = [ 'non-empty line', $line ];
+        $token = 'non-empty line';
+        $token_value = $line;
     }
 
     $self->lookahead( [ $token, \@errors ] );

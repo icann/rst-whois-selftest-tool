@@ -19,15 +19,15 @@ sub parse_output {
     my $self = shift;
     my $rule = shift;
 
-    my $result = $self->parse_rule($rule);
-    if (defined $result) {
-        if ($self->lexer->peek_line()) {
-            push @$result, sprintf("line %d: expected EOF", $self->lexer->line_no);
+    my $result = $self->parse_rule( $rule );
+    if ( defined $result ) {
+        if ( $self->lexer->peek_line() ) {
+            push @$result, sprintf( "line %d: expected EOF", $self->lexer->line_no );
         }
         return $result;
     }
     else {
-        return [sprintf("line %d: unrecognized input", $self->lexer->line_no)];
+        return [ sprintf( "line %d: unrecognized input", $self->lexer->line_no ) ];
     }
 }
 
@@ -126,7 +126,7 @@ sub _parse_occurances {
                 return \@errors;
             }
         }
-        elsif ($count == 0) {
+        elsif ( $count == 0 ) {
             push @errors, $self->__set_empty_kind( 'omitted field' );
             return;
         }
@@ -154,7 +154,6 @@ sub _parse_occurances {
         }
         $count++;
     }
-
 
     return \@errors;
 }
@@ -193,7 +192,7 @@ sub _parse_line {
     my $subtype;
 
     if ( defined $type ) {
-        if (!exists $self->types->{$type} ) {
+        if ( !exists $self->types->{$type} ) {
             carp "unknown type $type";
         }
         ( $token, $token_value, $errors ) = $self->lexer->peek_line();

@@ -127,11 +127,11 @@ sub next_line {
     my $token;
     my $token_value;
     if ( $line eq '' ) {
-        $token = 'empty line';
+        $token       = 'empty line';
         $token_value = undef;
     }
     elsif ( $line eq 'Query matched more than one name server:' ) {
-        $token = 'multiple name servers line';
+        $token       = 'multiple name servers line';
         $token_value = undef;
     }
     elsif ( $line =~ /^>>> Last update of Whois database: (.*) <<<$/ ) {
@@ -141,7 +141,7 @@ sub next_line {
         if ( $timestamp !~ /^\d\d\d\d-\d\d-\d\d[Tt]\d\d:\d\d:\d\dZ$/ ) {
             push @errors, sprintf( 'line %d: invalid timestamp format' );
         }
-        $token = 'last update line';
+        $token       = 'last update line';
         $token_value = $timestamp;
     }
     elsif ( $line =~ /^For more information on Whois status codes, please visit (.*)$/ ) {
@@ -152,7 +152,7 @@ sub next_line {
             push @errors, sprintf( 'line %d: illegal url' );
         }
 
-        $token = 'awip line';
+        $token       = 'awip line';
         $token_value = undef;
     }
     elsif ( $line =~ /^([^:]+)(?: \(([^()]+)\))?:(?: (.*))?$/ ) {
@@ -170,7 +170,7 @@ sub next_line {
         $token_value = [ $roid, $hostname ];
     }
     else {
-        $token = 'non-empty line';
+        $token       = 'non-empty line';
         $token_value = $line;
     }
 

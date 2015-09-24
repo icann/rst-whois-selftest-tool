@@ -80,7 +80,7 @@ sub next_line {
         if ( !defined $self->line_no ) {
             $self->line_no( 1 );
         }
-        $self->lookahead( [ undef, \@errors ] );
+        $self->lookahead( [ undef, undef, \@errors ] );
         return;
     }
     $self->line_no( ( $self->line_no || 0 ) + 1 );
@@ -174,7 +174,7 @@ sub next_line {
         $token_value = $line;
     }
 
-    $self->lookahead( [ $token, \@errors ] );
+    $self->lookahead( [ $token, $token_value, \@errors ] );
     return;
 }
 

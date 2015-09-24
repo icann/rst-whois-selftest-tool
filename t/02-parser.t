@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 8;
+use Test::More tests => 4;
 use Test::Differences;
 use Test::MockObject;
 

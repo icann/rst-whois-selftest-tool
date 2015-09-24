@@ -21,7 +21,8 @@ sub parse_output {
 
     my $result = $self->parse_rule( $rule );
     if ( defined $result ) {
-        if ( $self->lexer->peek_line() ) {
+        my ( $token, $value, $errors ) = $self->lexer->peek_line();
+        if ( defined $token ) {
             push @$result, sprintf( "line %d: expected EOF", $self->lexer->line_no );
         }
         return $result;
@@ -43,11 +44,11 @@ sub parse_rule {
             return $self->_parse_choice_section( $section_rule );
         }
         else {
-            carp "invalid grammar rule: $rule";
+            croak "invalid grammar rule: $rule";
         }
     }
     else {
-        carp "unknown grammar rule: $rule";
+        croak "unknown grammar rule: $rule";
     }
 }
 
@@ -80,14 +81,14 @@ sub _parse_choice_section {
     my $self         = shift;
     my $section_rule = shift;
 
-    while ( my ( $key, $params ) = %$section_rule ) {
+    while ( my ( $key, $params ) = each( %$section_rule ) ) {
         my $result = $self->_parse_occurances( %$params, key => $key );
         if ( defined $result ) {
             return $result;
         }
     }
 
-    return [ sprintf( "line %d: expected either: %s", $self->lexer->line_no, join( ', ', keys( %$section_rule ) ) ) ];
+    return;
 }
 
 sub _parse_occurances {
@@ -127,7 +128,7 @@ sub _parse_occurances {
             }
         }
         elsif ( $count == 0 ) {
-            push @errors, $self->__set_empty_kind( 'omitted field' );
+            $self->__set_empty_kind( 'omitted field' );
             return;
         }
         else {
@@ -148,9 +149,9 @@ sub _parse_occurances {
         }
         else {
             if ( $count == 0 ) {
-                push @errors, $self->__set_empty_kind( 'omitted field' );
+                $self->__set_empty_kind( 'omitted field' );
             }
-            last;
+            return \@errors;
         }
         $count++;
     }
@@ -166,7 +167,7 @@ sub _parse_subrule {
     my $type = $args{'type'};
 
     if ( defined $type && !exists $self->types->{$type} ) {
-        carp "unknown type $type";
+        croak "unknown type $type";
     }
 
     if ( defined $line || defined $type ) {
@@ -193,7 +194,7 @@ sub _parse_line {
 
     if ( defined $type ) {
         if ( !exists $self->types->{$type} ) {
-            carp "unknown type $type";
+            croak "unknown type $type";
         }
         ( $token, $token_value, $errors ) = $self->lexer->peek_line();
         if ( !defined $token || $token ne 'field' ) {
@@ -207,10 +208,21 @@ sub _parse_line {
     }
     else {
         ( $token, $token_value, $errors ) = $self->lexer->peek_line();
-        if ( $token ne $line ) {
+        if ( !defined $token ) {
             return;
         }
-        $subtype = $token;
+        elsif ( $line eq 'any line' ) {
+            $subtype = $line;
+        }
+        elsif ( $line eq 'non-empty line' && $token ne 'empty line' ) {
+            $subtype = $line;
+        }
+        elsif ( $token eq $line ) {
+            $subtype = $token;
+        }
+        else {
+            return;
+        }
     }
 
     $self->lexer->next_line();
@@ -222,7 +234,9 @@ sub _parse_line {
             push @$errors, $self->types->{'key translation'}->( $translation );
         }
 
-        push @$errors, $self->types->{$type}->( $value );
+        if ( $type ) {
+            push @$errors, $self->types->{$type}->( $value );
+        }
     }
     elsif ( $token eq 'roid line' ) {
         my ( $roid, $hostname ) = @$token_value;
@@ -236,8 +250,8 @@ sub _parse_line {
 
         push @$errors, $self->types->{'timestamp'}->( $timestamp );
     }
-    elsif ( $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' ) {
-        carp "unhandled line type: $token";
+    elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' ) {
+        croak "unhandled line type: $token";
     }
     return $subtype, @$errors;
 }

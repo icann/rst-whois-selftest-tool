@@ -27,12 +27,11 @@ my $grammar = {
 };
 
 my $types = {
-    hostname => sub {
-        return;
-    },
-    'http url' => sub {
-        return;
-    },
+    hostname => sub {},
+    'http url' => sub {},
+    'roid' => sub {},
+    'time stamp' => sub {},
+    'key translation' => sub {},
 };
 
 sub make_mock_lexer {

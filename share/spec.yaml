@@ -71,7 +71,7 @@ Subsequent domain name details section:
 Domain name details section:
   - Domain Name: { type: hostname }
   - Internationalized Domain Name: { min_occurs: 0, type: u-label }
-  - Domain ID: { type: ROID }
+  - Domain ID: { type: roid }
   - WHOIS Server: { min_occurs: 0, type: hostname }
   - Referral URL: { type: http url }
   - Updated Date: { min_occurs: 0, type: time stamp }
@@ -80,7 +80,7 @@ Domain name details section:
   - Sponsoring Registrar: { type: token }
   - Sponsoring Registrar IANA ID: { type: positive integer }
   - Domain Status: { max_occurs: unbounded, type: domain status }
-  - Registrant ID: { type: ROID }
+  - Registrant ID: { type: roid }
   - Registrant Name: { type: postal line }
   - Registrant Organization: { min_occurs: 0, type: postal line }
   - Registrant Street: { max_occurs: 3, type: postal line }
@@ -93,7 +93,7 @@ Domain name details section:
   - Registrant Fax: { min_occurs: 0, type: phone number }
   - Registrant Fax Ext: { min_occurs: 0, type: token }
   - Registrant Email: { type: email address }
-  - Admin ID: { type: ROID }
+  - Admin ID: { type: roid }
   - Admin Name: { type: postal line }
   - Admin Organization: { min_occurs: 0, type: postal line }
   - Admin Street: { max_occurs: 3, type: postal line }
@@ -106,7 +106,7 @@ Domain name details section:
   - Admin Fax: { min_occurs: 0, type: phone number }
   - Admin Fax Ext: { min_occurs: 0, type: token }
   - Admin Email: { type: email address }
-  - Tech ID: { type: ROID }
+  - Tech ID: { type: roid }
   - Tech Name: { type: postal line }
   - Tech Organization: { min_occurs: 0, type: postal line }
   - Tech Street: { max_occurs: 3, type: postal line }
@@ -119,7 +119,7 @@ Domain name details section:
   - Tech Fax: { min_occurs: 0, type: phone number }
   - Tech Fax Ext: { min_occurs: 0, type: token }
   - Tech Email: { type: email address }
-  - Billing ID: { min_occurs: 0, type: ROID }
+  - Billing ID: { min_occurs: 0, type: roid }
   - Billing Name: { min_occurs: 0, type: postal line }
   - Billing Organization: { min_occurs: 0, type: postal line }
   - Billing Street: { min_occurs: 0, max_occurs: 3, type: postal line }
@@ -139,7 +139,7 @@ Name server section:
   - Name Server: { type: hostname }
   - IP Address: { min_occurs: 0, max_occurs: unbounded, type: ip address }
 Multiple name servers section:
-  - Multiple name servers line: { line: empty line }
+  - Multiple name servers line: { line: multiple name servers line }
   - ROID line: { min_occurs: 2, max_occurs: unbounded, line: roid line }
 Subsequent name server details section:
   - Empty line: { line: empty line }

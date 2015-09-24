@@ -9,7 +9,12 @@ use Carp;
 
 has grammar => ( is => 'ro', required => 1 );
 
-has types => ( is => 'ro', required => 1 );
+has types => ( is => 'ro', required => 1, isa => sub {
+    croak unless exists $_[0]->{'key translation'};
+    croak unless exists $_[0]->{'time stamp'};
+    croak unless exists $_[0]->{'roid'};
+    croak unless exists $_[0]->{'hostname'};
+});
 
 has lexer => ( is => 'ro', required => 1 );
 
@@ -248,7 +253,7 @@ sub _parse_line {
     elsif ( $token eq 'last update line' ) {
         my $timestamp = $token_value;
 
-        push @$errors, $self->types->{'timestamp'}->( $timestamp );
+        push @$errors, $self->types->{'time stamp'}->( $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' ) {
         croak "unhandled line type: $token";

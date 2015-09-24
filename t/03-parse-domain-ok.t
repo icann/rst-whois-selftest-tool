@@ -15,7 +15,7 @@ say dist_dir('Net-Whois-Spec');
 my $types = {
     'hostname' => sub {},
     'u-label' => sub {},
-    'ROID' => sub {},
+    'roid' => sub {},
     'http url' => sub {},
     'time stamp' => sub {},
     'token' => sub {},
@@ -28,6 +28,7 @@ my $types = {
     'email address' => sub {},
     'dnssec' => sub {},
     'ip address' => sub {},
+    'key translation' => sub {},
 };
 my $io = IO::Handle->new_from_fd(*DATA, 'r');
 my $lexer = Net::Whois::Spec::Lexer->new(io => $io);
@@ -35,7 +36,7 @@ $lexer->load();
 my $grammar = LoadFile(dist_file('Net-Whois-Spec', 'spec.yaml'));
 my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
 my $result = $parser->parse_output('Domain Name Object query');
-eq_or_diff $result, [], 'Should accept valid domain name object';
+eq_or_diff $result, [], 'Should accept valid domain name reply';
 
 
 __DATA__

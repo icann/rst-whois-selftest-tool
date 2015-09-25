@@ -58,7 +58,7 @@ sub peek_line {
     my $self = shift;
 
     if ( !defined $self->lookahead ) {
-        confess 'must call load() before peek_line()';
+        croak 'must call load() before peek_line()';
     }
     return @{ $self->lookahead };
 }
@@ -67,7 +67,7 @@ sub next_line {
     my $self = shift;
 
     if ( !defined $self->contents ) {
-        confess 'must call load() before next_line()';
+        croak 'must call load() before next_line()';
     }
     my $contents = $self->contents;
     my @errors;

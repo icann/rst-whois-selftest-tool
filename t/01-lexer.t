@@ -2,7 +2,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 use Test::Differences;
 use IO::String;
 
@@ -125,4 +125,17 @@ subtest 'Token types' => sub {
         eq_or_diff($errors, [], 'Should report no error');
         $lexer->next_line();
     }
+};
+
+subtest 'Trailing space' => sub {
+    plan tests => 3;
+
+    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("Key: Value with trailing space \r\n"));
+    $lexer->load();
+
+    my ($token, $value, $errors) = $lexer->peek_line();
+    eq_or_diff([$token, $value], ['field', ['Key', [], 'Value with trailing space']], 'Should recognize field with stripped value');
+    is(scalar @$errors, 1, 'Should detect an error');
+    like($errors->[0], qr/trailing space/i, 'Should complain about trailing space');
+    $lexer->next_line();
 };

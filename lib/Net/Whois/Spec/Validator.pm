@@ -109,19 +109,19 @@ sub _occurances {
     my $type = $args{'type'};
 
     my $min_occurs;
-    if ( !exists $args{'min_occurs'} ) {
-        $min_occurs = 1;
+    if ( ($args{'optional'} || 'n' ) eq 'y' ) {
+        $min_occurs = 0;
     }
     else {
-        $min_occurs = int $args{'min_occurs'};
+        $min_occurs = 1;
     }
 
     my $max_occurs;
-    if ( !exists $args{'max_occurs'} ) {
+    if ( !exists $args{'repeatable'} ) {
         $max_occurs = 1;
     }
-    elsif ( $args{'max_occurs'} ne 'unbounded' ) {
-        $max_occurs = int $args{'max_occurs'};
+    elsif ( $args{'repeatable'} ne 'unbounded' ) {
+        $max_occurs = int $args{'repeatable'};
     }
 
     my $count = 0;

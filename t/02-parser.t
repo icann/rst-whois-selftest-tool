@@ -16,20 +16,20 @@ my $grammar = {
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional field' => [
-        { 'Domain Name' => { type => 'hostname', min_occurs => 0, }, },
-        { 'Referral URL' => { type => 'http url', min_occurs => 0, }, },
+        { 'Domain Name' => { type => 'hostname', optional => 'y', }, },
+        { 'Referral URL' => { type => 'http url', optional => 'y', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable field' => [
-        { 'Domain Name' => { type => 'hostname', max_occurs => 'unbounded', }, },
+        { 'Domain Name' => { type => 'hostname', repeatable => 'unbounded', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable max 2 field' => [
-        { 'Domain Name' => { type => 'hostname', max_occurs => 2, }, },
+        { 'Domain Name' => { type => 'hostname', repeatable => 2, }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional repeatable section' => [
-        { 'A domain name' => { min_occurs => 0, max_occurs => 'unbounded', }, },
+        { 'A domain name' => { optional => 'y', repeatable => 'unbounded', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'A domain name' => [

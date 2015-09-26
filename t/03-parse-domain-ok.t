@@ -8,7 +8,6 @@ use Net::Whois::Spec::Lexer;
 use Net::Whois::Spec::Parser;
 use YAML::Syck;
 use File::ShareDir 'dist_file', 'dist_dir';
-use IO::Handle;
 
 say dist_dir('Net-Whois-Spec');
 
@@ -30,17 +29,16 @@ my $types = {
     'ip address' => sub {},
     'key translation' => sub {},
 };
-my $io = IO::Handle->new_from_fd(*DATA, 'r');
-my $lexer = Net::Whois::Spec::Lexer->new(io => $io);
-$lexer->load();
+my $text = do { local $/; <DATA> };
+$text =~ s/(?<!\r)\n/\r\n/g;
+my $lexer = Net::Whois::Spec::Lexer->new($text);
 my $grammar = LoadFile(dist_file('Net-Whois-Spec', 'spec.yaml'));
 my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
 my $result = $parser->parse_output('Domain Name Object query');
 eq_or_diff $result, [], 'Should accept valid domain name reply';
 
-
 __DATA__
-Domain Name: EXAMPLE.TLD 
+Domain Name: EXAMPLE.TLD
 Domain ID: D1234567-IIS
 WHOIS Server: whois.example.tld
 Referral URL: http://www.example.tld
@@ -55,7 +53,7 @@ Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProh
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
 Registrant ID: 5372808-IIS
 Registrant Name: EXAMPLE REGISTRANT
-Registrant Organization: EXAMPLE ORGANIZATION 
+Registrant Organization: EXAMPLE ORGANIZATION
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
 Registrant State/Province: AP
@@ -67,8 +65,8 @@ Registrant Fax: +1.5555551213
 Registrant Fax Ext: 4321
 Registrant Email: EMAIL@EXAMPLE.TLD
 Admin ID: 5372809-IIS
-Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE 
-Admin Organization: EXAMPLE REGISTRANT ORGANIZATION 
+Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
+Admin Organization: EXAMPLE REGISTRANT ORGANIZATION
 Admin Street: 123 EXAMPLE STREET
 Admin City: ANYTOWN
 Admin State/Province: AP
@@ -77,7 +75,7 @@ Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Phone Ext: 1234
 Admin Fax: +1.5555551213
-Admin Fax Ext:
+Admin Fax Ext: 1234
 Admin Email: EMAIL@EXAMPLE.TLD
 Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
@@ -95,7 +93,7 @@ Tech Email: EMAIL@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 Name Server: NS02.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
->>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
+>>> Last update of Whois database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp
 

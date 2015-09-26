@@ -4,15 +4,13 @@ use warnings;
 
 use Test::More tests => 4;
 use Test::Differences;
-use IO::String;
 
 require_ok('Net::Whois::Spec::Lexer');
 
 subtest 'Line separators' => sub {
     plan tests => 15;
 
-    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("line 1\r\nline 2\nline 3\rline 4"));
-    $lexer->load();
+    my $lexer = Net::Whois::Spec::Lexer->new("line 1\r\nline 2\nline 3\rline 4");
     is($lexer->line_no(), 1, 'File should start out at line 1');
 
     {
@@ -67,8 +65,7 @@ subtest 'Token types' => sub {
         '>>> Last update of Whois database: 2014-11-14T12:58:01Z <<<',
         'For more information on Whois status codes, please visit https://icann.org/epp',
     );
-    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new(join("\r\n", @lines, '')));
-    $lexer->load();
+    my $lexer = Net::Whois::Spec::Lexer->new(join("\r\n", @lines, ''));
 
     {
         my ($token, $value, $errors) = $lexer->peek_line();
@@ -130,8 +127,7 @@ subtest 'Token types' => sub {
 subtest 'Trailing space' => sub {
     plan tests => 3;
 
-    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("Key: Value with trailing space \r\n"));
-    $lexer->load();
+    my $lexer = Net::Whois::Spec::Lexer->new("Key: Value with trailing space \r\n");
 
     my ($token, $value, $errors) = $lexer->peek_line();
     eq_or_diff([$token, $value], ['field', ['Key', [], 'Value with trailing space']], 'Should recognize field with stripped value');

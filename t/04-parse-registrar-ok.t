@@ -8,7 +8,6 @@ use Net::Whois::Spec::Lexer;
 use Net::Whois::Spec::Parser;
 use YAML::Syck;
 use File::ShareDir 'dist_file', 'dist_dir';
-use IO::Handle;
 
 say dist_dir('Net-Whois-Spec');
 
@@ -25,16 +24,16 @@ my $types = {
     'time stamp' => sub {},
     'roid' => sub {},
 };
-my $io = IO::Handle->new_from_fd(*DATA, 'r');
-my $lexer = Net::Whois::Spec::Lexer->new(io => $io);
-$lexer->load();
+my $text = do { local $/; <DATA> };
+$text =~ s/(?<!\r)\n/\r\n/g;
+my $lexer = Net::Whois::Spec::Lexer->new($text);
 my $grammar = LoadFile(dist_file('Net-Whois-Spec', 'spec.yaml'));
 my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
 my $result = $parser->parse_output('Registrar Object query');
 eq_or_diff $result, [], 'Should accept valid registrar reply';
 
 __DATA__
-Registrar Name: Example Registrar, Inc. 
+Registrar Name: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -57,7 +56,7 @@ Technical Contact: John Geek
 Phone Number: +1.3105551215
 Fax Number: +1.3105551216
 Email: johngeek@example-registrar.tld
->>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
+>>> Last update of Whois database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp
 

@@ -33,12 +33,10 @@ sub parse_output {
     my $rule = shift;
 
     my $result = $self->parse_rule( $rule );
-    if ( defined $result ) {
-        return $result;
+    if ( !defined $result ) {
+        $result = [ sprintf( "line %d: unrecognized input", $self->{_lexer}->line_no ) ];
     }
-    else {
-        return [ sprintf( "line %d: unrecognized input", $self->{_lexer}->line_no ) ];
-    }
+    return $result;
 }
 
 sub parse_rule {
@@ -129,14 +127,17 @@ sub _parse_occurances {
     my $count = 0;
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
-        my ( $parsed, @parsed_errors ) = $self->_parse_subrule( line => $line, key => $key, type => $type );
+        my ( $parsed, $parsed_errors ) = $self->_parse_subrule( line => $line, key => $key, type => $type );
+        confess if ref $parsed eq 'ARRAY';
         if ( !defined $parsed ) {
             if ( $count == 0 && defined $type || ( defined $line && $line eq 'field' ) ) {
                 push @errors, $self->__set_empty_kind( 'omitted field' );
             }
             last;
         }
-        push @errors, @parsed_errors;
+        else {
+            push @errors, @$parsed_errors;
+        }
         $count++;
         if ( $count == 1 && $parsed eq 'empty field' ) {
             push @errors, $self->__set_empty_kind( 'empty field' );
@@ -164,13 +165,13 @@ sub _parse_subrule {
     }
 
     if ( defined $line || defined $type ) {
-        my @result = $self->_parse_line( line => $line, key => $key, type => $type );
-        return @result;
+        my ( $subtype, $result ) = $self->_parse_line( line => $line, key => $key, type => $type );
+        return ( $subtype, $result );
     }
     else {
-        my $result = return $self->parse_rule( $key );
+        my $result = $self->parse_rule( $key );
         my $subtype = ( defined $result ) && 'section' || undef;
-        return ( $subtype, @$result );
+        return ( $subtype, $result );
     }
 }
 
@@ -247,7 +248,7 @@ sub _parse_line {
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
     }
-    return $subtype, @$errors;
+    return $subtype, $errors;
 }
 
 sub __set_empty_kind {

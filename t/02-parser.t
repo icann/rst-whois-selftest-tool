@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 4;
+use Test::More tests => 6;
 use Test::Differences;
 use Test::MockObject;
 
@@ -24,10 +24,13 @@ my $grammar = {
     'Repeatable max 2 field' => [
         { 'Domain Name' => { type => 'hostname', max_occurs => 2, }, },
     ],
+    'Optional repeatable section' => [
+        { 'Simple field' => { min_occurs => 0, max_occurs => 'unbounded', }, },
+    ],
 };
 
 my $types = {
-    hostname => sub {},
+    'hostname' => sub {},
     'http url' => sub {},
     'roid' => sub {},
     'time stamp' => sub {},
@@ -142,6 +145,30 @@ subtest 'Repeatable subrule' => sub {
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Repeatable max 2 field' );
         is scalar(@$result), 1, 'Should reject too much repeated field lines';
+    }
+
+};
+
+subtest 'Error propagation' => sub {
+    plan tests => 1;
+
+    my $lexer = make_mock_lexer (
+        ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], ['BOOM!']],
+    );
+    my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
+    my $result = $parser->parse_output( 'Simple field' );
+    eq_or_diff $result, ['BOOM!'], 'Should propagate errors from lexer';
+};
+
+subtest 'Optional repeatable subrule' => sub {
+    plan tests => 1;
+
+    {
+        my $lexer = make_mock_lexer (
+        );
+        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $parser->parse_output( 'Optional repeatable section' );
+        eq_or_diff $result, [], 'Should accept omitted lines';
     }
 
 };

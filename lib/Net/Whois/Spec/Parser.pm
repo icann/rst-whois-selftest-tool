@@ -4,21 +4,29 @@ use strict;
 use warnings;
 use 5.014;
 
-use Moo;
 use Carp;
 
-has grammar => ( is => 'ro', required => 1 );
+sub new {
+    my $class = shift;
+    my %args = @_;
 
-has types => ( is => 'ro', required => 1, isa => sub {
-    croak unless exists $_[0]->{'key translation'};
-    croak unless exists $_[0]->{'time stamp'};
-    croak unless exists $_[0]->{'roid'};
-    croak unless exists $_[0]->{'hostname'};
-});
+    croak "lexer: missing argument" unless defined $args{lexer};
+    croak "grammar: missing argument" unless defined $args{grammar};
+    croak "types: missing argument" unless defined $args{types};
+    croak "key translation: missing type" unless exists $args{types}->{'key translation'};
+    croak "time stamp: missing type" unless exists $args{types}->{'time stamp'};
+    croak "roid: missing type" unless exists $args{types}->{'roid'};
+    croak "hostname: missing type" unless exists $args{types}->{'hostname'};
 
-has lexer => ( is => 'ro', required => 1 );
+    my $self = bless {
+        _lexer => $args{lexer},
+        _grammar => $args{grammar},
+        _types => $args{types},
+        _empty_kind => undef,
+    }, $class;
 
-has empty_kind => ( is => 'rw' );
+    return $self;
+}
 
 sub parse_output {
     my $self = shift;
@@ -26,14 +34,14 @@ sub parse_output {
 
     my $result = $self->parse_rule( $rule );
     if ( defined $result ) {
-        my ( $token, $value, $errors ) = $self->lexer->peek_line();
+        my ( $token, $value, $errors ) = $self->{_lexer}->peek_line();
         if ( defined $token ) {
-            push @$result, sprintf( "line %d: expected EOF", $self->lexer->line_no );
+            push @$result, sprintf( "line %d: expected EOF", $self->{_lexer}->line_no );
         }
         return $result;
     }
     else {
-        return [ sprintf( "line %d: unrecognized input", $self->lexer->line_no ) ];
+        return [ sprintf( "line %d: unrecognized input", $self->{_lexer}->line_no ) ];
     }
 }
 
@@ -41,12 +49,14 @@ sub parse_rule {
     my $self = shift;
     my $rule = shift;
 
-    if ( my $section_rule = $self->grammar->{$rule} ) {
+    if ( my $section_rule = $self->{_grammar}->{$rule} ) {
         if ( ref $section_rule eq 'ARRAY' ) {
-            return $self->_parse_sequence_section( $section_rule );
+            my $result = $self->_parse_sequence_section( $section_rule );
+            return $result;
         }
         elsif ( ref $section_rule eq 'HASH' ) {
-            return $self->_parse_choice_section( $section_rule );
+            my $result = $self->_parse_choice_section( $section_rule );
+            return $result;
         }
         else {
             croak "invalid grammar rule: $rule";
@@ -62,21 +72,21 @@ sub _parse_sequence_section {
     my $section_rule = shift;
 
     my @errors;
-    my $first = 1;
+    my $total = 0;
 
     for my $elem ( @$section_rule ) {
         my ( $key, $params ) = %$elem;
-        my $result = $self->_parse_occurances( %$params, key => $key );
-        if ( defined $result ) {
-            push @errors, @$result;
+        my ($count, $result) = $self->_parse_occurances( %$params, key => $key );
+        if (!defined $count) {
+            if ($total == 0) {
+                return;
+            }
+            else {
+                last;
+            }
         }
-        elsif ( $first ) {
-            return ( undef );
-        }
-        else {
-            push @errors, sprintf( "line %d: expected section $key", $self->lexer->line_no );
-        }
-        $first = 0;
+        push @errors, @$result;
+        $total += $count;
     }
 
     return \@errors;
@@ -87,8 +97,8 @@ sub _parse_choice_section {
     my $section_rule = shift;
 
     while ( my ( $key, $params ) = each( %$section_rule ) ) {
-        my $result = $self->_parse_occurances( %$params, key => $key );
-        if ( defined $result ) {
+        my ($count, $result) = $self->_parse_occurances( %$params, key => $key );
+        if ( defined $count ) {
             return $result;
         }
     }
@@ -102,6 +112,7 @@ sub _parse_occurances {
     my $key  = $args{'key'};
     my $line = $args{'line'};
     my $type = $args{'type'};
+
     my $min_occurs;
     if ( !exists $args{'min_occurs'} ) {
         $min_occurs = 1;
@@ -109,6 +120,7 @@ sub _parse_occurances {
     else {
         $min_occurs = int $args{'min_occurs'};
     }
+
     my $max_occurs;
     if ( !exists $args{'max_occurs'} ) {
         $max_occurs = 1;
@@ -116,67 +128,47 @@ sub _parse_occurances {
     elsif ( $args{'max_occurs'} ne 'unbounded' ) {
         $max_occurs = int $args{'max_occurs'};
     }
-    if ( !defined $line && defined $type ) {
-        $line = 'field';
-    }
 
-    my @errors;
     my $count = 0;
-
-    for ( 1 .. $min_occurs ) {
-        my ( $subtype, @parsed_errors ) = $self->_parse_subrule( key => $key, line => $line, type => $type );
-        if ( defined $subtype ) {
-            push @errors, @parsed_errors;
-            if ( $subtype eq 'empty field' ) {
-                push @errors, $self->__set_empty_kind( 'empty field' );
-                return \@errors;
+    my @errors;
+    while (!defined $max_occurs || $count < $max_occurs) {
+        my ($parsed, @parsed_errors) = $self->_parse_subrule(line => $line, key => $key, type => $type);
+        if (!defined $parsed) {
+            if ($count == 0 && defined $type || (defined $line && $line eq 'field')) {
+                push @errors, $self->__set_empty_kind('omitted field');
             }
+            last;
         }
-        elsif ( $count == 0 ) {
-            $self->__set_empty_kind( 'omitted field' );
-            return;
-        }
-        else {
-            push @errors, sprintf( "line %d: expected at least $min_occurs $key(s)", $self->lexer->line_no );
-            return \@errors;
-        }
+        push @errors, @parsed_errors;
         $count++;
+        if ($count == 1 && $parsed eq 'empty field') {
+            push @errors, $self->__set_empty_kind('empty field');
+            last;
+        }
     }
 
-    while ( !defined $max_occurs || $count < $max_occurs ) {
-        my ( $subtype, @parsed_errors ) = $self->_parse_subrule( key => $key, line => $line, type => $type );
-        if ( defined $subtype ) {
-            push @errors, @parsed_errors;
-            if ( $subtype eq 'empty field' ) {
-                push @errors, $self->__set_empty_kind( 'empty field' );
-                return \@errors;
-            }
-        }
-        else {
-            if ( $count == 0 ) {
-                $self->__set_empty_kind( 'omitted field' );
-            }
-            return \@errors;
-        }
-        $count++;
+    if ($count >= $min_occurs) {
+        return ($count, \@errors);
     }
-
-    return \@errors;
+    else {
+        return;
+    }
 }
 
 sub _parse_subrule {
     my $self = shift;
     my %args = @_;
-    my $key  = $args{'key'};
     my $line = $args{'line'};
+    my $key  = $args{'key'};
     my $type = $args{'type'};
 
-    if ( defined $type && !exists $self->types->{$type} ) {
-        croak "unknown type $type";
+    if ( defined $type && !exists $self->{_types}->{$type} ) {
+        croak "$type: unknown type";
     }
 
     if ( defined $line || defined $type ) {
-        return $self->_parse_line( key => $key, line => $line, type => $type );
+        my @result = $self->_parse_line( line => $line, key => $key, type => $type );
+        return @result;
     }
     else {
         my $result = return $self->parse_rule( $key );
@@ -198,10 +190,10 @@ sub _parse_line {
     my $subtype;
 
     if ( defined $type ) {
-        if ( !exists $self->types->{$type} ) {
+        if ( !exists $self->{_types}->{$type} ) {
             croak "unknown type $type";
         }
-        ( $token, $token_value, $errors ) = $self->lexer->peek_line();
+        ( $token, $token_value, $errors ) = $self->{_lexer}->peek_line();
         if ( !defined $token || $token ne 'field' ) {
             return;
         }
@@ -212,7 +204,7 @@ sub _parse_line {
         $subtype = ( defined $field_value ) && 'field' || 'empty field';
     }
     else {
-        ( $token, $token_value, $errors ) = $self->lexer->peek_line();
+        ( $token, $token_value, $errors ) = $self->{_lexer}->peek_line();
         if ( !defined $token ) {
             return;
         }
@@ -230,30 +222,30 @@ sub _parse_line {
         }
     }
 
-    $self->lexer->next_line();
+    $self->{_lexer}->next_line();
 
     if ( $token eq 'field' ) {
         my ( $key, $translations, $value ) = @$token_value;
 
         for my $translation ( @$translations ) {
-            push @$errors, $self->types->{'key translation'}->( $translation );
+            push @$errors, $self->{_types}->{'key translation'}->( $translation );
         }
 
         if ( $type ) {
-            push @$errors, $self->types->{$type}->( $value );
+            push @$errors, $self->{_types}->{$type}->( $value );
         }
     }
     elsif ( $token eq 'roid line' ) {
         my ( $roid, $hostname ) = @$token_value;
 
-        push @$errors, $self->types->{'roid'}->( $roid );
+        push @$errors, $self->{_types}->{'roid'}->( $roid );
 
-        push @$errors, $self->types->{'hostname'}->( $hostname );
+        push @$errors, $self->{_types}->{'hostname'}->( $hostname );
     }
     elsif ( $token eq 'last update line' ) {
         my $timestamp = $token_value;
 
-        push @$errors, $self->types->{'time stamp'}->( $timestamp );
+        push @$errors, $self->{_types}->{'time stamp'}->( $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' ) {
         croak "unhandled line type: $token";
@@ -265,12 +257,12 @@ sub __set_empty_kind {
     my $self = shift;
     my $kind = shift;
 
-    $self->empty_kind( $self->empty_kind || $kind );
-    if ( $self->empty_kind eq $kind ) {
+    $self->{_empty_kind} ||= $kind;
+    if ( $self->{_empty_kind} eq $kind ) {
         return ();
     }
     else {
-        return ( sprintf( "line %d: mixed empty field markups", $self->lexer->line_no ) );
+        return ( sprintf( "line %d: mixed empty field markups", $self->{_lexer}->line_no ) );
     }
 }
 

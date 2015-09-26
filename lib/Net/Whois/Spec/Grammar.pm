@@ -1,3 +1,19 @@
+package Net::Whois::Spec::Grammar;
+
+use strict;
+use warnings;
+use 5.014;
+
+use YAML::Syck;
+
+require Exporter;
+
+our @ISA = 'Exporter';
+our @EXPORT_OK = qw( $grammar );
+
+our $grammar = LoadFile(*DATA);
+
+__DATA__
 ---
 Domain Name Object query:
   - Domain name reply: { }
@@ -8,7 +24,7 @@ Registrar Object query:
   - Registrar reply: { }
 Registrar reply:
   - Registrar details section: { }
-  - Subsequent registrar details section: { max_occurs: unbounded }
+  - Subsequent registrar details section: { min_occurs: 0, max_occurs: unbounded }
   - Last updated footer: { }
   - Empty line: { max_occurs: 3, line: empty line }
   - AWIP footer: { min_occurs: 0 }

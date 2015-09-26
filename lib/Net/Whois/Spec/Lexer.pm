@@ -4,9 +4,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use Moo;
 use Carp;
-use File::Slurp;
 
 =head1 NAME
 
@@ -30,75 +28,78 @@ A class for consuming L<IO::Handle>s and producing streams of line tokens.
 
 =head1 SUBROUTINES/METHODS
 
-=head2 new(io => $io)
+=head2 new($text)
 
-    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("    line 1\r\n    line 2\r\n"));
+    my $lexer = Net::Whois::Spec::Lexer->new("    line 1\r\n    line 2\r\n");
 
 =cut
 
-has io => ( is => 'ro', );
+sub new {
+    my $class = shift;
+    my $text  = shift;
 
-has line_no => ( is => 'rw', );
+    croak "text: missing argument" unless defined $text;
 
-has contents => ( is => 'rw', );
+    my $self = bless {
+        _line_no   => undef,
+        _lookahead => undef,
+        _text      => $text,
+    }, $class;
 
-has lookahead => ( is => 'rw', );
+    return $self;
+}
 
-sub load {
+sub line_no {
     my $self = shift;
-
-    my $contents = read_file( $self->io, { binmode => ':encoding(UTF-8)' } ) or carp "Could not open file: $!";
-
-    $self->line_no( 0 );
-    $self->contents( $contents );
-    $self->next_line();
+    if ( !defined $self->{_lookahead} ) {
+        $self->next_line();
+    }
+    return $self->{_line_no};
 }
 
 sub peek_line {
     my $self = shift;
 
-    if ( !defined $self->lookahead ) {
-        croak 'must call load() before peek_line()';
+    if ( !defined $self->{_lookahead} ) {
+        $self->next_line();
     }
-    return @{ $self->lookahead };
+    return @{ $self->{_lookahead} };
 }
 
 sub next_line {
     my $self = shift;
 
-    if ( !defined $self->contents ) {
-        croak 'must call load() before next_line()';
-    }
-    my $contents = $self->contents;
+    my $text = $self->{_text};
     my @errors;
-    if ( !defined $self->line_no && $contents =~ /^\N{U+FEFF}/ ) {
-        $contents =~ s/^\N{U+FEFF}//;
+    if ( !defined $self->{_line_no} && $text =~ /^\N{U+FEFF}/ ) {
+        $text =~ s/^\N{U+FEFF}//;
         push @errors, "line 1: found BOM";
     }
 
-    if ( $self->contents eq '' ) {
-        if ( !defined $self->line_no ) {
-            $self->line_no( 1 );
+    if ( $self->{_text} eq '' ) {
+        if ( !defined $self->{_line_no} ) {
+            $self->{_line_no} = 1;
         }
-        $self->lookahead( [ 'EOF', undef, \@errors ] );
+        $self->{_lookahead} = [ 'EOF', undef, \@errors ];
         return;
     }
-    $self->line_no( ( $self->line_no || 0 ) + 1 );
-    $contents =~ s/([^\r\n]*)(\r\n?|\n)//;
+    $self->{_line_no} ||= 0;
+    $self->{_line_no}++;
+    $text =~ s/([^\r\n]*)(\r\n?|\n)//;
     my $line = $1;
     my $eol  = $2;
     if ( !defined $eol ) {
-        $line     = $contents;
-        $eol      = '';
-        $contents = '';
+        $line = $text;
+        $eol  = '';
+        $text = '';
     }
-    $self->contents( $contents );
+    $self->{_text} = $text;
 
     # Strip CRLF
     if ( $eol ne "\r\n" ) {
         $eol =~ s/\r/CR/m;
         $eol =~ s/\n/LF/m;
-        push @errors, sprintf( "line %d: expected CRLF, got '$eol'", $self->line_no );
+        push @errors, sprintf( "line %d: expected CRLF, got '$eol'", $self->{_line_no} );
     }
 
     # Homogenize whitespace
@@ -106,21 +107,21 @@ sub next_line {
     $line =~ s/\s/ /g;
     my $whitespace_count = () = $line =~ / /g;
     if ( $whitespace_count > $space_count ) {
-        push @errors, sprintf( "line %d: whitespace other than SPACE (U+0020)", $self->line_no );
+        push @errors, sprintf( "line %d: whitespace other than SPACE (U+0020)", $self->{_line_no} );
     }
 
     # Strip leading space
     $line =~ s/^( *)//;
     my $lead_space = $1;
     if ( length $lead_space > 9 ) {
-        push @errors, sprintf( "line %d: too much leading space", $self->line_no );
+        push @errors, sprintf( "line %d: too much leading space", $self->{_line_no} );
     }
 
     # Strip trailing space
     $line =~ s/( *)$//;
     my $trail_space = $1;
     if ( length $trail_space > 0 ) {
-        push @errors, sprintf( "line %d: trailing space", $self->line_no );
+        push @errors, sprintf( "line %d: trailing space", $self->{_line_no} );
     }
 
     # Match token type
@@ -174,7 +175,7 @@ sub next_line {
         $token_value = $line;
     }
 
-    $self->lookahead( [ $token, $token_value, \@errors ] );
+    $self->{_lookahead} = [ $token, $token_value, \@errors ];
     return;
 }
 

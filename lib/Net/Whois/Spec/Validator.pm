@@ -1,4 +1,4 @@
-package Net::Whois::Spec::Parser;
+package Net::Whois::Spec::Validator;
 
 use strict;
 use warnings;
@@ -28,28 +28,28 @@ sub new {
     return $self;
 }
 
-sub parse_output {
+sub validate {
     my $self = shift;
     my $rule = shift;
 
-    my $result = $self->parse_rule( $rule );
+    my $result = $self->_rule( $rule );
     if ( !defined $result ) {
         $result = [ sprintf( "line %d: unrecognized input", $self->{_lexer}->line_no ) ];
     }
     return $result;
 }
 
-sub parse_rule {
+sub _rule {
     my $self = shift;
     my $rule = shift;
 
     if ( my $section_rule = $self->{_grammar}->{$rule} ) {
         if ( ref $section_rule eq 'ARRAY' ) {
-            my $result = $self->_parse_sequence_section( $section_rule );
+            my $result = $self->_sequence_section( $section_rule );
             return $result;
         }
         elsif ( ref $section_rule eq 'HASH' ) {
-            my $result = $self->_parse_choice_section( $section_rule );
+            my $result = $self->_choice_section( $section_rule );
             return $result;
         }
         else {
@@ -61,7 +61,7 @@ sub parse_rule {
     }
 }
 
-sub _parse_sequence_section {
+sub _sequence_section {
     my $self         = shift;
     my $section_rule = shift;
 
@@ -70,7 +70,7 @@ sub _parse_sequence_section {
 
     for my $elem ( @$section_rule ) {
         my ( $key, $params ) = %$elem;
-        my ( $count, $result ) = $self->_parse_occurances( %$params, key => $key );
+        my ( $count, $result ) = $self->_occurances( %$params, key => $key );
         if ( !defined $count ) {
             if ( $total == 0 ) {
                 return;
@@ -87,12 +87,12 @@ sub _parse_sequence_section {
     return \@errors;
 }
 
-sub _parse_choice_section {
+sub _choice_section {
     my $self         = shift;
     my $section_rule = shift;
 
     while ( my ( $key, $params ) = each( %$section_rule ) ) {
-        my ( $count, $result ) = $self->_parse_occurances( %$params, key => $key );
+        my ( $count, $result ) = $self->_occurances( %$params, key => $key );
         if ( defined $count ) {
             return $result;
         }
@@ -101,7 +101,7 @@ sub _parse_choice_section {
     return;
 }
 
-sub _parse_occurances {
+sub _occurances {
     my $self = shift;
     my %args = @_;
     my $key  = $args{'key'};
@@ -127,18 +127,18 @@ sub _parse_occurances {
     my $count = 0;
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
-        my ( $parsed, $parsed_errors ) = $self->_parse_subrule( line => $line, key => $key, type => $type );
+        my ( $parsed, $parsed_errors ) = $self->_subrule( line => $line, key => $key, type => $type );
         if ( defined $parsed ) {
             push @errors, @$parsed_errors;
             $count++;
             if ( $count == 1 && $parsed eq 'empty field' ) {
-                push @errors, $self->__set_empty_kind( 'empty field' );
+                push @errors, $self->_set_empty_kind( 'empty field' );
                 last;
             }
         }
         else {
             if ( $count == 0 && defined $type || ( defined $line && $line eq 'field' ) ) {
-                push @errors, $self->__set_empty_kind( 'omitted field' );
+                push @errors, $self->_set_empty_kind( 'omitted field' );
             }
             last;
         }
@@ -152,7 +152,7 @@ sub _parse_occurances {
     }
 }
 
-sub _parse_subrule {
+sub _subrule {
     my $self = shift;
     my %args = @_;
     my $line = $args{'line'};
@@ -164,17 +164,17 @@ sub _parse_subrule {
     }
 
     if ( defined $line || defined $type ) {
-        my ( $subtype, $result ) = $self->_parse_line( line => $line, key => $key, type => $type );
+        my ( $subtype, $result ) = $self->_line( line => $line, key => $key, type => $type );
         return ( $subtype, $result );
     }
     else {
-        my $result = $self->parse_rule( $key );
+        my $result = $self->_rule( $key );
         my $subtype = ( defined $result ) && 'section' || undef;
         return ( $subtype, $result );
     }
 }
 
-sub _parse_line {
+sub _line {
     my $self = shift;
     my %args = @_;
     my $key  = $args{'key'};
@@ -250,7 +250,7 @@ sub _parse_line {
     return $subtype, $errors;
 }
 
-sub __set_empty_kind {
+sub _set_empty_kind {
     my $self = shift;
     my $kind = shift;
 

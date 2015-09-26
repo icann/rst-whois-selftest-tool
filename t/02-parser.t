@@ -8,7 +8,7 @@ use Test::MockObject;
 
 use Data::Dumper;
 
-require_ok('Net::Whois::Spec::Parser');
+require_ok('Net::Whois::Spec::Validator');
 
 my $grammar = {
     'Simple field' => [
@@ -74,8 +74,8 @@ subtest 'Simple line' => sub {
             ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Simple field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Simple field' );
         eq_or_diff $result, [], 'Should accept field line';
     }
 
@@ -84,8 +84,8 @@ subtest 'Simple line' => sub {
             ['non-empty line', []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Simple field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Simple field' );
         is scalar(@$result), 1, 'Should reject non-field line';
     }
 };
@@ -98,8 +98,8 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Optional field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Optional field' );
         eq_or_diff $result, [], 'Should accept omitted field line';
     }
 
@@ -109,8 +109,8 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Optional field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Optional field' );
         eq_or_diff $result, [], 'Should accept empty field line';
     }
 
@@ -119,8 +119,8 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], undef], []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Optional field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Optional field' );
         is scalar(@$result), 1, 'Should reject mixed empty field syntaxes';
     }
 };
@@ -135,8 +135,8 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN3.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Repeatable field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Repeatable field' );
         eq_or_diff $result, [], 'Should accept repeated field lines';
     }
 
@@ -146,8 +146,8 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN2.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Repeatable max 2 field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Repeatable max 2 field' );
         eq_or_diff $result, [], 'Should accept repeated field lines';
     }
 
@@ -158,8 +158,8 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN3.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Repeatable max 2 field' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Repeatable max 2 field' );
         is scalar(@$result), 1, 'Should reject too many repetitions of field lines';
     }
 
@@ -172,8 +172,8 @@ subtest 'Error propagation' => sub {
         ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], ['BOOM!']],
         ['EOF', undef, []],
     );
-    my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-    my $result = $parser->parse_output( 'Simple field' );
+    my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+    my $result = $validator->validate( 'Simple field' );
     eq_or_diff $result, ['BOOM!'], 'Should propagate errors from lexer';
 };
 
@@ -184,8 +184,8 @@ subtest 'Optional repeatable subrule' => sub {
         my $lexer = make_mock_lexer (
             ['EOF', undef, []],
         );
-        my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $parser->parse_output( 'Optional repeatable section' );
+        my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+        my $result = $validator->validate( 'Optional repeatable section' );
         eq_or_diff $result, [], 'Should accept omitted lines';
     }
 

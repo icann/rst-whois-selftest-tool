@@ -5,9 +5,8 @@ use 5.014;
 use Test::More tests => 1;
 use Test::Differences;
 use Net::Whois::Spec::Lexer;
-use Net::Whois::Spec::Parser;
+use Net::Whois::Spec::Validator;
 use Net::Whois::Spec::Grammar qw( $grammar );
-use YAML::Syck;
 
 my $types = {
     'postal line' => sub {},
@@ -25,8 +24,8 @@ my $types = {
 my $text = do { local $/; <DATA> };
 $text =~ s/(?<!\r)\n/\r\n/g;
 my $lexer = Net::Whois::Spec::Lexer->new($text);
-my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
-my $result = $parser->parse_output('Registrar Object query');
+my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+my $result = $validator->validate('Registrar Object query');
 eq_or_diff $result, [], 'Should accept valid registrar reply';
 
 __DATA__

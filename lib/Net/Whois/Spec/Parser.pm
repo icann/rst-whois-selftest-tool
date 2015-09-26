@@ -128,19 +128,18 @@ sub _parse_occurances {
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
         my ( $parsed, $parsed_errors ) = $self->_parse_subrule( line => $line, key => $key, type => $type );
-        confess if ref $parsed eq 'ARRAY';
-        if ( !defined $parsed ) {
+        if ( defined $parsed ) {
+            push @errors, @$parsed_errors;
+            $count++;
+            if ( $count == 1 && $parsed eq 'empty field' ) {
+                push @errors, $self->__set_empty_kind( 'empty field' );
+                last;
+            }
+        }
+        else {
             if ( $count == 0 && defined $type || ( defined $line && $line eq 'field' ) ) {
                 push @errors, $self->__set_empty_kind( 'omitted field' );
             }
-            last;
-        }
-        else {
-            push @errors, @$parsed_errors;
-        }
-        $count++;
-        if ( $count == 1 && $parsed eq 'empty field' ) {
-            push @errors, $self->__set_empty_kind( 'empty field' );
             last;
         }
     }
@@ -206,10 +205,10 @@ sub _parse_line {
         if ( !defined $token ) {
             return;
         }
-        elsif ( $line eq 'any line' ) {
+        elsif ( $line eq 'any line' && $token ne 'EOF' ) {
             $subtype = $line;
         }
-        elsif ( $line eq 'non-empty line' && $token ne 'empty line' ) {
+        elsif ( $line eq 'non-empty line' && $token ne 'empty line' && $token ne 'EOF' ) {
             $subtype = $line;
         }
         elsif ( $token eq $line ) {

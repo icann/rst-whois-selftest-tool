@@ -10,8 +10,10 @@ Registrar reply:
   - Registrar details section: { }
   - Subsequent registrar details section: { max_occurs: unbounded }
   - Last updated footer: { }
+  - Empty line: { max_occurs: 3, line: empty line }
   - AWIP footer: { min_occurs: 0 }
   - Legal disclaimer: { }
+  - EOF: { line: EOF }
 Domain name reply:
   - Domain name details section: { }
   - Subsequent domain name details section: { min_occurs: 0, max_occurs: unbounded }
@@ -19,6 +21,7 @@ Domain name reply:
   - Empty line: { max_occurs: 3, line: empty line }
   - AWIP footer: { }
   - Legal disclaimer: { }
+  - EOF: { line: EOF }
 Name server reply type 1:
   - Name server details section: { }
   - Subsequent name server details section: { min_occurs: 0, max_occurs: unbounded }
@@ -26,12 +29,14 @@ Name server reply type 1:
   - Empty line: { max_occurs: 3, line: empty line }
   - AWIP footer: { min_occurs: 0 }
   - Legal disclaimer: { }
+  - EOF: { line: EOF }
 Name server reply type 2:
   - Multiple name servers section: { }
   - Last updated footer: { }
   - Empty line: { max_occurs: 3, line: empty line }
   - AWIP footer: { min_occurs: 0 }
   - Legal disclaimer: { }
+  - EOF: { line: EOF }
 Subsequent registrar details section:
   - Empty line: { line: empty line }
   - Registrar details section: { }

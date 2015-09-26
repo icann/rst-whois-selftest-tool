@@ -13,19 +13,27 @@ require_ok('Net::Whois::Spec::Parser');
 my $grammar = {
     'Simple field' => [
         { 'Domain Name' => { type => 'hostname', }, },
+        { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional field' => [
         { 'Domain Name' => { type => 'hostname', min_occurs => 0, }, },
         { 'Referral URL' => { type => 'http url', min_occurs => 0, }, },
+        { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable field' => [
         { 'Domain Name' => { type => 'hostname', max_occurs => 'unbounded', }, },
+        { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable max 2 field' => [
         { 'Domain Name' => { type => 'hostname', max_occurs => 2, }, },
+        { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional repeatable section' => [
-        { 'Simple field' => { min_occurs => 0, max_occurs => 'unbounded', }, },
+        { 'A domain name' => { min_occurs => 0, max_occurs => 'unbounded', }, },
+        { 'EOF' => { line => 'EOF', }, },
+    ],
+    'A domain name' => [
+        { 'Domain Name' => { type => 'hostname', }, },
     ],
 };
 
@@ -64,6 +72,7 @@ subtest 'Simple line' => sub {
     {
         my $lexer = make_mock_lexer (
             ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Simple field' );
@@ -73,6 +82,7 @@ subtest 'Simple line' => sub {
     {
         my $lexer = make_mock_lexer (
             ['non-empty line', []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Simple field' );
@@ -86,6 +96,7 @@ subtest 'Optional subrule' => sub {
     {
         my $lexer = make_mock_lexer (
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Optional field' );
@@ -96,6 +107,7 @@ subtest 'Optional subrule' => sub {
         my $lexer = make_mock_lexer (
             ['field', ['Domain Name', [], undef], []],
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Optional field' );
@@ -105,6 +117,7 @@ subtest 'Optional subrule' => sub {
     {
         my $lexer = make_mock_lexer (
             ['field', ['Referral URL', [], undef], []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Optional field' );
@@ -120,6 +133,7 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN1.EXAMPLE'], []],
             ['field', ['Domain Name', [], 'DOMAIN2.EXAMPLE'], []],
             ['field', ['Domain Name', [], 'DOMAIN3.EXAMPLE'], []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Repeatable field' );
@@ -130,6 +144,7 @@ subtest 'Repeatable subrule' => sub {
         my $lexer = make_mock_lexer (
             ['field', ['Domain Name', [], 'DOMAIN1.EXAMPLE'], []],
             ['field', ['Domain Name', [], 'DOMAIN2.EXAMPLE'], []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Repeatable max 2 field' );
@@ -141,10 +156,11 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN1.EXAMPLE'], []],
             ['field', ['Domain Name', [], 'DOMAIN2.EXAMPLE'], []],
             ['field', ['Domain Name', [], 'DOMAIN3.EXAMPLE'], []],
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Repeatable max 2 field' );
-        is scalar(@$result), 1, 'Should reject too much repeated field lines';
+        is scalar(@$result), 1, 'Should reject too many repetitions of field lines';
     }
 
 };
@@ -154,6 +170,7 @@ subtest 'Error propagation' => sub {
 
     my $lexer = make_mock_lexer (
         ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], ['BOOM!']],
+        ['EOF', undef, []],
     );
     my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
     my $result = $parser->parse_output( 'Simple field' );
@@ -165,6 +182,7 @@ subtest 'Optional repeatable subrule' => sub {
 
     {
         my $lexer = make_mock_lexer (
+            ['EOF', undef, []],
         );
         my $parser = Net::Whois::Spec::Parser->new(lexer => $lexer, grammar => $grammar, types => $types);
         my $result = $parser->parse_output( 'Optional repeatable section' );

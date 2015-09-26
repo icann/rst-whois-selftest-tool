@@ -49,7 +49,7 @@ subtest 'Line separators' => sub {
 
     {
         my ($token, $value, $errors) = $lexer->peek_line();
-        is($token, undef, 'EOF is indicated');
+        is($token, 'EOF', 'EOF is indicated');
         eq_or_diff($errors, [], 'Should report no error');
     }
 };

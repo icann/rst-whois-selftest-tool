@@ -80,7 +80,7 @@ sub next_line {
         if ( !defined $self->line_no ) {
             $self->line_no( 1 );
         }
-        $self->lookahead( [ undef, undef, \@errors ] );
+        $self->lookahead( [ 'EOF', undef, \@errors ] );
         return;
     }
     $self->line_no( ( $self->line_no || 0 ) + 1 );

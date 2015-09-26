@@ -8,20 +8,20 @@ use Carp;
 
 sub new {
     my $class = shift;
-    my %args = @_;
+    my %args  = @_;
 
-    croak "lexer: missing argument" unless defined $args{lexer};
-    croak "grammar: missing argument" unless defined $args{grammar};
-    croak "types: missing argument" unless defined $args{types};
+    croak "lexer: missing argument"       unless defined $args{lexer};
+    croak "grammar: missing argument"     unless defined $args{grammar};
+    croak "types: missing argument"       unless defined $args{types};
     croak "key translation: missing type" unless exists $args{types}->{'key translation'};
-    croak "time stamp: missing type" unless exists $args{types}->{'time stamp'};
-    croak "roid: missing type" unless exists $args{types}->{'roid'};
-    croak "hostname: missing type" unless exists $args{types}->{'hostname'};
+    croak "time stamp: missing type"      unless exists $args{types}->{'time stamp'};
+    croak "roid: missing type"            unless exists $args{types}->{'roid'};
+    croak "hostname: missing type"        unless exists $args{types}->{'hostname'};
 
     my $self = bless {
-        _lexer => $args{lexer},
-        _grammar => $args{grammar},
-        _types => $args{types},
+        _lexer      => $args{lexer},
+        _grammar    => $args{grammar},
+        _types      => $args{types},
         _empty_kind => undef,
     }, $class;
 
@@ -34,10 +34,6 @@ sub parse_output {
 
     my $result = $self->parse_rule( $rule );
     if ( defined $result ) {
-        my ( $token, $value, $errors ) = $self->{_lexer}->peek_line();
-        if ( defined $token ) {
-            push @$result, sprintf( "line %d: expected EOF", $self->{_lexer}->line_no );
-        }
         return $result;
     }
     else {
@@ -76,12 +72,13 @@ sub _parse_sequence_section {
 
     for my $elem ( @$section_rule ) {
         my ( $key, $params ) = %$elem;
-        my ($count, $result) = $self->_parse_occurances( %$params, key => $key );
-        if (!defined $count) {
-            if ($total == 0) {
+        my ( $count, $result ) = $self->_parse_occurances( %$params, key => $key );
+        if ( !defined $count ) {
+            if ( $total == 0 ) {
                 return;
             }
             else {
+                push @errors, sprintf( "line %d: expected $key", $self->{_lexer}->line_no );
                 last;
             }
         }
@@ -97,7 +94,7 @@ sub _parse_choice_section {
     my $section_rule = shift;
 
     while ( my ( $key, $params ) = each( %$section_rule ) ) {
-        my ($count, $result) = $self->_parse_occurances( %$params, key => $key );
+        my ( $count, $result ) = $self->_parse_occurances( %$params, key => $key );
         if ( defined $count ) {
             return $result;
         }
@@ -131,24 +128,24 @@ sub _parse_occurances {
 
     my $count = 0;
     my @errors;
-    while (!defined $max_occurs || $count < $max_occurs) {
-        my ($parsed, @parsed_errors) = $self->_parse_subrule(line => $line, key => $key, type => $type);
-        if (!defined $parsed) {
-            if ($count == 0 && defined $type || (defined $line && $line eq 'field')) {
-                push @errors, $self->__set_empty_kind('omitted field');
+    while ( !defined $max_occurs || $count < $max_occurs ) {
+        my ( $parsed, @parsed_errors ) = $self->_parse_subrule( line => $line, key => $key, type => $type );
+        if ( !defined $parsed ) {
+            if ( $count == 0 && defined $type || ( defined $line && $line eq 'field' ) ) {
+                push @errors, $self->__set_empty_kind( 'omitted field' );
             }
             last;
         }
         push @errors, @parsed_errors;
         $count++;
-        if ($count == 1 && $parsed eq 'empty field') {
-            push @errors, $self->__set_empty_kind('empty field');
+        if ( $count == 1 && $parsed eq 'empty field' ) {
+            push @errors, $self->__set_empty_kind( 'empty field' );
             last;
         }
     }
 
-    if ($count >= $min_occurs) {
-        return ($count, \@errors);
+    if ( $count >= $min_occurs ) {
+        return ( $count, \@errors );
     }
     else {
         return;
@@ -247,7 +244,7 @@ sub _parse_line {
 
         push @$errors, $self->{_types}->{'time stamp'}->( $timestamp );
     }
-    elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' ) {
+    elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
     }
     return $subtype, @$errors;

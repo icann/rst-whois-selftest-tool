@@ -137,11 +137,6 @@ sub next_line {
     }
     elsif ( $line =~ /^>>> Last update of Whois database: (.*) <<<$/ ) {
         my $timestamp = $1;
-
-        # Note: validation is out of place here; move elsewhere if added complexity can be avoided
-        if ( $timestamp !~ /^\d\d\d\d-\d\d-\d\d[Tt]\d\d:\d\d:\d\dZ$/ ) {
-            push @errors, sprintf( 'line %d: invalid timestamp format' );
-        }
         $token       = 'last update line';
         $token_value = $timestamp;
     }

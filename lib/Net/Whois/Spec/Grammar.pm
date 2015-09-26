@@ -8,10 +8,10 @@ use YAML::Syck;
 
 require Exporter;
 
-our @ISA = 'Exporter';
+our @ISA       = 'Exporter';
 our @EXPORT_OK = qw( $grammar );
 
-our $grammar = LoadFile(*DATA);
+our $grammar = LoadFile( *DATA );
 
 __DATA__
 ---

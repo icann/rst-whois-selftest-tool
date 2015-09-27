@@ -2,7 +2,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 use Test::Differences;
 
 require_ok('Net::Whois::Spec::Lexer');
@@ -124,13 +124,42 @@ subtest 'Token types' => sub {
     }
 };
 
+subtest 'Leading space' => sub {
+    plan tests => 2;
+
+    my $lexer = Net::Whois::Spec::Lexer->new("         Key: Good leading space\r\n          Key: Bad leading space\r\n");
+
+    subtest 'Max allowed leading space' => sub {
+        plan tests => 3;
+
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should recognize field');
+        eq_or_diff($value, ['Key', [], 'Good leading space'], 'Should strip leading space from value');
+        eq_or_diff($errors, [], 'Should report no error');
+        $lexer->next_line();
+    };
+
+    subtest 'Too much leading space' => sub {
+        plan tests => 4;
+
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should recognize field');
+        eq_or_diff($value, ['Key', [], 'Bad leading space'], 'Should strip leading space from value');
+        is(scalar @$errors, 1, 'Should detect an error');
+        like($errors->[0], qr/leading space/i, 'Should complain about leading space');
+        $lexer->next_line();
+    };
+
+};
+
 subtest 'Trailing space' => sub {
-    plan tests => 3;
+    plan tests => 4;
 
     my $lexer = Net::Whois::Spec::Lexer->new("Key: Value with trailing space \r\n");
 
     my ($token, $value, $errors) = $lexer->peek_line();
-    eq_or_diff([$token, $value], ['field', ['Key', [], 'Value with trailing space']], 'Should recognize field with stripped value');
+    is($token, 'field', 'Should recognize field with stripped value');
+    eq_or_diff($value, ['Key', [], 'Value with trailing space'], 'Should recognize field with stripped value');
     is(scalar @$errors, 1, 'Should detect an error');
     like($errors->[0], qr/trailing space/i, 'Should complain about trailing space');
     $lexer->next_line();

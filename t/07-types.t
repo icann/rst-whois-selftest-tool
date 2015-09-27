@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 24;
+use Test::More tests => 23;
 use Test::Differences;
 
 require_ok('Net::Whois::Spec::Types');
@@ -22,12 +22,6 @@ subtest 'Adding rules' => sub {
 };
 
 subtest 'translation clause' => sub {
-};
-
-subtest 'key translation' => sub {
-};
-
-subtest 'field key' => sub {
 };
 
 subtest 'roid' => sub {
@@ -54,9 +48,6 @@ subtest 'token' => sub {
 subtest 'domain status' => sub {
 };
 
-subtest 'domain status code' => sub {
-};
-
 subtest 'postal line' => sub {
 };
 
@@ -69,9 +60,6 @@ subtest 'phone number' => sub {
 subtest 'email address' => sub {
 };
 
-subtest 'dnssec' => sub {
-};
-
 subtest 'ip address' => sub {
 };
 
@@ -79,6 +67,45 @@ subtest 'ipv4 address' => sub {
 };
 
 subtest 'ipv6 address' => sub {
+};
+
+subtest 'key translation' => sub {
+    plan tests => 5;
+
+    subtest 'Should accept valid value' => sub {
+        plan tests => 1;
+        my @errors = $types->validate_type('key translation', 'Domännamn');
+        is scalar @errors, 0, 'Should report no errors';
+    };
+
+    subtest 'Should reject leading space' => sub {
+        plan tests => 2;
+        my @errors = $types->validate_type('key translation', ' Domännamn');
+        is scalar @errors, 1, 'Should report one error';
+        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+    };
+
+    subtest 'Should reject trailing space' => sub {
+        plan tests => 2;
+        my @errors = $types->validate_type('key translation', 'Domännamn ');
+        is scalar @errors, 1, 'Should report one error';
+        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+    };
+
+    subtest 'Should reject opening parenthesis' => sub {
+        plan tests => 2;
+        my @errors = $types->validate_type('key translation', '(Domännamn');
+        is scalar @errors, 1, 'Should report one error';
+        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+    };
+
+    subtest 'Should reject closing parenthesis' => sub {
+        plan tests => 2;
+        my @errors = $types->validate_type('key translation', 'Domännamn)');
+        is scalar @errors, 1, 'Should report one error';
+        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+    };
+
 };
 
 subtest 'positive integer' => sub {
@@ -132,5 +159,50 @@ subtest 'country code' => sub {
         is scalar @errors, 1, 'Should report one error';
         like $errors[0], qr/country code/, 'Should complain about type mismatch';
     };
+};
+
+subtest 'dnssec' => sub {
+    plan tests => 3;
+
+    subtest 'Accept signedDelegation' => sub {
+        plan tests => 1;
+        my @errors = $types->validate_type('dnssec', 'signedDelegation');
+        is scalar @errors, 0, 'Should report no errors';
+    };
+
+    subtest 'Accept unsigned' => sub {
+        plan tests => 1;
+        my @errors = $types->validate_type('dnssec', 'unsigned');
+        is scalar @errors, 0, 'Should report no errors';
+    };
+
+    subtest 'Reject signed delegation' => sub {
+        plan tests => 2;
+        my @errors = $types->validate_type('dnssec', 'signed delegation');
+        is scalar @errors, 1, 'Should report one error';
+        like $errors[0], qr/dnssec/, 'Should complain about type mismatch';
+    };
+};
+
+subtest 'domain status code' => sub {
+    my @ok_codes = qw(
+            addPeriod autoRenewPeriod clientDeleteProhibited clientHold
+            clientRenewProhibited clientTransferProhibited
+            clientUpdateProhibited inactive ok pendingCreate pendingDelete
+            pendingRenew pendingRestore pendingTransfer pendingUpdate
+            redemptionPeriod renewPeriod serverDeleteProhibited serverHold
+            serverRenewProhibited serverTransferProhibited
+            serverUpdateProhibited transferPeriod
+    );
+    plan tests => (scalar(@ok_codes) + 2);
+
+    for my $code (@ok_codes) {
+        my @errors = $types->validate_type('domain status code', $code);
+        is scalar @errors, 0, 'Should report no errors';
+    }
+
+    my @errors = $types->validate_type('domain status code', 'OK');
+    is scalar @errors, 1, 'Should report one error';
+    like $errors[0], qr/domain status code/, 'Should complain about positive integers';
 };
 

@@ -6,26 +6,11 @@ use Test::More tests => 1;
 use Test::Differences;
 use Net::Whois::Spec::Lexer;
 use Net::Whois::Spec::Validator;
-use Net::Whois::Spec::Grammar qw($grammar);
+use Net::Whois::Spec::Grammar qw( $grammar );
+use Net::Whois::Spec::Types;
 
-my $types = {
-    'hostname' => sub {},
-    'u-label' => sub {},
-    'roid' => sub {},
-    'http url' => sub {},
-    'time stamp' => sub {},
-    'token' => sub {},
-    'positive integer' => sub {},
-    'domain status' => sub {},
-    'postal line' => sub {},
-    'postal code' => sub {},
-    'country code' => sub {},
-    'phone number' => sub {},
-    'email address' => sub {},
-    'dnssec' => sub {},
-    'ip address' => sub {},
-    'key translation' => sub {},
-};
+my $types = Net::Whois::Spec::Types->new;
+
 my $text = do { local $/; <DATA> };
 $text =~ s/(?<!\r)\n/\r\n/g;
 my $lexer = Net::Whois::Spec::Lexer->new($text);

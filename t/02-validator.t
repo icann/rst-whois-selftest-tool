@@ -37,13 +37,27 @@ my $grammar = {
     ],
 };
 
-my $types = {
+my %type_subs = (
     'hostname' => sub {},
     'http url' => sub {},
     'roid' => sub {},
     'time stamp' => sub {},
     'key translation' => sub {},
-};
+);
+
+my $types = Test::MockObject->new();
+$types->mock('has_type', sub {
+    my $self = shift;
+    my $type_name = shift;
+    return exists $type_subs{$type_name};
+});
+$types->mock('validate_type', sub {
+    my $self = shift;
+    my $type_name = shift;
+    my $value = shift;
+    return $type_subs{$type_name}($value);
+});
+
 
 sub make_mock_lexer {
     my @tokens = @_;

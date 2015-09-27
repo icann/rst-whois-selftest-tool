@@ -7,16 +7,9 @@ use Test::Differences;
 use Net::Whois::Spec::Lexer;
 use Net::Whois::Spec::Validator;
 use Net::Whois::Spec::Grammar qw( $grammar );
+use Net::Whois::Spec::Types;
 
-my $types = {
-    'hostname' => sub {},
-    'ip address' => sub {},
-    'postal line' => sub {},
-    'http url' => sub {},
-    'key translation' => sub {},
-    'time stamp' => sub {},
-    'roid' => sub {},
-};
+my $types = Net::Whois::Spec::Types->new;
 my $text = do { local $/; <DATA> };
 $text =~ s/(?<!\r)\n/\r\n/g;
 my $lexer = Net::Whois::Spec::Lexer->new($text);

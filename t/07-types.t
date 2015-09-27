@@ -2,10 +2,24 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 23;
+use Test::More tests => 24;
+use Test::Differences;
 
 require_ok('Net::Whois::Spec::Types');
-use Net::Whois::Spec::Types qw( $types );
+
+my $types = Net::Whois::Spec::Types->new;
+
+subtest 'Adding rules' => sub {
+    plan tests => 3;
+    ok !$types->has_type('my-type'), "Should not have my-type by default";
+    $types->add_type('my-type', sub {
+        my $value = shift;
+        return ("yeah, $value");
+    });
+    ok $types->has_type('my-type'), "Should have my-type after adding it";
+    my @errors = $types->validate_type('my-type', 'dude');
+    eq_or_diff(\@errors, ['yeah, dude'], "Should propagate errors from my-type sub");
+};
 
 subtest 'translation clause' => sub {
 };
@@ -68,61 +82,53 @@ subtest 'ipv6 address' => sub {
 };
 
 subtest 'positive integer' => sub {
-    plan tests => 5;
-
-    my $type = $types->{'positive integer'};
-
-    ok $type, 'Types should contain positive integer type';
+    plan tests => 4;
 
     subtest 'Reject 0' => sub {
         plan tests => 2;
-        my @errors = $type->('0');
+        my @errors = $types->validate_type('positive integer', '0');
         is scalar @errors, 1, 'Should report one error';
         like $errors[0], qr/positive integer/, 'Should complain about positive integers';
     };
 
     subtest 'Accept 1' => sub {
         plan tests => 1;
-        my @errors = $type->('1');
+        my @errors = $types->validate_type('positive integer', '1');
         is scalar @errors, 0, 'Should report no errors';
     };
 
     subtest 'Accept 1234567890' => sub {
         plan tests => 1;
-        my @errors = $type->('1234567890');
+        my @errors = $types->validate_type('positive integer', '1234567890');
         is scalar @errors, 0, 'Should report no errors';
     };
 
     subtest 'Reject 01' => sub {
         plan tests => 2;
-        my @errors = $type->('01');
+        my @errors = $types->validate_type('positive integer', '01');
         is scalar @errors, 1, 'Should report one error';
         like $errors[0], qr/positive integer/, 'Should complain about type mismatch';
     };
 };
 
 subtest 'country code' => sub {
-    plan tests => 4;
+    plan tests => 3;
 
-    my $type = $types->{'country code'};
-
-    ok $type, 'Types should contain country code type';
-
-    subtest 'Accept se' => sub {
+    subtest 'Accept SE' => sub {
         plan tests => 1;
-        my @errors = $type->('se');
+        my @errors = $types->validate_type('country code', 'SE');
         is scalar @errors, 0, 'Should report no errors';
     };
 
     subtest 'Accept xx' => sub {
         plan tests => 1;
-        my @errors = $type->('xx');
+        my @errors = $types->validate_type('country code', 'XX');
         is scalar @errors, 0, 'Should report no errors';
     };
 
     subtest 'Reject swe' => sub {
         plan tests => 2;
-        my @errors = $type->('swe');
+        my @errors = $types->validate_type('country code', 'SWE');
         is scalar @errors, 1, 'Should report one error';
         like $errors[0], qr/country code/, 'Should complain about type mismatch';
     };

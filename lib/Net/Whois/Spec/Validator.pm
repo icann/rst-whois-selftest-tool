@@ -13,10 +13,10 @@ sub new {
     croak "lexer: missing argument"       unless defined $args{lexer};
     croak "grammar: missing argument"     unless defined $args{grammar};
     croak "types: missing argument"       unless defined $args{types};
-    croak "key translation: missing type" unless exists $args{types}->{'key translation'};
-    croak "time stamp: missing type"      unless exists $args{types}->{'time stamp'};
-    croak "roid: missing type"            unless exists $args{types}->{'roid'};
-    croak "hostname: missing type"        unless exists $args{types}->{'hostname'};
+    croak "key translation: missing type" unless $args{types}->has_type( 'key translation' );
+    croak "time stamp: missing type"      unless $args{types}->has_type( 'time stamp' );
+    croak "roid: missing type"            unless $args{types}->has_type( 'roid' );
+    croak "hostname: missing type"        unless $args{types}->has_type( 'hostname' );
 
     my $self = bless {
         _lexer      => $args{lexer},
@@ -109,7 +109,7 @@ sub _occurances {
     my $type = $args{'type'};
 
     my $min_occurs;
-    if ( ($args{'optional'} || 'n' ) eq 'y' ) {
+    if ( ( $args{'optional'} || 'n' ) eq 'y' ) {
         $min_occurs = 0;
     }
     else {
@@ -159,10 +159,6 @@ sub _subrule {
     my $key  = $args{'key'};
     my $type = $args{'type'};
 
-    if ( defined $type && !exists $self->{_types}->{$type} ) {
-        croak "$type: unknown type";
-    }
-
     if ( defined $line || defined $type ) {
         my ( $subtype, $result ) = $self->_line( line => $line, key => $key, type => $type );
         return ( $subtype, $result );
@@ -187,7 +183,7 @@ sub _line {
     my $subtype;
 
     if ( defined $type ) {
-        if ( !exists $self->{_types}->{$type} ) {
+        if ( !$self->{_types}->has_type( $type ) ) {
             croak "unknown type $type";
         }
         ( $token, $token_value, $errors ) = $self->{_lexer}->peek_line();
@@ -225,24 +221,24 @@ sub _line {
         my ( $key, $translations, $value ) = @$token_value;
 
         for my $translation ( @$translations ) {
-            push @$errors, $self->{_types}->{'key translation'}->( $translation );
+            push @$errors, $self->{_types}->validate_type( 'key translation', $translation );
         }
 
         if ( $type ) {
-            push @$errors, $self->{_types}->{$type}->( $value );
+            push @$errors, $self->{_types}->validate_type( $type, $value );
         }
     }
     elsif ( $token eq 'roid line' ) {
         my ( $roid, $hostname ) = @$token_value;
 
-        push @$errors, $self->{_types}->{'roid'}->( $roid );
+        push @$errors, $self->{_types}->validate_type( 'roid', $roid );
 
-        push @$errors, $self->{_types}->{'hostname'}->( $hostname );
+        push @$errors, $self->{_types}->validate_type( 'hostname', $hostname );
     }
     elsif ( $token eq 'last update line' ) {
         my $timestamp = $token_value;
 
-        push @$errors, $self->{_types}->{'time stamp'}->( $timestamp );
+        push @$errors, $self->{_types}->validate_type( 'time stamp', $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";

@@ -2,7 +2,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 use Test::Differences;
 
 require_ok('Net::Whois::Spec::Lexer');
@@ -122,6 +122,46 @@ subtest 'Token types' => sub {
         eq_or_diff($errors, [], 'Should report no error');
         $lexer->next_line();
     }
+};
+
+subtest 'Whitespace' => sub {
+    plan tests => 3;
+
+    my $lexer = Net::Whois::Spec::Lexer->new("	Key: Value\r\nKey:	Value\r\nKey: Tab	value\r\n");
+
+    subtest 'Tab in leading space' => sub {
+        plan tests => 4;
+
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should recognize field');
+        eq_or_diff($value, ['Key', [], 'Value'], 'Should strip leading space');
+        is(scalar @$errors, 1, 'Should detect an error');
+        like($errors->[0], qr/whitespace/i, 'Should complain about whitespace');
+        $lexer->next_line();
+    };
+
+    subtest 'Tab in field separator' => sub {
+        plan tests => 4;
+
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should recognize field');
+        eq_or_diff($value, ['Key', [], 'Value'], 'Should report token value normally');
+        is(scalar @$errors, 1, 'Should detect an error');
+        like($errors->[0], qr/whitespace/i, 'Should complain about whitespace');
+        $lexer->next_line();
+    };
+
+    subtest 'Tab in field value' => sub {
+        plan tests => 4;
+
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should recognize field');
+        eq_or_diff($value, ['Key', [], 'Tab value'], 'Should homogenize whitespace to SPACE');
+        is(scalar @$errors, 1, 'Should detect an error');
+        like($errors->[0], qr/whitespace/i, 'Should complain about whitespace');
+        $lexer->next_line();
+    };
+
 };
 
 subtest 'Leading space' => sub {

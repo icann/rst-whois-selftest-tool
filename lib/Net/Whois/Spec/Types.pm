@@ -32,7 +32,9 @@ my %domain_status_codes = (
     transferPeriod           => 1,
 );
 
-my %default_types = (
+my %default_types;
+
+%default_types = (
     'positive integer' => sub {
         my $value = shift;
         if ( $value !~ /^[1-9][0-9]*$/ ) {
@@ -76,6 +78,19 @@ my %default_types = (
         }
         else {
             return ();
+        }
+    },
+    'translation clause' => sub {
+        my $value = shift;
+        if ( $value =~ /^ \((.*)\)$/ ) {
+            my @errors;
+            for my $key_translation ( split qr{/}, $1 ) {
+                push @errors, $default_types{'key translation'}->( $key_translation );
+            }
+            return @errors;
+        }
+        else {
+            return ( 'expected translation clause' );
         }
     },
     'hostname'      => sub { },

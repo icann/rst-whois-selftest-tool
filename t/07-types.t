@@ -21,9 +21,6 @@ subtest 'Adding rules' => sub {
     eq_or_diff(\@errors, ['yeah, dude'], "Should propagate errors from my-type sub");
 };
 
-subtest 'translation clause' => sub {
-};
-
 subtest 'roid' => sub {
 };
 
@@ -69,6 +66,40 @@ subtest 'ipv4 address' => sub {
 subtest 'ipv6 address' => sub {
 };
 
+subtest 'translation clause' => sub {
+    plan tests => 4;
+
+    subtest 'Accept single translation' => sub {
+        plan tests => 1;
+
+        my @errors = $types->validate_type('translation clause', ' (Domännamn)');
+        is scalar @errors, 0, 'Should report no errors';
+    };
+
+    subtest 'Accept multiple translations' => sub {
+        plan tests => 1;
+
+        my @errors = $types->validate_type('translation clause', ' (Domännamn/Verkkotunnus/Nome de domínio)');
+        is scalar @errors, 0, 'Should report no errors';
+    };
+
+    subtest 'Reject opening parenthesis in key translation' => sub {
+        plan tests => 2;
+
+        my @errors = $types->validate_type('translation clause', ' (Domän(namn)');
+        is scalar @errors, 1, 'Should report no errors';
+        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
+    };
+
+    subtest 'Reject extra leading space' => sub {
+        plan tests => 2;
+
+        my @errors = $types->validate_type('translation clause', '  (Domän(namn)');
+        is scalar @errors, 1, 'Should report no errors';
+        like $errors[0], qr/translation clause/, 'Should complain about type mismatch';
+    };
+};
+
 subtest 'key translation' => sub {
     plan tests => 5;
 
@@ -82,28 +113,28 @@ subtest 'key translation' => sub {
         plan tests => 2;
         my @errors = $types->validate_type('key translation', ' Domännamn');
         is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
     };
 
     subtest 'Should reject trailing space' => sub {
         plan tests => 2;
         my @errors = $types->validate_type('key translation', 'Domännamn ');
         is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
     };
 
     subtest 'Should reject opening parenthesis' => sub {
         plan tests => 2;
         my @errors = $types->validate_type('key translation', '(Domännamn');
         is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
     };
 
     subtest 'Should reject closing parenthesis' => sub {
         plan tests => 2;
         my @errors = $types->validate_type('key translation', 'Domännamn)');
         is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about positive integers';
+        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
     };
 
 };
@@ -115,7 +146,7 @@ subtest 'positive integer' => sub {
         plan tests => 2;
         my @errors = $types->validate_type('positive integer', '0');
         is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/positive integer/, 'Should complain about positive integers';
+        like $errors[0], qr/positive integer/, 'Should complain about type mismatch';
     };
 
     subtest 'Accept 1' => sub {

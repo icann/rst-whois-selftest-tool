@@ -1,36 +1,44 @@
 package Net::Whois::Spec::Lexer;
-
-use 5.014;
 use strict;
 use warnings;
+use 5.014;
 
 use Carp;
 
 =head1 NAME
 
-Net::Whois::Spec::Lexer - Consumes a IO::Handle and produces a stream of line tokens.
+Net::Whois::Spec::Lexer - Consumes a string and produces a token/value/errors
+triplet for each line.
 
 =cut
 
 =head1 SYNOPSIS
 
-A class for consuming L<IO::Handle>s and producing streams of line tokens.
+This class breaks its input down into discrete tokens - one for each line.
+Unlike what the class name suggests, token values are scrubbed and if anything
+mildly illegal is encountered in this process, validation messages are also
+returned.
+
+The class provides instance methods to peek at the current line token, get the
+current line number and to advance onto the next line.
 
     use Net::Whois::Spec::Lexer;
 
-    my $lexer = Net::Whois::Spec::Lexer->new(io => IO::String->new("    line 1\r\n    line 2\r\n"));
-    while (my ($token, $value, $errors) = $lexer->peek_line() && defined $line) {
+    my $lexer = Net::Whois::Spec::Lexer->new("    line 1\r\n This:is:illegal \r\n");
+    do {
+        my ($token, $value, $errors) = $lexer->peek_line();
         printf("%d: [%s] [%s]", $lexer->line_no(), $token, join(", ", @$errors));
 
         $lexer->next_line();
-        ($token, $value, $errors) = $lexer->peek_line();
-    }
+    } while ($token ne 'EOF');
 
-=head1 SUBROUTINES/METHODS
+=head1 CONSTRUCTORS
 
-=head2 new($text)
+=head2 new
 
     my $lexer = Net::Whois::Spec::Lexer->new("    line 1\r\n    line 2\r\n");
+
+Constructs a new Lexer instance.
 
 =cut
 
@@ -49,6 +57,16 @@ sub new {
     return $self;
 }
 
+=head1 INSTANCE METHODS
+
+=head2 line_no
+
+    my $line_no = $lexer->line_no();
+
+Get the current line number.
+
+=cut
+
 sub line_no {
     my $self = shift;
     if ( !defined $self->{_lookahead} ) {
@@ -56,6 +74,54 @@ sub line_no {
     }
     return $self->{_line_no};
 }
+
+=head2 peek_line
+
+    my ($token, $token_value, $errors) = $lexer->peek_line();
+
+Get the token present at the current line, together with its value and any
+validation errors.
+
+=head3 TOKENS
+
+=head4 awip line
+
+Value: undef
+
+=head4 empty line
+
+Value: undef
+
+=head4 field
+
+Value: An arrayref triplet of:
+ * a field key string
+ * an arrayref of key translation strings
+ * a value string or else undef if it is an empty field
+
+=head4 last update line
+
+Value: A time stamp string
+
+=head4 multiple name servers line
+
+Value: undef
+
+=head4 non-empty line
+
+Value: A scrubbed line contents string.
+
+=head4 roid line
+
+Value: An arrayref pair of:
+ * a roid string
+ * a hostname string
+
+=head4 EOF
+
+Value: undef
+
+=cut
 
 sub peek_line {
     my $self = shift;
@@ -65,6 +131,14 @@ sub peek_line {
     }
     return @{ $self->{_lookahead} };
 }
+
+=head2 next_line
+
+    $lexer->next_line();
+
+Advance onto the next line.
+
+=cut
 
 sub next_line {
     my $self = shift;

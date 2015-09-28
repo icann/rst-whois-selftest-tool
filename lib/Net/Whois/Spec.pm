@@ -1,12 +1,11 @@
 package Net::Whois::Spec;
-
-use 5.014;
 use strict;
 use warnings;
+use 5.014;
 
 =head1 NAME
 
-Net::Whois::Spec - The great new Net::Whois::Spec!
+Net::Whois::Spec - Whois output validation according to the ICANN specification.
 
 =head1 VERSION
 
@@ -18,7 +17,13 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-Quick summary of what the module does.
+This module provides a library for parsing Whois output according to the ICANN specification.
+
+The library is split up into the following modules:
+ * Net::Whois::Spec::Lexer     - Takes a string and produces a token/value/errors triplet for each line.
+ * Net::Whois::Spec::Grammar   - Exports a datastructure representing the ICANN specification.
+ * Net::Whois::Spec::Types     - Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
+ * Net::Whois::Spec::Validator - Validates the output of a lexer according to a grammar and types.
 
 Perhaps a little code snippet.
 

@@ -1,4 +1,4 @@
-package Net::Whois::Spec::Types;
+package PDT::TS::Whois::Types;
 
 use strict;
 use warnings;

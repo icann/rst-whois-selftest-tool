@@ -5,12 +5,12 @@ use warnings;
 use Test::More tests => 6;
 use Test::Differences;
 
-require_ok('Net::Whois::Spec::Lexer');
+require_ok('PDT::TS::Whois::Lexer');
 
 subtest 'Line separators' => sub {
     plan tests => 15;
 
-    my $lexer = Net::Whois::Spec::Lexer->new("line 1\r\nline 2\nline 3\rline 4");
+    my $lexer = PDT::TS::Whois::Lexer->new("line 1\r\nline 2\nline 3\rline 4");
     is($lexer->line_no(), 1, 'File should start out at line 1');
 
     {
@@ -65,7 +65,7 @@ subtest 'Token types' => sub {
         '>>> Last update of Whois database: 2014-11-14T12:58:01Z <<<',
         'For more information on Whois status codes, please visit https://icann.org/epp',
     );
-    my $lexer = Net::Whois::Spec::Lexer->new(join("\r\n", @lines, ''));
+    my $lexer = PDT::TS::Whois::Lexer->new(join("\r\n", @lines, ''));
 
     {
         my ($token, $value, $errors) = $lexer->peek_line();
@@ -127,7 +127,7 @@ subtest 'Token types' => sub {
 subtest 'Whitespace' => sub {
     plan tests => 3;
 
-    my $lexer = Net::Whois::Spec::Lexer->new("	Key: Value\r\nKey:	Value\r\nKey: Tab	value\r\n");
+    my $lexer = PDT::TS::Whois::Lexer->new("	Key: Value\r\nKey:	Value\r\nKey: Tab	value\r\n");
 
     subtest 'Tab in leading space' => sub {
         plan tests => 4;
@@ -167,7 +167,7 @@ subtest 'Whitespace' => sub {
 subtest 'Leading space' => sub {
     plan tests => 2;
 
-    my $lexer = Net::Whois::Spec::Lexer->new("         Key: Good leading space\r\n          Key: Bad leading space\r\n");
+    my $lexer = PDT::TS::Whois::Lexer->new("         Key: Good leading space\r\n          Key: Bad leading space\r\n");
 
     subtest 'Max allowed leading space' => sub {
         plan tests => 3;
@@ -195,7 +195,7 @@ subtest 'Leading space' => sub {
 subtest 'Trailing space' => sub {
     plan tests => 4;
 
-    my $lexer = Net::Whois::Spec::Lexer->new("Key: Value with trailing space \r\n");
+    my $lexer = PDT::TS::Whois::Lexer->new("Key: Value with trailing space \r\n");
 
     my ($token, $value, $errors) = $lexer->peek_line();
     is($token, 'field', 'Should recognize field with stripped value');

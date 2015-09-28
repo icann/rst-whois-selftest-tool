@@ -49,7 +49,7 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/Net/Whois/Spec.pm');
+  module_boilerplate_ok('lib/PDT/TS/Whois.pm');
 
 
 }

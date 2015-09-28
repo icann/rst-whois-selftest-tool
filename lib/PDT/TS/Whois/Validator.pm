@@ -1,4 +1,4 @@
-package Net::Whois::Spec::Validator;
+package PDT::TS::Whois::Validator;
 
 use strict;
 use warnings;

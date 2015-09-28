@@ -5,9 +5,9 @@ use 5.014;
 use Test::More tests => 23;
 use Test::Differences;
 
-require_ok('Net::Whois::Spec::Types');
+require_ok('PDT::TS::Whois::Types');
 
-my $types = Net::Whois::Spec::Types->new;
+my $types = PDT::TS::Whois::Types->new;
 
 subtest 'Adding rules' => sub {
     plan tests => 3;

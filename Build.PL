@@ -4,17 +4,17 @@ use warnings;
 use Module::Build;
 
 my $builder = Module::Build->new(
-    module_name         => 'Net::Whois::Spec',
+    module_name         => 'PDT::TS::Whois',
     license             => 'bsd',
     dist_author         => q{Mattias Päivärinta <mattias.paivarinta@iis.se>},
-    dist_version_from   => 'lib/Net/Whois/Spec.pm',
+    dist_version_from   => 'lib/PDT/TS/Whois.pm',
     build_requires => {
         'Test::More' => 0,
     },
     requires => {
         'perl' => 5.006,
     },
-    add_to_cleanup      => [ 'Net-Whois-Spec-*' ],
+    add_to_cleanup      => [ 'PDT-TS-Whois-*' ],
     create_makefile_pl => 'traditional',
 );
 

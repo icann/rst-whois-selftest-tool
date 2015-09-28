@@ -1,4 +1,4 @@
-package Net::Whois::Spec::Grammar;
+package PDT::TS::Whois::Grammar;
 
 use strict;
 use warnings;

@@ -4,17 +4,17 @@ use 5.014;
 
 use Test::More tests => 1;
 use Test::Differences;
-use Net::Whois::Spec::Lexer;
-use Net::Whois::Spec::Validator;
-use Net::Whois::Spec::Grammar qw( $grammar );
-use Net::Whois::Spec::Types;
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Validator;
+use PDT::TS::Whois::Grammar qw( $grammar );
+use PDT::TS::Whois::Types;
 
-my $types = Net::Whois::Spec::Types->new;
+my $types = PDT::TS::Whois::Types->new;
 
 my $text = do { local $/; <DATA> };
 $text =~ s/(?<!\r)\n/\r\n/g;
-my $lexer = Net::Whois::Spec::Lexer->new($text);
-my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
+my $lexer = PDT::TS::Whois::Lexer->new($text);
+my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
 my $result = $validator->validate('Domain Name Object query');
 eq_or_diff $result, [], 'Should accept valid domain name reply';
 

@@ -1,4 +1,4 @@
-package Net::Whois::Spec::Lexer;
+package PDT::TS::Whois::Lexer;
 use strict;
 use warnings;
 use 5.014;
@@ -7,7 +7,7 @@ use Carp;
 
 =head1 NAME
 
-Net::Whois::Spec::Lexer - Consumes a string and produces a token/value/errors
+PDT::TS::Whois::Lexer - Consumes a string and produces a token/value/errors
 triplet for each line.
 
 =cut
@@ -22,9 +22,9 @@ returned.
 The class provides instance methods to peek at the current line token, get the
 current line number and to advance onto the next line.
 
-    use Net::Whois::Spec::Lexer;
+    use PDT::TS::Whois::Lexer;
 
-    my $lexer = Net::Whois::Spec::Lexer->new("    line 1\r\n This:is:illegal \r\n");
+    my $lexer = PDT::TS::Whois::Lexer->new("    line 1\r\n This:is:illegal \r\n");
     do {
         my ($token, $value, $errors) = $lexer->peek_line();
         printf("%d: [%s] [%s]", $lexer->line_no(), $token, join(", ", @$errors));
@@ -36,7 +36,7 @@ current line number and to advance onto the next line.
 
 =head2 new
 
-    my $lexer = Net::Whois::Spec::Lexer->new("    line 1\r\n    line 2\r\n");
+    my $lexer = PDT::TS::Whois::Lexer->new("    line 1\r\n    line 2\r\n");
 
 Constructs a new Lexer instance.
 

@@ -1,11 +1,11 @@
-package Net::Whois::Spec;
+package PDT::TS::Whois;
 use strict;
 use warnings;
 use 5.014;
 
 =head1 NAME
 
-Net::Whois::Spec - Whois output validation according to the ICANN specification.
+PDT::TS::Whois - Whois output validation according to the ICANN specification.
 
 =head1 VERSION
 
@@ -20,16 +20,16 @@ our $VERSION = '0.01';
 This module provides a library for parsing Whois output according to the ICANN specification.
 
 The library is split up into the following modules:
- * Net::Whois::Spec::Lexer     - Takes a string and produces a token/value/errors triplet for each line.
- * Net::Whois::Spec::Grammar   - Exports a datastructure representing the ICANN specification.
- * Net::Whois::Spec::Types     - Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
- * Net::Whois::Spec::Validator - Validates the output of a lexer according to a grammar and types.
+ * PDT::TS::Whois::Lexer     - Takes a string and produces a token/value/errors triplet for each line.
+ * PDT::TS::Whois::Grammar   - Exports a datastructure representing the ICANN specification.
+ * PDT::TS::Whois::Types     - Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
+ * PDT::TS::Whois::Validator - Validates the output of a lexer according to a grammar and types.
 
 Perhaps a little code snippet.
 
-    use Net::Whois::Spec;
+    use PDT::TS::Whois;
 
-    my $foo = Net::Whois::Spec->new();
+    my $foo = PDT::TS::Whois->new();
     ...
 
 =head1 EXPORT
@@ -60,7 +60,7 @@ Mattias Päivärinta, C<< <mattias.paivarinta at iis.se> >>
 =head1 BUGS
 
 Please report any bugs or feature requests to C<bug-net-whois-spec at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Net-Whois-Spec>.  I will be notified, and then you'll
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=PDT-TS-Whois>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
 
@@ -70,7 +70,7 @@ automatically be notified of progress on your bug as I make changes.
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc Net::Whois::Spec
+    perldoc PDT::TS::Whois
 
 
 You can also look for information at:
@@ -79,19 +79,19 @@ You can also look for information at:
 
 =item * RT: CPAN's request tracker (report bugs here)
 
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Net-Whois-Spec>
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=PDT-TS-Whois>
 
 =item * AnnoCPAN: Annotated CPAN documentation
 
-L<http://annocpan.org/dist/Net-Whois-Spec>
+L<http://annocpan.org/dist/PDT-TS-Whois>
 
 =item * CPAN Ratings
 
-L<http://cpanratings.perl.org/d/Net-Whois-Spec>
+L<http://cpanratings.perl.org/d/PDT-TS-Whois>
 
 =item * Search CPAN
 
-L<http://search.cpan.org/dist/Net-Whois-Spec/>
+L<http://search.cpan.org/dist/PDT-TS-Whois/>
 
 =back
 
@@ -137,4 +137,4 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
 
-1;    # End of Net::Whois::Spec
+1;    # End of PDT::TS::Whois

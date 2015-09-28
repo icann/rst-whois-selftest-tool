@@ -170,7 +170,7 @@ subtest 'positive integer' => sub {
 };
 
 subtest 'country code' => sub {
-    plan tests => 3;
+    plan tests => 4;
 
     subtest 'Accept SE' => sub {
         plan tests => 1;
@@ -178,13 +178,19 @@ subtest 'country code' => sub {
         is scalar @errors, 0, 'Should report no errors';
     };
 
-    subtest 'Accept xx' => sub {
+    subtest 'Accept se' => sub {
+        plan tests => 1;
+        my @errors = $types->validate_type('country code', 'se');
+        is scalar @errors, 0, 'Should report no errors';
+    };
+
+    subtest 'Accept XX' => sub {
         plan tests => 1;
         my @errors = $types->validate_type('country code', 'XX');
         is scalar @errors, 0, 'Should report no errors';
     };
 
-    subtest 'Reject swe' => sub {
+    subtest 'Reject SWE' => sub {
         plan tests => 2;
         my @errors = $types->validate_type('country code', 'SWE');
         is scalar @errors, 1, 'Should report one error';

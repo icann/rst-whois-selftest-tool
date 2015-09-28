@@ -46,7 +46,7 @@ my %default_types;
     },
     'country code' => sub {
         my $value = shift;
-        if ( $value !~ /^[A-Z]{2}$/ ) {
+        if ( $value !~ /^[A-Z]{2}$/i ) {
             return ( 'expected country code' );
         }
         else {

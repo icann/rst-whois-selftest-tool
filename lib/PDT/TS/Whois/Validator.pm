@@ -65,10 +65,10 @@ sub validate {
 
     my $rule  = $args{rule};
     my $state = {
-        _lexer      => $args{lexer},
-        _grammar    => $args{grammar},
-        _types      => $args{types},
-        _empty_kind => undef,
+        lexer      => $args{lexer},
+        grammar    => $args{grammar},
+        types      => $args{types},
+        empty_kind => undef,
     };
 
     my $result = _rule( $state, $rule );
@@ -76,7 +76,7 @@ sub validate {
         return @$result;
     }
     else {
-        return ( sprintf( "line %d: unrecognized input", $state->{_lexer}->line_no ) );
+        return ( sprintf( "line %d: unrecognized input", $state->{lexer}->line_no ) );
     }
 }
 
@@ -84,7 +84,7 @@ sub _rule {
     my $state = shift;
     my $rule  = shift;
 
-    if ( my $section_rule = $state->{_grammar}->{$rule} ) {
+    if ( my $section_rule = $state->{grammar}->{$rule} ) {
         if ( ref $section_rule eq 'ARRAY' ) {
             my $result = _sequence_section( $state, $section_rule );
             return $result;
@@ -117,7 +117,7 @@ sub _sequence_section {
                 return;
             }
             else {
-                push @errors, sprintf( "line %d: expected $key", $state->{_lexer}->line_no );
+                push @errors, sprintf( "line %d: expected $key", $state->{lexer}->line_no );
                 last;
             }
         }
@@ -224,10 +224,10 @@ sub _line {
     my $subtype;
 
     if ( defined $type ) {
-        if ( !$state->{_types}->has_type( $type ) ) {
+        if ( !$state->{types}->has_type( $type ) ) {
             croak "unknown type $type";
         }
-        ( $token, $token_value, $errors ) = $state->{_lexer}->peek_line();
+        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
         if ( !defined $token || $token ne 'field' ) {
             return;
         }
@@ -238,7 +238,7 @@ sub _line {
         $subtype = ( defined $field_value ) && 'field' || 'empty field';
     }
     else {
-        ( $token, $token_value, $errors ) = $state->{_lexer}->peek_line();
+        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
         if ( !defined $token ) {
             return;
         }
@@ -256,30 +256,30 @@ sub _line {
         }
     }
 
-    $state->{_lexer}->next_line();
+    $state->{lexer}->next_line();
 
     if ( $token eq 'field' ) {
         my ( $key, $translations, $value ) = @$token_value;
 
         for my $translation ( @$translations ) {
-            push @$errors, $state->{_types}->validate_type( 'key translation', $translation );
+            push @$errors, $state->{types}->validate_type( 'key translation', $translation );
         }
 
         if ( $type ) {
-            push @$errors, $state->{_types}->validate_type( $type, $value );
+            push @$errors, $state->{types}->validate_type( $type, $value );
         }
     }
     elsif ( $token eq 'roid line' ) {
         my ( $roid, $hostname ) = @$token_value;
 
-        push @$errors, $state->{_types}->validate_type( 'roid', $roid );
+        push @$errors, $state->{types}->validate_type( 'roid', $roid );
 
-        push @$errors, $state->{_types}->validate_type( 'hostname', $hostname );
+        push @$errors, $state->{types}->validate_type( 'hostname', $hostname );
     }
     elsif ( $token eq 'last update line' ) {
         my $timestamp = $token_value;
 
-        push @$errors, $state->{_types}->validate_type( 'time stamp', $timestamp );
+        push @$errors, $state->{types}->validate_type( 'time stamp', $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
@@ -291,12 +291,12 @@ sub _set_empty_kind {
     my $state = shift;
     my $kind  = shift;
 
-    $state->{_empty_kind} ||= $kind;
-    if ( $state->{_empty_kind} eq $kind ) {
+    $state->{empty_kind} ||= $kind;
+    if ( $state->{empty_kind} eq $kind ) {
         return ();
     }
     else {
-        return ( sprintf( "line %d: mixed empty field markups", $state->{_lexer}->line_no ) );
+        return ( sprintf( "line %d: mixed empty field markups", $state->{lexer}->line_no ) );
     }
 }
 

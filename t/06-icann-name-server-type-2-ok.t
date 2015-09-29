@@ -21,7 +21,7 @@ Query matched more than one name server:
 roid1abc-example (ns1.foo.example)
 roid5jkl-example (ns2.example.com)
 roid9mno-example (ns1.example.net)
->>> Last update of Whois database: 2009-05-29T20:15:00Z <<<
+>>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp
 

@@ -23,7 +23,7 @@ IP Address: 2001:0DB8::1
 Registrar: Example Registrar, Inc.
 WHOIS Server: whois.example-registrar.tld
 Referral URL: http://www.example-registrar.tld
->>> Last update of Whois database: 2009-05-29T20:15:00Z <<<
+>>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp
 

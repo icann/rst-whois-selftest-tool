@@ -209,7 +209,7 @@ sub next_line {
         $token       = 'multiple name servers line';
         $token_value = undef;
     }
-    elsif ( $line =~ /^>>> Last update of Whois database: (.*) <<<$/ ) {
+    elsif ( $line =~ /^>>> Last update of WHOIS database: (.*) <<<$/ ) {
         my $timestamp = $1;
         $token       = 'last update line';
         $token_value = $timestamp;

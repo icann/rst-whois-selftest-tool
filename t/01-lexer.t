@@ -62,7 +62,7 @@ subtest 'Token types' => sub {
         'Name Server:',
         'Query matched more than one name server:',
         'roid1abc-example (ns1.foo.example)',
-        '>>> Last update of Whois database: 2014-11-14T12:58:01Z <<<',
+        '>>> Last update of WHOIS database: 2014-11-14T12:58:01Z <<<',
         'For more information on Whois status codes, please visit https://icann.org/epp',
     );
     my $lexer = PDT::TS::Whois::Lexer->new(join("\r\n", @lines, ''));

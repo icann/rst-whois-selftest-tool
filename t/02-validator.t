@@ -6,9 +6,8 @@ use Test::More tests => 6;
 use Test::Differences;
 use Test::MockObject;
 
-use Data::Dumper;
-
 require_ok('PDT::TS::Whois::Validator');
+use PDT::TS::Whois::Validator qw( validate );
 
 my $grammar = {
     'Simple field' => [
@@ -88,9 +87,8 @@ subtest 'Simple line' => sub {
             ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Simple field' );
-        eq_or_diff $result, [], 'Should accept field line';
+        my @errors = validate( rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
+        eq_or_diff \@errors, [], 'Should accept field line';
     }
 
     {
@@ -98,9 +96,8 @@ subtest 'Simple line' => sub {
             ['non-empty line', []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Simple field' );
-        is scalar(@$result), 1, 'Should reject non-field line';
+        my @errors = validate(rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
+        is scalar(@errors), 1, 'Should reject non-field line';
     }
 };
 
@@ -112,9 +109,8 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Optional field' );
-        eq_or_diff $result, [], 'Should accept omitted field line';
+        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept omitted field line';
     }
 
     {
@@ -123,9 +119,8 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Optional field' );
-        eq_or_diff $result, [], 'Should accept empty field line';
+        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept empty field line';
     }
 
     {
@@ -133,9 +128,8 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], undef], []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Optional field' );
-        is scalar(@$result), 1, 'Should reject mixed empty field syntaxes';
+        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        is scalar(@errors), 1, 'Should reject mixed empty field syntaxes';
     }
 };
 
@@ -149,9 +143,8 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN3.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Repeatable field' );
-        eq_or_diff $result, [], 'Should accept repeated field lines';
+        my @errors = validate( rule => 'Repeatable field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept repeated field lines';
     }
 
     {
@@ -160,9 +153,8 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN2.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Repeatable max 2 field' );
-        eq_or_diff $result, [], 'Should accept repeated field lines';
+        my @errors = validate( rule => 'Repeatable max 2 field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept repeated field lines';
     }
 
     {
@@ -172,9 +164,8 @@ subtest 'Repeatable subrule' => sub {
             ['field', ['Domain Name', [], 'DOMAIN3.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Repeatable max 2 field' );
-        is scalar(@$result), 1, 'Should reject too many repetitions of field lines';
+        my @errors = validate( rule => 'Repeatable max 2 field', lexer => $lexer, grammar => $grammar, types => $types );
+        is scalar(@errors), 1, 'Should reject too many repetitions of field lines';
     }
 
 };
@@ -186,9 +177,8 @@ subtest 'Error propagation' => sub {
         ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], ['BOOM!']],
         ['EOF', undef, []],
     );
-    my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-    my $result = $validator->validate( 'Simple field' );
-    eq_or_diff $result, ['BOOM!'], 'Should propagate errors from lexer';
+    my @errors = validate( rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types );
+    eq_or_diff \@errors, ['BOOM!'], 'Should propagate errors from lexer';
 };
 
 subtest 'Optional repeatable subrule' => sub {
@@ -198,9 +188,8 @@ subtest 'Optional repeatable subrule' => sub {
         my $lexer = make_mock_lexer (
             ['EOF', undef, []],
         );
-        my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-        my $result = $validator->validate( 'Optional repeatable section' );
-        eq_or_diff $result, [], 'Should accept omitted lines';
+        my @errors = validate( rule => 'Optional repeatable section', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept omitted lines';
     }
 
 };

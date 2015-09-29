@@ -5,7 +5,7 @@ use 5.014;
 use Test::More tests => 1;
 use Test::Differences;
 use PDT::TS::Whois::Lexer;
-use PDT::TS::Whois::Validator;
+use PDT::TS::Whois::Validator qw( validate );
 use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Types;
 
@@ -13,9 +13,8 @@ my $types = PDT::TS::Whois::Types->new;
 my $text = do { local $/; <DATA> };
 $text =~ s/(?<!\r)\n/\r\n/g;
 my $lexer = PDT::TS::Whois::Lexer->new($text);
-my $validator = PDT::TS::Whois::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
-my $result = $validator->validate('Name Server Object query');
-eq_or_diff $result, [], 'Should accept valid name server reply type 1';
+my @errors = validate(rule => 'Name Server Object query', lexer => $lexer, grammar => $grammar, types => $types);
+eq_or_diff \@errors, [], 'Should accept valid name server reply type 1';
 
 __DATA__
 Server Name: NS1.EXAMPLE.TLD

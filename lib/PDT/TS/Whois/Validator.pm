@@ -6,6 +6,32 @@ use 5.014;
 
 use Carp;
 
+=head1 NAME
+
+PDT::TS::Whois::Validator - Consumes and validates Whois output, and produces
+validation errors;
+
+=cut
+
+=head1 SYNOPSIS
+
+This class reads line tokens from a lexer, matching them against grammar rules.
+When a line token is matched with a grammar rule, its token value is matched
+against a type derived from the matched grammar rule.  The result of a
+validation is the combined grammar and type mismatches and validation errors
+reported by the lexer.
+
+    use PDT::TS::Whois::Validator;
+
+    my $validator = PDT::TS::Whois::Validator->new(
+        lexer => $lexer,
+        grammar => $grammar,
+        types => $types,
+    );
+    my @errors = $validator->validate();
+
+=cut
+
 sub new {
     my $class = shift;
     my %args  = @_;

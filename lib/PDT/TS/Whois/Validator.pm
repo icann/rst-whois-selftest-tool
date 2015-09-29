@@ -20,20 +20,34 @@ validation errors;
 
 =head1 SYNOPSIS
 
-This module exports a single function called L<validate> which reads line tokens
-from a lexer, matching them against grammar rules.  When a line token is matched
-with a grammar rule, its token value is matched against a type derived from the
-matched grammar rule.  The result of a validation is the combined grammar and
-type mismatches and validation errors reported by the lexer.
+This module exports a single function called L<validate>.
+
+=head1 SUBROUTINES
+
+=head2 validate
+
+Reads line tokens from a lexer, matching them against grammar rules.  When a
+line token is matched with a grammar rule, its token value is matched against a
+type derived from the matched grammar rule.  The result of a validation is the
+combined grammar and type mismatches and validation errors reported by the
+lexer.
 
     use PDT::TS::Whois::Validator qw( validate );
 
     my @errors = validate(
-        rule => 'rule name',
-        lexer => $lexer,
+        rule    => 'rule name',
+        lexer   => $lexer,
         grammar => $grammar,
-        types => $types,
+        types   => $types,
     );
+    if (@errors) {
+        for my $message (@errors) {
+            say "error: $message";
+        }
+    }
+    else {
+        say "ok";
+    }
 
 =cut
 

@@ -49,6 +49,28 @@ lexer.
         say "ok";
     }
 
+=head3 Arguments
+
+=head4 B<rule>
+
+A string.  The grammar rule name to be used as starting point for validation.
+The grammar argument must have a key with this name.
+
+=head4 B<lexer>
+
+A lexer.  The lexer producing input for the validation.  This is expected to be
+an object with the interface of PDT::TS::Whois::Lexer;
+
+=head4 B<grammar>
+
+A HASHREF.  The grammar to be used for parsing.  The HASHREF is expected to
+match the data structure described in PDT::TS::Whois::Grammar;
+
+=head4 B<types>
+
+A Types.  The types object to be used for type checking.  This is expected to
+be an object with the interface of PDT::TS::Whois::Types.
+
 =cut
 
 sub validate {
@@ -64,6 +86,7 @@ sub validate {
     croak "hostname: missing type"        unless $args{types}->has_type( 'hostname' );
 
     my $rule  = $args{rule};
+
     my $state = {
         lexer      => $args{lexer},
         grammar    => $args{grammar},

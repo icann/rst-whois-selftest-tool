@@ -5,20 +5,51 @@ use 5.014;
 use Test::More tests => 23;
 use Test::Differences;
 
-require_ok('PDT::TS::Whois::Types');
+require_ok( 'PDT::TS::Whois::Types' );
 
 my $types = PDT::TS::Whois::Types->new;
 
+sub accept_ok {
+    my $test_name => shift;
+    my $type_name = shift;
+    my $input     = shift;
+
+    subtest $test_name => sub {
+        plan tests => 1;
+
+        my @errors = $types->validate_type( $type_name, $input );
+        eq_or_diff \@errors, [], "Type $type_name should accept '$input'";
+    };
+}
+
+sub reject_ok {
+    my $test_name => shift;
+    my $type_name   = shift;
+    my $input       = shift;
+    my $error_regex = shift || qr/$type_name/;
+
+    subtest $test_name => sub {
+        plan tests => 1;
+
+        my @errors = $types->validate_type( $type_name, $input );
+        like $errors[0], $error_regex, "Type $type_name should reject '$input' with complaint about type mismatch";
+    };
+}
+
 subtest 'Adding rules' => sub {
     plan tests => 3;
-    ok !$types->has_type('my-type'), "Should not have my-type by default";
-    $types->add_type('my-type', sub {
-        my $value = shift;
-        return ("yeah, $value");
-    });
-    ok $types->has_type('my-type'), "Should have my-type after adding it";
-    my @errors = $types->validate_type('my-type', 'dude');
-    eq_or_diff(\@errors, ['yeah, dude'], "Should propagate errors from my-type sub");
+
+    ok !$types->has_type( 'my-type' ), "Should not have my-type by default";
+    $types->add_type(
+        'my-type',
+        sub {
+            my $value = shift;
+            return ( "yeah, $value" );
+        }
+    );
+    ok $types->has_type( 'my-type' ), "Should have my-type after adding it";
+    my @errors = $types->validate_type( 'my-type', 'dude' );
+    eq_or_diff( \@errors, ['yeah, dude'], "Should propagate errors from my-type sub" );
 };
 
 subtest 'roid' => sub {
@@ -69,177 +100,71 @@ subtest 'ipv6 address' => sub {
 subtest 'translation clause' => sub {
     plan tests => 4;
 
-    subtest 'Accept single translation' => sub {
-        plan tests => 1;
-
-        my @errors = $types->validate_type('translation clause', ' (Domännamn)');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Accept multiple translations' => sub {
-        plan tests => 1;
-
-        my @errors = $types->validate_type('translation clause', ' (Domännamn/Verkkotunnus/Nome de domínio)');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Reject opening parenthesis in key translation' => sub {
-        plan tests => 2;
-
-        my @errors = $types->validate_type('translation clause', ' (Domän(namn)');
-        is scalar @errors, 1, 'Should report no errors';
-        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
-    };
-
-    subtest 'Reject extra leading space' => sub {
-        plan tests => 2;
-
-        my @errors = $types->validate_type('translation clause', '  (Domän(namn)');
-        is scalar @errors, 1, 'Should report no errors';
-        like $errors[0], qr/translation clause/, 'Should complain about type mismatch';
-    };
+    accept_ok 'Single translation'             => 'translation clause', ' (Domännamn)';
+    accept_ok 'Multiple translations'          => 'translation clause', ' (Domännamn/Verkkotunnus/Nome de domínio)';
+    reject_ok 'Parenthesis in key translation' => 'translation clause', ' (Domän(namn)', qr/key translation/;
+    reject_ok 'Extraneous leading space'       => 'translation clause', '  (Domän(namn)';
 };
 
 subtest 'key translation' => sub {
     plan tests => 5;
 
-    subtest 'Should accept valid value' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('key translation', 'Domännamn');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Should reject leading space' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('key translation', ' Domännamn');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
-    };
-
-    subtest 'Should reject trailing space' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('key translation', 'Domännamn ');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
-    };
-
-    subtest 'Should reject opening parenthesis' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('key translation', '(Domännamn');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
-    };
-
-    subtest 'Should reject closing parenthesis' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('key translation', 'Domännamn)');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/key translation/, 'Should complain about type mismatch';
-    };
-
+    accept_ok 'Valid value'         => 'key translation', 'Domännamn';
+    reject_ok 'Leading space'       => 'key translation', ' Domännamn';
+    reject_ok 'Trailing space'      => 'key translation', 'Domännamn ';
+    reject_ok 'Opening parenthesis' => 'key translation', '(Domännamn';
+    reject_ok 'Closing parenthesis' => 'key translation', 'Domännamn)';
 };
 
 subtest 'positive integer' => sub {
     plan tests => 4;
 
-    subtest 'Reject 0' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('positive integer', '0');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/positive integer/, 'Should complain about type mismatch';
-    };
-
-    subtest 'Accept 1' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('positive integer', '1');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Accept 1234567890' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('positive integer', '1234567890');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Reject 01' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('positive integer', '01');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/positive integer/, 'Should complain about type mismatch';
-    };
+    accept_ok 'Single digit'    => 'positive integer', '1';
+    accept_ok 'Multiple digits' => 'positive integer', '1234567890';
+    reject_ok 'Zero'            => 'positive integer', '0';
+    reject_ok 'Leading zero'    => 'positive integer', '01';
 };
 
 subtest 'country code' => sub {
     plan tests => 4;
 
-    subtest 'Accept SE' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('country code', 'SE');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Accept se' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('country code', 'se');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Accept XX' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('country code', 'XX');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Reject SWE' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('country code', 'SWE');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/country code/, 'Should complain about type mismatch';
-    };
+    accept_ok 'Two letter country code'     => 'country code', 'SE';
+    accept_ok 'Lower case country code'     => 'country code', 'se';
+    accept_ok 'Two letter non-country code' => 'country code', 'XX';
+    reject_ok 'Three letter country code'   => 'country code', 'SWE';
 };
 
 subtest 'dnssec' => sub {
-    plan tests => 3;
+    my @ok     = qw( signedDelegation unsigned);
+    my @not_ok = ( 'signed delegation' );
+    plan tests => @ok + @not_ok;
 
-    subtest 'Accept signedDelegation' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('dnssec', 'signedDelegation');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Accept unsigned' => sub {
-        plan tests => 1;
-        my @errors = $types->validate_type('dnssec', 'unsigned');
-        is scalar @errors, 0, 'Should report no errors';
-    };
-
-    subtest 'Reject signed delegation' => sub {
-        plan tests => 2;
-        my @errors = $types->validate_type('dnssec', 'signed delegation');
-        is scalar @errors, 1, 'Should report one error';
-        like $errors[0], qr/dnssec/, 'Should complain about type mismatch';
-    };
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'dnssec', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'dnssec', $value;
+    }
 };
 
 subtest 'domain status code' => sub {
-    my @ok_codes = qw(
-            addPeriod autoRenewPeriod clientDeleteProhibited clientHold
-            clientRenewProhibited clientTransferProhibited
-            clientUpdateProhibited inactive ok pendingCreate pendingDelete
-            pendingRenew pendingRestore pendingTransfer pendingUpdate
-            redemptionPeriod renewPeriod serverDeleteProhibited serverHold
-            serverRenewProhibited serverTransferProhibited
-            serverUpdateProhibited transferPeriod
+    my @ok = qw(
+      addPeriod autoRenewPeriod clientDeleteProhibited clientHold
+      clientRenewProhibited clientTransferProhibited
+      clientUpdateProhibited inactive ok pendingCreate pendingDelete
+      pendingRenew pendingRestore pendingTransfer pendingUpdate
+      redemptionPeriod renewPeriod serverDeleteProhibited serverHold
+      serverRenewProhibited serverTransferProhibited
+      serverUpdateProhibited transferPeriod
     );
-    plan tests => (scalar(@ok_codes) + 2);
+    my @not_ok = ( 'OK' );
+    plan tests => @ok + @not_ok;
 
-    for my $code (@ok_codes) {
-        my @errors = $types->validate_type('domain status code', $code);
-        is scalar @errors, 0, 'Should report no errors';
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'domain status code', $value;
     }
-
-    my @errors = $types->validate_type('domain status code', 'OK');
-    is scalar @errors, 1, 'Should report one error';
-    like $errors[0], qr/domain status code/, 'Should complain about positive integers';
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'domain status code', $value;
+    }
 };
 

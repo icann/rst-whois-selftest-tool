@@ -84,40 +84,40 @@ validation errors.
 
 =head3 TOKENS
 
-=head4 awip line
+=head4 B<awip line>
 
 Value: undef
 
-=head4 empty line
+=head4 B<empty line>
 
 Value: undef
 
-=head4 field
+=head4 B<field>
 
 Value: An arrayref triplet of:
  * a field key string
  * an arrayref of key translation strings
  * a value string or else undef if it is an empty field
 
-=head4 last update line
+=head4 B<last update line>
 
 Value: A time stamp string
 
-=head4 multiple name servers line
+=head4 B<multiple name servers line>
 
 Value: undef
 
-=head4 non-empty line
+=head4 B<non-empty line>
 
 Value: A scrubbed line contents string.
 
-=head4 roid line
+=head4 B<roid line>
 
 Value: An arrayref pair of:
  * a roid string
  * a hostname string
 
-=head4 EOF
+=head4 B<EOF>
 
 Value: undef
 

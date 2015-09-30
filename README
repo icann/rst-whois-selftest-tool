@@ -1,4 +1,4 @@
-Net-Whois-Spec
+PDT-TS-Whois
 
 The README is used to introduce the module and provide instructions on
 how to install the module, any machine dependencies it may have (for
@@ -26,29 +26,18 @@ SUPPORT AND DOCUMENTATION
 After installing, you can find documentation for this module with the
 perldoc command.
 
-    perldoc Net::Whois::Spec
+    perldoc PDT::TS::Whois
 
-You can also look for information at:
+AUTHOR
 
-    RT, CPAN's request tracker (report bugs here)
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Net-Whois-Spec
+Mattias Päivärinta <mattias.paivarinta@iis.se>
 
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Net-Whois-Spec
-
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Net-Whois-Spec
-
-    Search CPAN
-        http://search.cpan.org/dist/Net-Whois-Spec/
-
-
-LICENSE AND COPYRIGHT
+LICENSE INFORMATION
 
 Copyright (C) 2015 IIS (The Internet Infrastructure Foundation).
 All rights reserved.
 
-This program is subject to the following licensing conditions.
+This module is subject to the following licensing conditions.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions

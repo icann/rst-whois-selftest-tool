@@ -6,6 +6,40 @@ use 5.014;
 
 use Carp;
 
+=head1 NAME
+
+PDT::TS::Whois::Types - Simple type checker class
+
+=head1 DESCRIPTION
+
+This class provides a number of types out of the box and a mechanism for
+extending the default set with specialized types.
+
+A type consists of a name and a sub. The sub takes a string value and returns a
+list of validation error strings.
+
+The default types are:
+ * country code
+ * dnssec
+ * domain status
+ * domain status code
+ * email address
+ * hostname
+ * http url
+ * ip address
+ * key translation
+ * phone number
+ * positive integer
+ * postal code
+ * postal line
+ * roid
+ * time stamp
+ * token
+ * translation clause
+ * u-label
+
+=cut
+
 my %domain_status_codes = (
     addPeriod                => 1,
     autoRenewPeriod          => 1,
@@ -107,11 +141,37 @@ my %default_types;
     'ip address'    => sub { },
 );
 
+=head1 CONSTRUCTORS
+
+=head2 new
+
+Creates a new type checker object with the default set of types.
+
+    my $types = PDT::TS::Whois::Types->new();
+
+=cut
+
 sub new {
     my $class = shift;
     my $self = bless { _types => { %default_types, }, }, $class;
     return $self;
 }
+
+=head2 add_type
+
+Adds (or updates) a type to the set recognized by this type checker.
+
+    $types->add_type('my-type', sub {
+        my $value = shift;
+        if ( $value =~ /^my-[a-z-]+/ ) {
+            return ( 'expected my-type' );
+        }
+        else {
+            return ();
+        }
+    });
+
+=cut
 
 sub add_type {
     my $self      = shift;
@@ -120,18 +180,47 @@ sub add_type {
     $self->{_types}{$type_name} = $sub;
 }
 
+=head2 has_type
+
+Test if a type is recognized by this type checker.
+
+    if ($types->has_type('my-type')) {
+        say "Type my-type recognized!";
+    }
+    else {
+        say "Unknown type my-type!";
+    }
+
+=cut
+
+sub has_type {
+    my $self      = shift;
+    my $type_name = shift;
+    return exists $self->{_types}{$type_name};
+}
+
+=head2 validate_type
+
+Validate a value against a type.
+
+    my @errors = $types->validate_type('my-type', 'my-value')
+    if (@errors) {
+        for my $error (@errors) {
+            say "type error: $error";
+        }
+    }
+    else {
+        say "ok";
+    }
+
+=cut
+
 sub validate_type {
     my $self      = shift;
     my $type_name = shift;
     my $value     = shift;
     croak "$type_name: unknown type" unless exists $self->{_types}{$type_name};
     return $self->{_types}{$type_name}->( $value );
-}
-
-sub has_type {
-    my $self      = shift;
-    my $type_name = shift;
-    return exists $self->{_types}{$type_name};
 }
 
 1;

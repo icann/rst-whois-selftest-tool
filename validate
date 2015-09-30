@@ -4,10 +4,10 @@ use warnings;
 use 5.014;
 
 use Getopt::Long qw( :config bundling );
-use Net::Whois::Spec::Lexer;
-use Net::Whois::Spec::Validator;
-use Net::Whois::Spec::Grammar qw( $grammar );
-use Net::Whois::Spec::Types;
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Validator qw( validate );
+use PDT::TS::Whois::Grammar qw( $grammar );
+use PDT::TS::Whois::Types;
 
 my %rules = (
     d => 'Domain Name Object query',
@@ -21,7 +21,7 @@ GetOptions(
         "header|h" => \$opt_header,
         "type|t=s" => \$opt_type,
         );
-if (!exists $rules{$opt_type}) {
+if (!defined $opt_type || !exists $rules{$opt_type}) {
     die "error: must specify --type " . join('|', keys %rules);
 }
 
@@ -39,8 +39,7 @@ if ($opt_header) {
 }
 
 my $types = Net::Whois::Spec::Types->new;
-my $validator = Net::Whois::Spec::Validator->new(lexer => $lexer, grammar => $grammar, types => $types);
 
-for my $error (@{ $validator->validate($rule) }) {
+for my $error (validate(rule => $rule, lexer => $lexer, grammar => $grammar, types => $types)) {
     say $error;
 }

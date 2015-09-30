@@ -5,7 +5,11 @@ use 5.014;
 
 =head1 NAME
 
-PDT::TS::Whois - Whois output validation according to the ICANN specification.
+PDT::TS::Whois - Validates Whois output
+
+=head1 DESCRIPTION
+
+This module validates Whois output according to the ICANN specification.
 
 =head1 VERSION
 
@@ -17,41 +21,11 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-This module provides a library for parsing Whois output according to the ICANN specification.
-
-The library is split up into the following modules:
- * PDT::TS::Whois::Lexer     - Takes a string and produces a token/value/errors triplet for each line.
- * PDT::TS::Whois::Grammar   - Exports a datastructure representing the ICANN specification.
- * PDT::TS::Whois::Types     - Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
- * PDT::TS::Whois::Validator - Validates the output of a lexer according to a grammar and types.
-
-Perhaps a little code snippet.
-
-    use PDT::TS::Whois;
-
-    my $foo = PDT::TS::Whois->new();
-    ...
-
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
-=head1 SUBROUTINES/METHODS
-
-=head2 function1
-
-=cut
-
-sub function1 {
-}
-
-=head2 function2
-
-=cut
-
-sub function2 {
-}
+The library contains the following sub-modules:
+ * L<PDT::TS::Whois::Lexer>     - Takes a string and produces a token/value/errors triplet for each line.
+ * L<PDT::TS::Whois::Grammar>   - Exports a datastructure representing the ICANN specification.
+ * L<PDT::TS::Whois::Types>     - Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
+ * L<PDT::TS::Whois::Validator> - Validates the output of a lexer according to a grammar and types.
 
 =head1 AUTHOR
 
@@ -59,12 +33,8 @@ Mattias Päivärinta, C<< <mattias.paivarinta at iis.se> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-net-whois-spec at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=PDT-TS-Whois>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-
-
+Please report any bugs or feature requests to C<mats.dufberg at iis.se>, or through
+the web interface at L<http://jira.iis.se/browse/PDTT>.
 
 =head1 SUPPORT
 
@@ -73,38 +43,14 @@ You can find documentation for this module with the perldoc command.
     perldoc PDT::TS::Whois
 
 
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker (report bugs here)
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=PDT-TS-Whois>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/PDT-TS-Whois>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/PDT-TS-Whois>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/PDT-TS-Whois/>
-
 =back
-
-
-=head1 ACKNOWLEDGEMENTS
-
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2015 Mattias Päivärinta.
+Copyright (C) 2015 IIS (The Internet Infrastructure Foundation).
+All rights reserved.
 
-This program is distributed under the (Revised) BSD License:
-L<http://www.opensource.org/licenses/bsd-license.php>
+This module is subject to the following licensing conditions.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -117,23 +63,21 @@ notice, this list of conditions and the following disclaimer.
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
 
-* Neither the name of Mattias Päivärinta's Organization
-nor the names of its contributors may be used to endorse or promote
-products derived from this software without specific prior written
-permission.
+THE SOFTWARE IS PROVIDED AS-IS AND MAKES NO REPRESENTATIONS OR
+WARRANTIES OF ANY KIND CONCERNING THE WORK, EXPRESS, IMPLIED,
+STATUTORY OR OTHERWISE, INCLUDING, WITHOUT LIMITATION, WARRANTIES OF
+TITLE, MERCHANTIBILITY, FITNESS FOR A PARTICULAR PURPOSE,
+NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER DEFECTS, ACCURACY,
+OR THE PRESENCE OF ABSENCE OF ERRORS, WHETHER OR NOT DISCOVERABLE.
 
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.
 
 =cut
 

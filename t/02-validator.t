@@ -15,16 +15,16 @@ my $grammar = {
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional field' => [
-        { 'Domain Name' => { type => 'hostname', optional => 'y', }, },
-        { 'Referral URL' => { type => 'http url', optional => 'y', }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'y', }, },
+        { 'Referral URL' => { line => 'field', type => 'http url', optional => 'y', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable field' => [
-        { 'Domain Name' => { type => 'hostname', repeatable => 'unbounded', }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', repeatable => 'unbounded', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable max 2 field' => [
-        { 'Domain Name' => { type => 'hostname', repeatable => 2, }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', repeatable => 2, }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional repeatable section' => [
@@ -32,7 +32,7 @@ my $grammar = {
         { 'EOF' => { line => 'EOF', }, },
     ],
     'A domain name' => [
-        { 'Domain Name' => { type => 'hostname', }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', }, },
     ],
 };
 

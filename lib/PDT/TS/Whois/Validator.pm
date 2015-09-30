@@ -201,7 +201,7 @@ sub _occurances {
             }
         }
         else {
-            if ( $count == 0 && defined $type || ( defined $line && $line eq 'field' ) ) {
+            if ( $count == 0 && defined $line && $line eq 'field' ) {
                 push @errors, _set_empty_kind( $state, 'omitted field' );
             }
             last;

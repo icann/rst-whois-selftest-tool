@@ -43,8 +43,6 @@ You can find documentation for this module with the perldoc command.
     perldoc PDT::TS::Whois
 
 
-=back
-
 =head1 LICENSE AND COPYRIGHT
 
 Copyright (C) 2015 IIS (The Internet Infrastructure Foundation).

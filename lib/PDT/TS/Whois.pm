@@ -11,6 +11,29 @@ PDT::TS::Whois - Validates Whois output
 
 This module validates Whois output strings according to the ICANN specification.
 
+It consists of the following sub-modules:
+
+=over 4
+
+=item L<PDT::TS::Whois::Lexer>
+
+Takes a string and produces a token/value/errors triplet for each line.
+
+=item L<PDT::TS::Whois::Grammar>
+
+Exports a datastructure representing the ICANN specification.
+
+=item L<PDT::TS::Whois::Types>
+
+Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
+
+=item L<PDT::TS::Whois::Validator>
+
+Validates the output of a lexer according to a grammar and types.
+
+=back
+
+
 =head1 VERSION
 
 Version 0.01

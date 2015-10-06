@@ -17,29 +17,38 @@ my %rules = (
 
 my $opt_header;
 my $opt_type;
+my $opt_query;
 GetOptions(
-        "header|h" => \$opt_header,
-        "type|t=s" => \$opt_type,
-        );
-if (!defined $opt_type || !exists $rules{$opt_type}) {
-    die "error: must specify --type " . join('|', keys %rules);
+    "header|h"  => \$opt_header,
+    "type|t=s"  => \$opt_type,
+    "query|q=s" => \$opt_query,
+);
+
+if ( !defined $opt_type || !exists $rules{$opt_type} ) {
+    die "error: must specify --type " . join( '|', keys %rules );
+}
+if ( !defined $opt_query ) {
+    die "error: must specify --query QUERY-STRING";
 }
 
 my $rule = $rules{$opt_type};
 my $text = do { local $/; <STDIN> };
 
-my $lexer = Net::Whois::Spec::Lexer->new($text);
+my $lexer = PDT::TS::Whois::Lexer->new( $text );
 
-if ($opt_header) {
-    my ($token, $token_value) = $lexer->peek_line();
-    while ($token eq 'non-empty line' && $token_value =~ /^#/) {
+if ( $opt_header ) {
+    my ( $token, $token_value ) = $lexer->peek_line();
+    while ( $token eq 'non-empty line' && $token_value =~ /^#/ ) {
         $lexer->next_line();
-        ($token, $token_value) = $lexer->peek_line();
+        ( $token, $token_value ) = $lexer->peek_line();
     }
 }
 
-my $types = Net::Whois::Spec::Types->new;
+my $types = PDT::TS::Whois::Types->new;
+$types->add_type( 'query domain name'    => sub { return ( lc( shift ) ne lc( $opt_query ) ) && ( 'expected exact domain name' )    || () } );
+$types->add_type( 'query name server'    => sub { return ( lc( shift ) ne lc( $opt_query ) ) && ( 'expected exact name server' )    || () } );
+$types->add_type( 'query registrar name' => sub { return ( shift       ne $opt_query )       && ( 'expected exact registrar name' ) || () } );
 
-for my $error (validate(rule => $rule, lexer => $lexer, grammar => $grammar, types => $types)) {
+for my $error ( validate( rule => $rule, lexer => $lexer, grammar => $grammar, types => $types ) ) {
     say $error;
 }

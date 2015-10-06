@@ -135,7 +135,7 @@ Subsequent registrar details section:
   - Empty line: { line: empty line }
   - Registrar details section: { }
 Registrar details section:
-  - Registrar Name: { line: field, type: postal line }
+  - Registrar Name: { line: field, type: query registrar name }
   - Street: { line: field, type: postal line }
   - City: { line: field, type: postal line }
   - State/Province: { optional: y, line: field, type: postal line }
@@ -168,7 +168,7 @@ Subsequent domain name details section:
   - Empty line: { line: empty line }
   - Domain name details section: { }
 Domain name details section:
-  - Domain Name: { line: field, type: hostname }
+  - Domain Name: { line: field, type: query domain name }
   - Internationalized Domain Name: { optional: y, line: field, type: u-label }
   - Domain ID: { line: field, type: roid }
   - WHOIS Server: { optional: y, line: field, type: hostname }
@@ -245,7 +245,7 @@ Subsequent name server details section:
   - Empty line: { line: empty line }
   - A name server details section: { }
 Name server details section:
-  - Server Name: { line: field, type: hostname }
+  - Server Name: { line: field, type: query name server }
   - IP Address: { repeatable: unbounded, line: field, type: ip address }
   - Registrar: { optional: y, line: field, type: postal line }
   - WHOIS Server: { optional: y, line: field, type: hostname }

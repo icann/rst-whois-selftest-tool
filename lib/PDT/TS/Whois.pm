@@ -9,7 +9,7 @@ PDT::TS::Whois - Validates Whois output
 
 =head1 DESCRIPTION
 
-This module validates Whois output according to the ICANN specification.
+This module validates Whois output strings according to the ICANN specification.
 
 =head1 VERSION
 
@@ -21,11 +21,24 @@ our $VERSION = '0.01';
 
 =head1 SYNOPSIS
 
-The library contains the following sub-modules:
- * L<PDT::TS::Whois::Lexer>     - Takes a string and produces a token/value/errors triplet for each line.
- * L<PDT::TS::Whois::Grammar>   - Exports a datastructure representing the ICANN specification.
- * L<PDT::TS::Whois::Types>     - Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
- * L<PDT::TS::Whois::Validator> - Validates the output of a lexer according to a grammar and types.
+    use PDT::TS::Whois::Grammar qw( $grammar );
+    use PDT::TS::Whois::Lexer;
+    use PDT::TS::Whois::Types;
+    use PDT::TS::Whois::Validator qw( validate );
+
+    my $types = PDT::TS::Whois::Types->new();
+    $types->add_type( 'query domain name',    sub { return ( lc( shift ) ne 'domain.example' )     && ( 'expected exact domain name' )    || () } );
+    $types->add_type( 'query name server',    sub { return ( lc( shift ) ne 'ns1.domain.example' ) && ( 'expected exact name server' )    || () } );
+    $types->add_type( 'query registrar name', sub { return ( shift       ne 'Example Registrar' )  && ( 'expected exact registrar name' ) || () } );
+
+    my $lexer = PDT::TS::Whois::Lexer->new( `whois domain.example` );
+    my @errors = validate(
+        rule    => 'Domain Name Object query',
+        lexer   => $lexer,
+        grammar => $grammar,
+        types   => $types,
+    );
+    say join( "\n", @errors ) || "OK";
 
 =head1 AUTHOR
 

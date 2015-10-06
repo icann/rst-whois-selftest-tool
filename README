@@ -1,6 +1,6 @@
 PDT-TS-Whois
 
-This module validates Whois output according to the ICANN specification.
+This module validates Whois output strings according to the ICANN specification.
 
 
 INSTALLATION

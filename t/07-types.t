@@ -10,7 +10,7 @@ require_ok( 'PDT::TS::Whois::Types' );
 my $types = PDT::TS::Whois::Types->new;
 
 sub accept_ok {
-    my $test_name => shift;
+    my $test_name = shift;
     my $type_name = shift;
     my $input     = shift;
 
@@ -23,7 +23,7 @@ sub accept_ok {
 }
 
 sub reject_ok {
-    my $test_name => shift;
+    my $test_name   = shift;
     my $type_name   = shift;
     my $input       = shift;
     my $error_regex = shift || qr/$type_name/;

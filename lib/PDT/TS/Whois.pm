@@ -50,9 +50,9 @@ our $VERSION = '0.01';
     use PDT::TS::Whois::Validator qw( validate );
 
     my $types = PDT::TS::Whois::Types->new();
-    $types->add_type( 'query domain name',    sub { return ( lc( shift ) ne 'domain.example' )     && ( 'expected exact domain name' )    || () } );
-    $types->add_type( 'query name server',    sub { return ( lc( shift ) ne 'ns1.domain.example' ) && ( 'expected exact name server' )    || () } );
-    $types->add_type( 'query registrar name', sub { return ( shift       ne 'Example Registrar' )  && ( 'expected exact registrar name' ) || () } );
+    $types->add_type( 'query domain name', sub { return ( lc( shift ) ne 'domain.example' )     && ( 'expected exact domain name' ) || () } );
+    $types->add_type( 'query name server', sub { return ( lc( shift ) ne 'ns1.domain.example' ) && ( 'expected exact name server' ) || () } );
+    $types->add_type( 'query registrar name', sub { return ( shift !~ /Example Registrar/ ) && ( 'expected exact registrar name' ) || () } );
 
     my $lexer = PDT::TS::Whois::Lexer->new( `whois domain.example` );
     my @errors = validate(

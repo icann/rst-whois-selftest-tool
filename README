@@ -5,8 +5,10 @@ This module validates Whois output strings according to the ICANN specification.
 
 INSTALLATION
 
-To install this module, run the following commands:
+To install this module on Ubuntu, run the following commands:
 
+	sudo apt-get update
+	sudo apt-get install libyaml-syck-perl
 	perl Build.PL
 	./Build
 	./Build test

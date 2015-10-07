@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
     },
     requires => {
         'perl' => 5.006,
+        'YAML::Syck' => 0,
     },
     add_to_cleanup      => [ 'PDT-TS-Whois-*' ],
     create_makefile_pl => 'traditional',

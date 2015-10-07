@@ -10,6 +10,8 @@ use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Types;
 
 my $types = PDT::TS::Whois::Types->new;
+$types->add_type( 'query registrar name' => sub { return (shift !~ /Example Registrar, Inc\./ ) ? ( 'expected matching registrar name' ) : () } );
+
 my $text = do { local $/; <DATA> };
 $text =~ s/(?<!\r)\n/\r\n/g;
 my $lexer = PDT::TS::Whois::Lexer->new($text);

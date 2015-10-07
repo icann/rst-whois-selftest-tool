@@ -42,6 +42,7 @@ my %type_subs = (
     'roid' => sub {},
     'time stamp' => sub {},
     'key translation' => sub {},
+    'query domain name' => sub {},
 );
 
 my $types = Test::MockObject->new();

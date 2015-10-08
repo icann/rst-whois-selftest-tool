@@ -127,7 +127,15 @@ my %default_types;
             return ( 'expected translation clause' );
         }
     },
-    'hostname'      => sub { },
+    'hostname'      => sub {
+        my $value = shift;
+        if ( $value !~ /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])*\.){1,}[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])\.?$/ ) {
+            return ( 'expected hostname' );
+        }
+        else {
+            return ();
+        }
+    },
     'u-label'       => sub { },
     'roid'          => sub { },
     'http url'      => sub { },

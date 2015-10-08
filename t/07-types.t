@@ -59,6 +59,14 @@ subtest 'roid suffix' => sub {
 };
 
 subtest 'hostname' => sub {
+    plan tests => 4;
+
+    foreach (qw(ns1.example.example. ns1.xn--caf-dma.example)) {
+        accept_ok $_ => 'hostname', $_;
+    }
+    foreach (qw(-ns1.example.example. _ns1.xn--caf-dma.example)) {
+        reject_ok $_ => 'hostname', $_;
+    }
 };
 
 subtest 'time stamp' => sub {
@@ -167,4 +175,3 @@ subtest 'domain status code' => sub {
         reject_ok "Value $value", 'domain status code', $value;
     }
 };
-

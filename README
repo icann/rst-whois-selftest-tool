@@ -8,7 +8,7 @@ INSTALLATION
 To install this module on Ubuntu, run the following commands:
 
 	sudo apt-get update
-	sudo apt-get install libyaml-syck-perl
+	sudo apt-get install libyaml-syck-perl libtest-differences-perl libtest-mockobject-perl
 	perl Build.PL
 	./Build
 	./Build test

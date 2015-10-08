@@ -1,13 +1,15 @@
 use strict;
 use warnings;
 use 5.014;
+use utf8;
 
-use Test::More tests => 23;
+use Test::More tests => 21;
 use Test::Differences;
 
 require_ok( 'PDT::TS::Whois::Types' );
 
 my $types = PDT::TS::Whois::Types->new;
+$types->load_roid_suffix('t/iana-epp-rep-id.txt');
 
 sub accept_ok {
     my $test_name = shift;
@@ -53,9 +55,9 @@ subtest 'Adding rules' => sub {
 };
 
 subtest 'roid' => sub {
-};
-
-subtest 'roid suffix' => sub {
+    plan tests => 2;
+    accept_ok 'roid-NAME' => 'roid', 'roid-NAME';
+    reject_ok 'wrong roid' => 'roid', 'wrong roid';
 };
 
 subtest 'hostname' => sub {
@@ -70,39 +72,72 @@ subtest 'hostname' => sub {
 };
 
 subtest 'time stamp' => sub {
+    plan tests => 2;
+    accept_ok '1985-04-12T23:20:50.52Z' => 'time stamp', '1985-04-12T23:20:50.52Z';
+    reject_ok '1999-01-01 23:30:30' => 'time stamp', '1999-01-01 23:30:30';
 };
 
 subtest 'u-label' => sub {
+    plan tests => 2;
+    accept_ok 'å.se' => 'u-label', 'å.se';
+    reject_ok 'a.se' => 'u-label', 'a.se';
 };
 
 subtest 'http url' => sub {
+    plan tests => 3;
+    accept_ok 'http://example.com' => 'http url', 'http://example.com';
+    accept_ok 'https://example.com' => 'http url', 'https://example.com';
+    reject_ok 'ftp://example.com' => 'http url', 'ftp://example.com';
 };
 
 subtest 'token' => sub {
+    plan tests => 2;
+    accept_ok 'token' => 'token', 'token';
+    reject_ok 'to  ken' => 'token', 'to  ken';
 };
 
 subtest 'domain status' => sub {
+    plan tests => 2;
+    accept_ok 'ok https://icann.org/epp#ok' => 'domain status', 'ok https://icann.org/epp#ok';
+    reject_ok 'bad http://noticann.org/epp#bad' => 'domain status', 'bad http://noticann.org/epp#bad';
 };
 
 subtest 'postal line' => sub {
+    plan tests => 2;
+    accept_ok 'Good street nr1' => 'postal line', 'Good street nr1';
+    reject_ok "Bad\nStreet\rnr1" => 'postal line', "Bad\nStreet\rnr1";
 };
 
 subtest 'postal code' => sub {
+    plan tests => 2;
+    accept_ok 'good postal code' => 'postal code', '12345';
+    reject_ok 'bad postal code' => 'postal code', ' 1 2  3';
 };
 
 subtest 'phone number' => sub {
+    plan tests => 2;
+    accept_ok 'good phone number' => 'phone number', '+1.800';
+    reject_ok 'bad phone number' => 'phone number', '0800';
 };
 
 subtest 'email address' => sub {
+    plan tests => 2;
+    accept_ok 'test@example.com' => 'email address', 'test@example.com';
+    reject_ok 'test@example.com.' => 'email address', 'test@example.com.';
 };
 
 subtest 'ip address' => sub {
+    plan tests => 4;
+    accept_ok 'good ipv4' => 'ip address', '1.2.3.4';
+    reject_ok 'bad ipv4' => 'ip address', '256.333.666.3';
+    accept_ok 'good ipv6' => 'ip address', '1::2';
+    reject_ok 'bad ipv6' => 'ip address', '1:::2';
 };
 
-subtest 'ipv4 address' => sub {
-};
-
-subtest 'ipv6 address' => sub {
+subtest 'epp repo id' => sub {
+    plan tests => 2;
+    accept_ok 'epp-NAME' => 'epp repo id', 'epp-NAME';
+    reject_ok 'wrong epp' => 'epp repo id', 'wrong epp';
 };
 
 subtest 'translation clause' => sub {

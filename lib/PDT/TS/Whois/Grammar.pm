@@ -170,7 +170,7 @@ Subsequent domain name details section:
 Domain name details section:
   - Domain Name: { line: field, type: query domain name }
   - Internationalized Domain Name: { optional: y, line: field, type: u-label }
-  - Domain ID: { line: field, type: roid }
+  - Domain ID: { line: field, type: epp repo id }
   - WHOIS Server: { optional: y, line: field, type: hostname }
   - Referral URL: { line: field, type: http url }
   - Updated Date: { optional: y, line: field, type: time stamp }

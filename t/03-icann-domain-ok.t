@@ -10,6 +10,7 @@ use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Types;
 
 my $types = PDT::TS::Whois::Types->new;
+$types->load_roid_suffix('t/iana-epp-rep-id.txt');
 $types->add_type( 'query domain name' => sub { return ( lc( shift ) ne lc( 'EXAMPLE.TLD' ) ) ? ( 'expected exact domain name' ) : () } );
 
 my $text = do { local $/; <DATA> };

@@ -5,6 +5,8 @@ use warnings;
 use 5.014;
 
 use Carp;
+use URI;
+use Regexp::IPv6;
 
 =head1 NAME
 
@@ -24,6 +26,7 @@ The default types are:
  * domain status
  * domain status code
  * email address
+ * epp repo id
  * hostname
  * http url
  * ip address
@@ -66,12 +69,13 @@ my %domain_status_codes = (
     transferPeriod           => 1,
 );
 
+my $ROID_SUFFIX = {};
 my %default_types;
 
 %default_types = (
     'positive integer' => sub {
         my $value = shift;
-        if ( $value !~ /^[1-9][0-9]*$/ ) {
+        if ( $value !~ /^[1-9][0-9]*$/o ) {
             return ( 'expected positive integer' );
         }
         else {
@@ -80,7 +84,7 @@ my %default_types;
     },
     'country code' => sub {
         my $value = shift;
-        if ( $value !~ /^[a-zA-Z]{2}$/ ) {
+        if ( $value !~ /^[a-zA-Z]{2}$/o ) {
             return ( 'expected country code' );
         }
         else {
@@ -89,8 +93,8 @@ my %default_types;
     },
     'dnssec' => sub {
         my $value = shift;
-        if ( $value !~ /^(?:signedDelegation|unsigned)$/ ) {
-            return ( 'expected dnssec' );
+        if ( $value !~ /^(?:signedDelegation|unsigned)$/o ) {
+            return ( 'expected dnssec delegation status' );
         }
         else {
             return ();
@@ -107,7 +111,7 @@ my %default_types;
     },
     'key translation' => sub {
         my $value = shift;
-        if ( $value =~ /^ |[()]| $/ ) {
+        if ( $value =~ /^ |[()]| $/o ) {
             return ( 'expected key translation' );
         }
         else {
@@ -116,7 +120,7 @@ my %default_types;
     },
     'translation clause' => sub {
         my $value = shift;
-        if ( $value =~ /^ \((.*)\)$/ ) {
+        if ( $value =~ /^ \((.*)\)$/o ) {
             my @errors;
             for my $key_translation ( split qr{/}, $1 ) {
                 push @errors, $default_types{'key translation'}->( $key_translation );
@@ -129,24 +133,118 @@ my %default_types;
     },
     'hostname'      => sub {
         my $value = shift;
-        if ( $value !~ /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])*\.){1,}[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])\.?$/ ) {
+        if ( $value !~ /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])*\.){1,}[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])\.?$/o ) {
             return ( 'expected hostname' );
         }
-        else {
+        return ();
+    },
+    'u-label'       => sub {
+        my $value = shift;
+        if ( $default_types{hostname}->($value) ) {
             return ();
         }
+        return ( 'expected u-label' );
     },
-    'u-label'       => sub { },
-    'roid'          => sub { },
-    'http url'      => sub { },
-    'time stamp'    => sub { },
-    'token'         => sub { },
-    'domain status' => sub { },
-    'postal line'   => sub { },
-    'postal code'   => sub { },
-    'phone number'  => sub { },
-    'email address' => sub { },
-    'ip address'    => sub { },
+    'roid'          => sub {
+        my $value = shift;
+        if ( $default_types{token}->($value) || $value !~ /^\w{1,80}-(\w{1,8})$/o ) {
+            return ( 'expected roid' );
+        }
+        unless (exists $ROID_SUFFIX->{$1}) {
+            return ( 'expected valid roid suffix' );
+        }
+        return ();
+    },
+    'http url'      => sub {
+        my $uri = URI->new(shift);
+        if ( $uri->scheme =~ /^https?$/oi && $uri->opaque ) {
+            return ();
+        }
+        return ( 'expected http url' );
+    },
+    'time stamp'    => sub {
+        my $value = shift;
+        #
+        # Regex taken from https://mxr.mozilla.org/comm-central/source/calendar/base/modules/calProviderUtils.jsm#316
+        #
+        if ( $value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?)?(?:[Zz]|[+-][0-9]{2}:[0-9]{2})?$/o ) {
+            return ( 'expected time stamp' );
+        }
+        return ();
+    },
+    'token'         => sub {
+        my $value = shift;
+        if ( $value =~ /[\r\n\t]/o || $value =~ /^ /o || $value =~ / $/o || $value =~ /  /o ) {
+            return ( 'expected token' );
+        }
+        return ();
+    },
+    'domain status' => sub {
+        my $value = shift;
+        if ( $value =~ /^([^ ]+) {1,9}https:\/\/icann\.org\/epp#(.+)$/o ) {
+            if ( exists $domain_status_codes{$1} && $1 eq $2 ) {
+                return ();
+            }
+        }
+        return ( 'expected domain status' );
+    },
+    'postal line'   => sub {
+        my $value = shift;
+        if ( length($value) < 1 || length($value) > 255 || $value =~ /[\r\n\t]/o ) {
+            return ( 'expected postal line' );
+        }
+        return ();
+    },
+    'postal code'   => sub {
+        my $value = shift;
+        if ( length($value) > 16 || $default_types{token}->($value) ) {
+            return ( 'expected postal code' );
+        }
+        return ();
+    },
+    'phone number'  => sub {
+        my $value = shift;
+        if ( length($value) > 17 || $default_types{token}->($value) || $value !~ /^\+[0-9]{1,3}\.[0-9]{1,14}$/o ) {
+            return ( 'expected phone number' );
+        }
+        return ();
+    },
+    'email address' => sub {
+        my ( $localpart, $domain ) = split( '@', shift, 2 );
+        if ( !$localpart || $default_types{hostname}->($domain) || $domain =~ /\.$/o ) {
+            return ( 'expected email address' );
+        }
+        foreach ( split( '.', $localpart ) ) {
+            unless ( /^[a-zA-Z0-9!#\$\%\&'\*\+\-\/=\?\^_`{}\|~]+$/o ) {
+                return ( 'expected email address' );
+            }
+        }
+        return ();
+    },
+    'ip address'    => sub {
+        my $value = shift;
+        if ( $value =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/o ) {
+            foreach ( ($1, $2, $3, $4) ) {
+                if ( $_ eq '0' ) {
+                    next;
+                }
+                if ( $default_types{'positive integer'}->($_) || $_ > 255 ) {
+                    return ( 'expected ip address' );
+                }
+            }
+            return ();
+        }
+        if ( $value =~ /^$Regexp::IPv6::IPv6_re$/o ) {
+            return ();
+        }
+        return ( 'expected ip address' );
+    },
+    'epp repo id' => sub {
+        if ( $default_types{roid}->(shift) ) {
+            return ( 'expected epp repo id' );
+        }
+        return ();
+    },
 );
 
 =head1 CONSTRUCTORS
@@ -229,6 +327,37 @@ sub validate_type {
     my $value     = shift;
     croak "$type_name: unknown type" unless exists $self->{_types}{$type_name};
     return $self->{_types}{$type_name}->( $value );
+}
+
+=head2 load_roid_suffix
+
+Load ROID suffixes from a file. Croaks on error.
+
+    $types->load_roid_suffix('/etc/pdt/iana-epp-rep-id.txt');
+
+=cut
+
+sub load_roid_suffix {
+    my ($self, $file) = @_;
+    my ($suffix, $roid_suffix, $line) = (undef,{},1);
+
+    open($suffix, '<:encoding(UTF-8)', $file) or die "Unable to open $file: $!";
+    while (<$suffix>) {
+        s/[\r\n]+$//o;
+
+        if (/^(\w{1,8})$/o) {
+            $roid_suffix->{$1} = 1;
+        }
+        elsif (/^\s*[^#]/) {
+            die "$file line $line: Invalid syntax";
+        }
+        $line++;
+    }
+    close($suffix);
+
+    $ROID_SUFFIX = $roid_suffix;
+
+    return;
 }
 
 1;

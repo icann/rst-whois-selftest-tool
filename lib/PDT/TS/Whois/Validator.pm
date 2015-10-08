@@ -279,6 +279,7 @@ sub _line {
         }
     }
 
+    my $line_no = $state->{lexer}->line_no();
     $state->{lexer}->next_line();
 
     if ( $token eq 'field' ) {
@@ -306,6 +307,10 @@ sub _line {
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
+    }
+
+    for my $error (@$errors) {
+        $error =~ s/(.*)/line $line_no: $1/;
     }
     return $subtype, $errors;
 }

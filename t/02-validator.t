@@ -103,7 +103,7 @@ subtest 'Simple line' => sub {
 };
 
 subtest 'Optional subrule' => sub {
-    plan tests => 3;
+    plan tests => 6;
 
     {
         my $lexer = make_mock_lexer (
@@ -131,6 +131,17 @@ subtest 'Optional subrule' => sub {
         );
         my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
         is scalar(@errors), 1, 'Should reject mixed empty field syntaxes';
+        like $errors[0], qr/line 1/, 'Should refer to line number of the empty field';
+    }
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Domain Name', [], undef], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        is scalar(@errors), 1, 'Should reject mixed empty field syntaxes';
+        like $errors[0], qr/line 2/, 'Should refer to line number where empty field was expected';
     }
 };
 

@@ -196,7 +196,6 @@ sub _occurances {
             push @errors, @$parsed_errors;
             $count++;
             if ( $count == 1 && $parsed eq 'empty field' ) {
-                push @errors, _set_empty_kind( $state, 'empty field' );
                 last;
             }
         }
@@ -259,6 +258,9 @@ sub _line {
             return;
         }
         $subtype = ( defined $field_value ) && 'field' || 'empty field';
+        if ($subtype eq 'empty field') {
+            push @$errors, _set_empty_kind( $state, 'empty field' );
+        }
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();

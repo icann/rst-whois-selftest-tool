@@ -279,39 +279,35 @@ sub _line {
         }
     }
 
-    my $line_no = $state->{lexer}->line_no();
-    $state->{lexer}->next_line();
-
     if ( $token eq 'field' ) {
         my ( $key, $translations, $value ) = @$token_value;
 
         for my $translation ( @$translations ) {
-            push @$errors, $state->{types}->validate_type( 'key translation', $translation );
+            push @$errors, _validate_type( $state, 'key translation', $translation );
         }
 
         if ( $type ) {
-            push @$errors, $state->{types}->validate_type( $type, $value );
+            push @$errors, _validate_type( $state, $type, $value );
         }
     }
     elsif ( $token eq 'roid line' ) {
         my ( $roid, $hostname ) = @$token_value;
 
-        push @$errors, $state->{types}->validate_type( 'roid', $roid );
+        push @$errors, _validate_type( $state, 'roid', $roid );
 
-        push @$errors, $state->{types}->validate_type( 'hostname', $hostname );
+        push @$errors, _validate_type( $state, 'hostname', $hostname );
     }
     elsif ( $token eq 'last update line' ) {
         my $timestamp = $token_value;
 
-        push @$errors, $state->{types}->validate_type( 'time stamp', $timestamp );
+        push @$errors, _validate_type( $state, 'time stamp', $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
     }
 
-    for my $error (@$errors) {
-        $error =~ s/(.*)/line $line_no: $1/;
-    }
+    $state->{lexer}->next_line();
+
     return $subtype, $errors;
 }
 
@@ -326,6 +322,18 @@ sub _set_empty_kind {
     else {
         return ( sprintf( "line %d: mixed empty field markups", $state->{lexer}->line_no ) );
     }
+}
+
+sub _validate_type {
+    my $state = shift;
+    my $type_name  = shift;
+    my $value  = shift;
+
+    my @errors;
+    for my $error ( $state->{types}->validate_type( $type_name, $value ) ) {
+        push @errors, sprintf("line %s: %s", $state->{lexer}->line_no, $error);
+    }
+    return @errors;
 }
 
 1;

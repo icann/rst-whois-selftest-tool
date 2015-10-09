@@ -288,7 +288,7 @@ sub _line {
             push @$errors, _validate_type( $state, 'key translation', $translation );
         }
 
-        if ( $type ) {
+        if ( $type && $subtype eq 'field' ) {
             push @$errors, _validate_type( $state, $type, $value );
         }
     }

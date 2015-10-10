@@ -2,7 +2,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Differences;
 
 require_ok('PDT::TS::Whois::Lexer');
@@ -203,4 +203,16 @@ subtest 'Trailing space' => sub {
     is(scalar @$errors, 1, 'Should detect an error');
     like($errors->[0], qr/trailing space/i, 'Should complain about trailing space');
     $lexer->next_line();
+};
+
+subtest 'Pattern matching' => sub {
+    plan tests => 5;
+    my $lexer = PDT::TS::Whois::Lexer->new("abcdef\r\n   surrounding space   \r\nthird line\r\n");
+    my $line_no = $lexer->line_no();
+    ok $lexer->matches(qr/bcde/), 'Should match substring';
+    ok !$lexer->matches(qr/third/), 'Should not match next line';
+    is $lexer->line_no(), $line_no, 'Should not advance line counter';
+    $lexer->next_line();
+    ok $lexer->matches(qr/^surrounding/), 'Should strip leading space before match';
+    ok $lexer->matches(qr/space$/), 'Should strip trailing space before match';
 };

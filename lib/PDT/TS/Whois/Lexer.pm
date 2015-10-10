@@ -132,6 +132,25 @@ sub peek_line {
     return @{ $self->{_lookahead} };
 }
 
+=head2 matches
+
+    my $is_comment = $lexer->matches(qr/^# /);
+
+Test if the current (pre-processed but unparsed) line matches given regular
+expression.
+
+=cut
+
+sub matches {
+    my $self    = shift;
+    my $pattern = shift;
+
+    if ( !defined $self->{_lookahead_line} ) {
+        $self->next_line();
+    }
+    return $self->{_lookahead_line} =~ $pattern;
+}
+
 =head2 next_line
 
     $lexer->next_line();
@@ -244,6 +263,7 @@ sub next_line {
         $token_value = $line;
     }
 
+    $self->{_lookahead_line} = $line;
     $self->{_lookahead} = [ $token, $token_value, \@errors ];
     return;
 }

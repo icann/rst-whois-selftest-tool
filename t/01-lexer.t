@@ -206,7 +206,7 @@ subtest 'Trailing space' => sub {
 };
 
 subtest 'Pattern matching' => sub {
-    plan tests => 5;
+    plan tests => 6;
     my $lexer = PDT::TS::Whois::Lexer->new("abcdef\r\n   surrounding space   \r\nthird line\r\n");
     my $line_no = $lexer->line_no();
     ok $lexer->matches(qr/bcde/), 'Should match substring';
@@ -215,4 +215,7 @@ subtest 'Pattern matching' => sub {
     $lexer->next_line();
     ok $lexer->matches(qr/^surrounding/), 'Should strip leading space before match';
     ok $lexer->matches(qr/space$/), 'Should strip trailing space before match';
+    $lexer->next_line();
+    $lexer->next_line();
+    ok !$lexer->matches(qr/third/), 'Should not match last line after EOF is reached';
 };

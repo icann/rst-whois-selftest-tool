@@ -134,7 +134,7 @@ sub peek_line {
 
 =head2 matches
 
-    my $is_comment = $lexer->matches(qr/^# /);
+    my $is_comment = $lexer->matches( qr/^#/ );
 
 Test if the current (pre-processed but unparsed) line matches given regular
 expression.
@@ -145,10 +145,10 @@ sub matches {
     my $self    = shift;
     my $pattern = shift;
 
-    if ( !defined $self->{_lookahead_line} ) {
+    if ( !exists $self->{_lookahead_line} ) {
         $self->next_line();
     }
-    return $self->{_lookahead_line} =~ $pattern;
+    return defined $self->{_lookahead_line} && $self->{_lookahead_line} =~ $pattern;
 }
 
 =head2 next_line
@@ -173,6 +173,7 @@ sub next_line {
         if ( !defined $self->{_line_no} ) {
             $self->{_line_no} = 1;
         }
+        $self->{_lookahead_line} = undef;
         $self->{_lookahead} = [ 'EOF', undef, \@errors ];
         return;
     }

@@ -245,7 +245,7 @@ sub next_line {
         $token       = 'awip line';
         $token_value = undef;
     }
-    elsif ( $line =~ /^([^:]+)(?: \(([^()]+)\))?:(?: (.*))?$/ ) {
+    elsif ( $line =~ /^(?!>>)([^:]+)(?: \(([^()]+)\))?:(?: (.*))?$/ ) {
         my $key          = $1;
         my @translations = split '/', ( $2 || '' );
         my $value        = $3;

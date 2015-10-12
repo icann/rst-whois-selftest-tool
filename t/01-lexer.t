@@ -53,7 +53,7 @@ subtest 'Line separators' => sub {
 };
 
 subtest 'Token types' => sub {
-    plan tests => 16;
+    plan tests => 18;
 
     my @lines = (
         '',
@@ -63,6 +63,7 @@ subtest 'Token types' => sub {
         'Query matched more than one name server:',
         'roid1abc-example (ns1.foo.example)',
         '>>> Last update of WHOIS database: 2014-11-14T12:58:01Z <<<',
+        '>>> Last update of Whois database: 2014-11-14T12:58:01Z <<<',
         'For more information on Whois status codes, please visit https://icann.org/epp',
     );
     my $lexer = PDT::TS::Whois::Lexer->new(join("\r\n", @lines, ''));
@@ -111,7 +112,14 @@ subtest 'Token types' => sub {
 
     {
         my ($token, $value, $errors) = $lexer->peek_line();
-        eq_or_diff([$token, $value], ['last update line', '2014-11-14T12:58:01Z'], 'Should recognize last update lines');
+        eq_or_diff([$token, $value], ['last update line', '2014-11-14T12:58:01Z'], 'Should recognize last update lines with all caps WHOIS');
+        eq_or_diff($errors, [], 'Should report no error');
+        $lexer->next_line();
+    }
+
+    {
+        my ($token, $value, $errors) = $lexer->peek_line();
+        eq_or_diff([$token, $value], ['last update line', '2014-11-14T12:58:01Z'], 'Should recognize last update lines with capitalized Whois');
         eq_or_diff($errors, [], 'Should report no error');
         $lexer->next_line();
     }

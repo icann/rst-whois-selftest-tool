@@ -37,10 +37,8 @@ my $text = do { local $/; <STDIN> };
 my $lexer = PDT::TS::Whois::Lexer->new( $text );
 
 if ( $opt_header ) {
-    my ( $token, $token_value ) = $lexer->peek_line();
-    while ( $token eq 'non-empty line' && $token_value =~ /^#/ ) {
+    while ( $lexer->matches( qr/^#/ ) ) {
         $lexer->next_line();
-        ( $token, $token_value ) = $lexer->peek_line();
     }
 }
 

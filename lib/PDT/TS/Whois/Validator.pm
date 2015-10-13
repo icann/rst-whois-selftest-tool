@@ -158,6 +158,7 @@ sub _choice_section {
     while ( my ( $key, $params ) = each( %$section_rule ) ) {
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
         if ( defined $count ) {
+            keys %$section_rule;  # need to reset each-counter since we exit loop early
             return $result;
         }
     }

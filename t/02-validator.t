@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 use Test::Differences;
 use Test::MockObject;
 
@@ -34,6 +34,15 @@ my $grammar = {
     'A domain name' => [
         { 'Domain Name' => { line => 'field', type => 'hostname', }, },
     ],
+    'Repeated choice section' => [
+        { 'Domain or referral' => {}, },
+        { 'Domain or referral' => {}, },
+        { 'EOF' => { line => 'EOF', }, },
+    ],
+    'Domain or referral' => {
+        'Domain Name' => { line => 'field', type => 'hostname', },
+        'Referral URL' => { line => 'field', type => 'http url', },
+    },
 };
 
 my %type_subs = (
@@ -202,6 +211,21 @@ subtest 'Optional repeatable subrule' => sub {
         );
         my @errors = validate( rule => 'Optional repeatable section', lexer => $lexer, grammar => $grammar, types => $types );
         eq_or_diff \@errors, [], 'Should accept omitted lines';
+    }
+
+};
+
+subtest 'Repeated choice section' => sub {
+    plan tests => 1;
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Domain Name', [], 'DOMAIN1.EXAMPLE'], []],
+            ['field', ['Domain Name', [], 'DOMAIN2.EXAMPLE'], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Repeated choice section', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept repeated choice section';
     }
 
 };

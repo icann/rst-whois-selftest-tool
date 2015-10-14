@@ -75,51 +75,76 @@ my %default_types;
 %default_types = (
     'positive integer' => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected positive integer' );
+        }
+
         if ( $value !~ /^[1-9][0-9]*$/o ) {
             return ( 'expected positive integer' );
         }
-        else {
-            return ();
-        }
+
+        return ();
     },
     'country code' => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected country code' );
+        }
+
         if ( $value !~ /^[a-zA-Z]{2}$/o ) {
             return ( 'expected country code' );
         }
-        else {
-            return ();
-        }
+
+        return ();
     },
     'dnssec' => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected dnssec delegation status' );
+        }
+
         if ( $value !~ /^(?:signedDelegation|unsigned)$/o ) {
             return ( 'expected dnssec delegation status' );
         }
-        else {
-            return ();
-        }
+
+        return ();
     },
     'domain status code' => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected domain status code' );
+        }
+
         if ( !exists $domain_status_codes{$value} ) {
             return ( 'expected domain status code' );
         }
-        else {
-            return ();
-        }
+
+        return ();
     },
     'key translation' => sub {
         my $value = shift;
-        if ( $value =~ /^ |[()]| $/o ) {
+
+        unless ( defined $value ) {
             return ( 'expected key translation' );
         }
-        else {
-            return ();
+
+        if ( !$value || $value =~ /^ /o || $value =~ /[\(\)]/o || $value =~ / $/o ) {
+            return ( 'expected key translation' );
         }
+
+        return ();
     },
     'translation clause' => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected translation clause' );
+        }
+
         if ( $value =~ /^ \((.*)\)$/o ) {
             my @errors;
             for my $key_translation ( split qr{/}, $1 ) {
@@ -127,102 +152,186 @@ my %default_types;
             }
             return @errors;
         }
-        else {
-            return ( 'expected translation clause' );
-        }
+
+        return ( 'expected translation clause' );
     },
     'hostname'      => sub {
         my $value = shift;
-        if ( $value !~ /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])*\.){1,}[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])\.?$/o ) {
+
+        unless ( defined $value ) {
             return ( 'expected hostname' );
         }
+
+        if ( $value !~ /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])*\.){1,}[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])\.?$/o
+             || ( $value =~ /\.$/o && length($value) > 255 )
+             || ( $value !~ /\.$/o && length($value) > 254 ) )
+        {
+            return ( 'expected hostname' );
+        }
+
+        foreach ( split(/\./o, $value) ) {
+            if ( length($_) > 63 ) {
+                return ( 'expected hostname' );
+            }
+        }
+
         return ();
     },
     'u-label'       => sub {
         my $value = shift;
-        if ( $default_types{hostname}->($value) ) {
+
+        unless ( defined $value ) {
+            return ( 'expected u-label' );
+        }
+
+        if ( $value && $default_types{hostname}->($value) ) {
             return ();
         }
+
         return ( 'expected u-label' );
     },
     'roid'          => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected roid' );
+        }
+
         if ( $default_types{token}->($value) || $value !~ /^\w{1,80}-(\w{1,8})$/o ) {
             return ( 'expected roid' );
         }
         unless (exists $ROID_SUFFIX->{$1}) {
             return ( 'expected valid roid suffix' );
         }
+
         return ();
     },
     'http url'      => sub {
-        my $uri = URI->new(shift);
-        if ( $uri->scheme =~ /^https?$/oi && $uri->opaque ) {
+        my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected http url' );
+        }
+
+        my $uri = URI->new($value);
+        if ( $uri->scheme && $uri->scheme =~ /^https?$/oi && $uri->opaque ) {
             return ();
         }
+
         return ( 'expected http url' );
     },
     'time stamp'    => sub {
         my $value = shift;
-        #
-        # Regex taken from https://mxr.mozilla.org/comm-central/source/calendar/base/modules/calProviderUtils.jsm#316
-        #
-        if ( $value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?)?(?:[Zz]|[+-][0-9]{2}:[0-9]{2})?$/o ) {
+
+        unless ( defined $value ) {
             return ( 'expected time stamp' );
         }
+
+        #
+        # Regex taken from https://mxr.mozilla.org/comm-central/source/calendar/base/modules/calProviderUtils.jsm#316
+        # Modified to remove extraction of values and timezone offset at the end
+        #
+        if ( $value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?)?[Zz]?$/o ) {
+            return ( 'expected time stamp' );
+        }
+
         return ();
     },
     'token'         => sub {
         my $value = shift;
-        if ( $value =~ /[\r\n\t]/o || $value =~ /^ /o || $value =~ / $/o || $value =~ /  /o ) {
+
+        unless ( defined $value ) {
             return ( 'expected token' );
         }
+
+        if ( !$value || $value =~ /[\r\n\t]/o || $value =~ /^ /o || $value =~ / $/o || $value =~ /  /o ) {
+            return ( 'expected token' );
+        }
+
         return ();
     },
     'domain status' => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected domain status' );
+        }
+
         if ( $value =~ /^([^ ]+) {1,9}https:\/\/icann\.org\/epp#(.+)$/o ) {
             if ( exists $domain_status_codes{$1} && $1 eq $2 ) {
                 return ();
             }
         }
+
         return ( 'expected domain status' );
     },
     'postal line'   => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected postal line' );
+        }
+
         if ( length($value) < 1 || length($value) > 255 || $value =~ /[\r\n\t]/o ) {
             return ( 'expected postal line' );
         }
+
         return ();
     },
     'postal code'   => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected postal code' );
+        }
+
         if ( length($value) > 16 || $default_types{token}->($value) ) {
             return ( 'expected postal code' );
         }
+
         return ();
     },
     'phone number'  => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected phone number' );
+        }
+
         if ( length($value) > 17 || $default_types{token}->($value) || $value !~ /^\+[0-9]{1,3}\.[0-9]{1,14}$/o ) {
             return ( 'expected phone number' );
         }
+
         return ();
     },
     'email address' => sub {
-        my ( $localpart, $domain ) = split( '@', shift, 2 );
+        my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected email address' );
+        }
+
+        my ( $localpart, $domain ) = split( '@', $value, 2 );
+
         if ( !$localpart || $default_types{hostname}->($domain) || $domain =~ /\.$/o ) {
             return ( 'expected email address' );
         }
+
         foreach ( split( '.', $localpart ) ) {
             unless ( /^[a-zA-Z0-9!#\$\%\&'\*\+\-\/=\?\^_`{}\|~]+$/o ) {
                 return ( 'expected email address' );
             }
         }
+
         return ();
     },
     'ip address'    => sub {
         my $value = shift;
+
+        unless ( defined $value ) {
+            return ( 'expected ip address' );
+        }
+
         if ( $value =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/o ) {
             foreach ( ($1, $2, $3, $4) ) {
                 if ( $_ eq '0' ) {
@@ -234,15 +343,24 @@ my %default_types;
             }
             return ();
         }
+
         if ( $value =~ /^$Regexp::IPv6::IPv6_re$/o ) {
             return ();
         }
+
         return ( 'expected ip address' );
     },
     'epp repo id' => sub {
-        if ( $default_types{roid}->(shift) ) {
+        my $value = shift;
+
+        unless ( defined $value ) {
             return ( 'expected epp repo id' );
         }
+
+        if ( $default_types{roid}->($value) ) {
+            return ( 'expected epp repo id' );
+        }
+
         return ();
     },
 );

@@ -10,6 +10,7 @@ use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Types;
 
 my $types = PDT::TS::Whois::Types->new;
+$types->load_roid_suffix('t/roid-example.txt');
 $types->add_type( 'query name server' => sub { } );
 
 my $text = do { local $/; <DATA> };

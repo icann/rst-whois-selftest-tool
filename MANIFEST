@@ -20,3 +20,5 @@ t/manifest.t
 t/pod-coverage.t
 t/pod.t
 validate
+t/iana-epp-rep-id.txt
+t/roid-example.txt

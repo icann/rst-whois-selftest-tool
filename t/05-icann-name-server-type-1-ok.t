@@ -11,6 +11,7 @@ use PDT::TS::Whois::Types;
 
 my $types = PDT::TS::Whois::Types->new;
 $types->add_type( 'query name server' => sub { return ( lc( shift ) ne lc( 'NS1.EXAMPLE.TLD' ) ) ? ( 'expected exact name server' ) : () } );
+$types->add_type( 'query name server ip' => sub { return ( $_[0] ne '192.0.2.123' && $_[0] ne '2001:0DB8::1' ) ? ( 'expected exact name server ip' ) : () } );
 
 my $text = do { local $/; <DATA> };
 $text =~ s/(?<!\r)\n/\r\n/g;

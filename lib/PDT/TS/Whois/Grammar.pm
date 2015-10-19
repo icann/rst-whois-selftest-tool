@@ -246,7 +246,7 @@ Subsequent name server details section:
   - A name server details section: { }
 Name server details section:
   - Server Name: { line: field, type: query name server }
-  - IP Address: { repeatable: unbounded, line: field, type: ip address }
+  - IP Address: { repeatable: unbounded, line: field, type: query name server ip }
   - Registrar: { optional: y, line: field, type: postal line }
   - WHOIS Server: { optional: y, line: field, type: hostname }
   - Referral URL: { optional: y, line: field, type: http url }

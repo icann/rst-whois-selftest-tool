@@ -1,0 +1,52 @@
+#!/usr/bin/perl -w
+use strict;
+use warnings;
+use 5.014;
+
+use Getopt::Long qw( :config bundling );
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Validator qw( validate );
+use PDT::TS::Whois::Grammar qw( $grammar );
+use PDT::TS::Whois::Types;
+
+my %rules = (
+    d => 'Domain Name Object query',
+    r => 'Registrar Object query',
+    n => 'Name Server Object query',
+);
+
+my $opt_header;
+my $opt_type;
+my $opt_query;
+GetOptions(
+    "header|h"  => \$opt_header,
+    "type|t=s"  => \$opt_type,
+    "query|q=s" => \$opt_query,
+);
+
+if ( !defined $opt_type || !exists $rules{$opt_type} ) {
+    die "error: must specify --type " . join( '|', keys %rules );
+}
+if ( !defined $opt_query ) {
+    die "error: must specify --query QUERY-STRING";
+}
+
+my $rule = $rules{$opt_type};
+my $text = do { local $/; <STDIN> };
+
+my $lexer = PDT::TS::Whois::Lexer->new( $text );
+
+if ( $opt_header ) {
+    while ( $lexer->matches( qr/^#/ ) ) {
+        $lexer->next_line();
+    }
+}
+
+my $types = PDT::TS::Whois::Types->new;
+$types->add_type( 'query domain name'    => sub { return ( lc( shift ) ne lc( $opt_query ) ) && ( 'expected exact domain name' )    || () } );
+$types->add_type( 'query name server'    => sub { return ( lc( shift ) ne lc( $opt_query ) ) && ( 'expected exact name server' )    || () } );
+$types->add_type( 'query registrar name' => sub { return ( shift       ne $opt_query )       && ( 'expected exact registrar name' ) || () } );
+
+for my $error ( validate( rule => $rule, lexer => $lexer, grammar => $grammar, types => $types ) ) {
+    say $error;
+}

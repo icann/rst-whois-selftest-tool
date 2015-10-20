@@ -401,6 +401,7 @@ sub add_type {
     my $self      = shift;
     my $type_name = shift or croak 'Missing argument: $type_name';
     my $sub       = shift or croak 'Missing argument: $sub';
+    ref $sub eq 'CODE' or croak 'Argument $sub must be a coderef';
     $self->{_types}{$type_name} = $sub;
 }
 

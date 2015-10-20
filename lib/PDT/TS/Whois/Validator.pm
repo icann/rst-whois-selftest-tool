@@ -197,7 +197,7 @@ sub _occurances {
     }
     elsif ( $args{'repeatable'} ne 'unbounded' ) {
         $max_occurs = int $args{'repeatable'};
-        $max_occurs >= 1 or croak 'Argument must be zero or negative: repeatable';
+        $max_occurs >= 1 or croak 'Argument must not be zero or negative: repeatable';
     }
 
     my $count = 0;
@@ -298,6 +298,8 @@ sub _line {
         else {
             return;
         }
+
+        ref $errors eq 'ARRAY' or confess;
     }
 
     if ( $token eq 'field' ) {
@@ -327,7 +329,8 @@ sub _line {
         push @$errors, _validate_type( $state, 'hostname', $hostname );
     }
     elsif ( $token eq 'last update line' ) {
-        my $timestamp = $token_value or confess;
+        $token_value && ref $token_value eq '' or confess;
+        my $timestamp = $token_value;
 
         push @$errors, _validate_type( $state, 'time stamp', $timestamp );
     }

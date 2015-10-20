@@ -399,8 +399,8 @@ Adds (or updates) a type to the set recognized by this type checker.
 
 sub add_type {
     my $self      = shift;
-    my $type_name = shift;
-    my $sub       = shift;
+    my $type_name = shift or croak 'Missing argument: $type_name';
+    my $sub       = shift or croak 'Missing argument: $sub';
     $self->{_types}{$type_name} = $sub;
 }
 
@@ -419,7 +419,7 @@ Test if a type is recognized by this type checker.
 
 sub has_type {
     my $self      = shift;
-    my $type_name = shift;
+    my $type_name = shift or croak 'Missing argument: $type_name';
     return exists $self->{_types}{$type_name};
 }
 

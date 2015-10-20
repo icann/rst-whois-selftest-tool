@@ -104,8 +104,8 @@ sub validate {
 }
 
 sub _rule {
-    my $state = shift;
-    my $rule  = shift;
+    my $state = shift or croak 'Missing argument: $state';
+    my $rule  = shift or croak 'Missing argument: $rule';
 
     if ( my $section_rule = $state->{grammar}->{$rule} ) {
         if ( ref $section_rule eq 'ARRAY' ) {
@@ -126,24 +126,31 @@ sub _rule {
 }
 
 sub _sequence_section {
-    my $state        = shift;
-    my $section_rule = shift;
+    my $state        = shift or croak 'Missing argument: $state';
+    my $section_rule = shift or croak 'Missing argument: $section_rule';
 
     my @errors;
     my $total = 0;
 
     for my $elem ( @$section_rule ) {
+
+        ref $elem eq 'HASH' or confess;
+
         my ( $key, $params ) = %$elem;
+
+        ref $params eq 'HASH' or confess;
+
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
         if ( !defined $count ) {
             if ( $total == 0 ) {
                 return;
             }
             else {
-                push @errors, sprintf( "line %d: expected $key", $state->{lexer}->line_no );
+                push @errors, sprintf( "line %d: expected %s", $state->{lexer}->line_no, $key );
                 last;
             }
         }
+        ref $result eq 'ARRAY' or confess;
         push @errors, @$result;
         $total += $count;
     }
@@ -152,13 +159,16 @@ sub _sequence_section {
 }
 
 sub _choice_section {
-    my $state        = shift;
-    my $section_rule = shift;
+    my $state        = shift or croak 'Missing argument: $state';
+    my $section_rule = shift or croak 'Missing argument: $section_rule';
+    ref $section_rule eq 'HASH' or croak 'Argument $section_rule must be hashref';
 
-    while ( my ( $key, $params ) = each( %$section_rule ) ) {
+    for my $key ( keys $section_rule ) {
+        my $params = $section_rule->{$key};
+
+        ref $params eq 'HASH' or confess;
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
         if ( defined $count ) {
-            keys %$section_rule;  # need to reset each-counter since we exit loop early
             return $result;
         }
     }
@@ -169,9 +179,9 @@ sub _choice_section {
 sub _occurances {
     my $state = shift;
     my %args  = @_;
-    my $key   = $args{'key'};
-    my $line  = $args{'line'};
-    my $type  = $args{'type'};
+    my $key   = $args{'key'} or croak 'Missing argument: key';
+    my $line  = $args{'line'} or croak 'Missing argument: line';
+    my $type  = $args{'type'} or croak 'Missing argument: type';
 
     my $min_occurs;
     if ( ( $args{'optional'} || 'n' ) eq 'y' ) {
@@ -187,6 +197,7 @@ sub _occurances {
     }
     elsif ( $args{'repeatable'} ne 'unbounded' ) {
         $max_occurs = int $args{'repeatable'};
+        $max_occurs >= 1 or croak 'Argument must be zero or negative: repeatable';
     }
 
     my $count = 0;
@@ -194,6 +205,7 @@ sub _occurances {
     while ( !defined $max_occurs || $count < $max_occurs ) {
         my ( $parsed, $parsed_errors ) = _subrule( $state, line => $line, key => $key, type => $type );
         if ( defined $parsed ) {
+            ref $parsed_errors eq 'ARRAY' or confess;
             push @errors, @$parsed_errors;
             $count++;
             if ( $count == 1 && $parsed eq 'empty field' ) {
@@ -219,9 +231,9 @@ sub _occurances {
 sub _subrule {
     my $state = shift;
     my %args  = @_;
-    my $line  = $args{'line'};
-    my $key   = $args{'key'};
-    my $type  = $args{'type'};
+    my $line  = $args{'line'} or croak 'Missing argument: line';
+    my $key   = $args{'key'} or croak 'Missing argument: key';
+    my $type  = $args{'type'} or croak 'Missing argument: type';
 
     if ( defined $line || defined $type ) {
         my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type );
@@ -237,9 +249,9 @@ sub _subrule {
 sub _line {
     my $state = shift;
     my %args  = @_;
-    my $key   = $args{'key'};
-    my $line  = $args{'line'};
-    my $type  = $args{'type'};
+    my $key   = $args{'key'} or croak 'Missing argument: key';
+    my $line  = $args{'line'} or croak 'Missing argument: line';
+    my $type  = $args{'type'} or croak 'Missing argument: type';
 
     my $token;
     my $token_value;
@@ -251,9 +263,15 @@ sub _line {
             croak "unknown type $type";
         }
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
+
+        ref $errors eq 'ARRAY' or confess;
+
         if ( !defined $token || $token ne 'field' ) {
             return;
         }
+
+        ref $token_value eq 'ARRAY' or confess;
+
         my ( $field_key, $field_translations, $field_value ) = @$token_value;
         if ( $field_key ne $key ) {
             return;
@@ -265,6 +283,9 @@ sub _line {
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
+
+        ref $errors eq 'ARRAY' or confess;
+
         if ( !defined $token ) {
             return;
         }
@@ -283,7 +304,12 @@ sub _line {
     }
 
     if ( $token eq 'field' ) {
+
+        ref $token_value eq 'ARRAY' or confess;
+
         my ( $key, $translations, $value ) = @$token_value;
+
+        ref $translations eq 'ARRAY' or confess;
 
         for my $translation ( @$translations ) {
             push @$errors, _validate_type( $state, 'key translation', $translation );
@@ -294,6 +320,9 @@ sub _line {
         }
     }
     elsif ( $token eq 'roid line' ) {
+
+        ref $token_value eq 'ARRAY' or confess;
+
         my ( $roid, $hostname ) = @$token_value;
 
         push @$errors, _validate_type( $state, 'roid', $roid );
@@ -301,7 +330,7 @@ sub _line {
         push @$errors, _validate_type( $state, 'hostname', $hostname );
     }
     elsif ( $token eq 'last update line' ) {
-        my $timestamp = $token_value;
+        my $timestamp = $token_value or confess;
 
         push @$errors, _validate_type( $state, 'time stamp', $timestamp );
     }
@@ -315,8 +344,8 @@ sub _line {
 }
 
 sub _set_empty_kind {
-    my $state = shift;
-    my $kind  = shift;
+    my $state = shift or croak 'Missing argument: $state';
+    my $kind  = shift or croak 'Missing argument: $kind';
 
     $state->{empty_kind} ||= $kind;
     if ( $state->{empty_kind} eq $kind ) {
@@ -328,9 +357,9 @@ sub _set_empty_kind {
 }
 
 sub _validate_type {
-    my $state = shift;
-    my $type_name  = shift;
-    my $value  = shift;
+    my $state     = shift or croak 'Missing argument: $state';
+    my $type_name = shift or croak 'Missing argument: $type_name';
+    my $value     = shift or croak 'Missing argument: $value';
 
     my @errors;
     for my $error ( $state->{types}->validate_type( $type_name, $value ) ) {

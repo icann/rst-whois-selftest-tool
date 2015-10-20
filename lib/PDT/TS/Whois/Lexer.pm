@@ -143,7 +143,7 @@ expression.
 
 sub matches {
     my $self    = shift;
-    my $pattern = shift;
+    my $pattern = shift or croak 'Missing argument: $pattern';
 
     if ( !exists $self->{_lookahead_line} ) {
         $self->next_line();
@@ -238,8 +238,8 @@ sub next_line {
         my $url = $1;
 
         # Note: validation is out of place here; move elsewhere if added complexity can be avoided
-        if ( $url ne 'https://icann.org/epp' && $url ne 'https://www\.icann\.org/resources/pages/epp-status-codes-2014-06-16-en' ) {
-            push @errors, sprintf( 'line %d: illegal url' );
+        if ( $url ne 'https://icann.org/epp' && $url ne 'https://www.icann.org/resources/pages/epp-status-codes-2014-06-16-en' ) {
+            push @errors, sprintf( 'line %d: illegal url', $self->{_line_no} );
         }
 
         $token       = 'awip line';

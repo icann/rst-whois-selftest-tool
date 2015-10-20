@@ -180,8 +180,8 @@ sub _occurances {
     my $state = shift;
     my %args  = @_;
     my $key   = $args{'key'} or croak 'Missing argument: key';
-    my $line  = $args{'line'} or croak 'Missing argument: line';
-    my $type  = $args{'type'} or croak 'Missing argument: type';
+    my $line  = $args{'line'};
+    my $type  = $args{'type'};
 
     my $min_occurs;
     if ( ( $args{'optional'} || 'n' ) eq 'y' ) {
@@ -231,9 +231,9 @@ sub _occurances {
 sub _subrule {
     my $state = shift;
     my %args  = @_;
-    my $line  = $args{'line'} or croak 'Missing argument: line';
+    my $line  = $args{'line'};
     my $key   = $args{'key'} or croak 'Missing argument: key';
-    my $type  = $args{'type'} or croak 'Missing argument: type';
+    my $type  = $args{'type'};
 
     if ( defined $line || defined $type ) {
         my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type );
@@ -250,8 +250,8 @@ sub _line {
     my $state = shift;
     my %args  = @_;
     my $key   = $args{'key'} or croak 'Missing argument: key';
-    my $line  = $args{'line'} or croak 'Missing argument: line';
-    my $type  = $args{'type'} or croak 'Missing argument: type';
+    my $line  = $args{'line'};
+    my $type  = $args{'type'};
 
     my $token;
     my $token_value;
@@ -264,12 +264,11 @@ sub _line {
         }
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
 
-        ref $errors eq 'ARRAY' or confess;
-
         if ( !defined $token || $token ne 'field' ) {
             return;
         }
 
+        ref $errors eq 'ARRAY' or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;
@@ -283,8 +282,6 @@ sub _line {
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
-
-        ref $errors eq 'ARRAY' or confess;
 
         if ( !defined $token ) {
             return;

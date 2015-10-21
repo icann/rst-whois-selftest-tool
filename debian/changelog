@@ -1,3 +1,9 @@
+libpdt-ts-whois-perl (1.00-1) unstable; urgency=low
+
+  * Release 1.00.
+
+ -- Jerry Lundström <lundstrom.jerry@gmail.com>  Wed, 21 Oct 2015 13:30:12 +0200
+
 libpdt-ts-whois-perl (0.01-1) unstable; urgency=low
 
   * Initial Release.

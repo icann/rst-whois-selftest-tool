@@ -36,11 +36,11 @@ Validates the output of a lexer according to a grammar and types.
 
 =head1 VERSION
 
-Version 0.01
+Version 1.00
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '1.00';
 
 =head1 SYNOPSIS
 

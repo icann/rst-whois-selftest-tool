@@ -1,0 +1,23 @@
+Source: libpdt-ts-whois-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 7)
+Build-Depends-Indep: perl,
+ libyaml-syck-perl,
+ liburi-perl,
+ libregexp-ipv6-perl,
+ libtest-differences-perl,
+ libtest-mockobject-perl
+Maintainer: Jerry Lundström <jerry.lundstrom@iis.se>
+Standards-Version: 3.9.1
+Homepage:
+
+Package: libpdt-ts-whois-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends},
+ perl,
+ libyaml-syck-perl,
+ liburi-perl,
+ libregexp-ipv6-perl
+Description: Validates Whois output
+ Validates Whois output strings according to the ICANN specification.

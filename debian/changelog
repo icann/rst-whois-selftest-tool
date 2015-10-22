@@ -1,3 +1,10 @@
+libpdt-ts-whois-perl (1.01-1) unstable; urgency=low
+
+  * Release 1.01.
+    0b76fc8 Remove test script from MANIFEST
+
+ -- Jerry Lundström <lundstrom.jerry@gmail.com>  Thu, 22 Oct 2015 11:38:00 +0200
+
 libpdt-ts-whois-perl (1.00-1) unstable; urgency=low
 
   * Release 1.00.

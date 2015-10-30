@@ -53,12 +53,13 @@ subtest 'Line separators' => sub {
 };
 
 subtest 'Token types' => sub {
-    plan tests => 18;
+    plan tests => 20;
 
     my @lines = (
         '',
         'second line',
         'Domain Name: EXAMPLE.TLD',
+        'Domain Name (Domännamn): EXAMPLE.TLD',
         'Name Server:',
         'Query matched more than one name server:',
         'roid1abc-example (ns1.foo.example)',
@@ -85,6 +86,13 @@ subtest 'Token types' => sub {
     {
         my ($token, $value, $errors) = $lexer->peek_line();
         eq_or_diff([$token, $value], ['field', ['Domain Name', [], 'EXAMPLE.TLD']], 'Should recognize fields');
+        eq_or_diff($errors, [], 'Should report no error');
+        $lexer->next_line();
+    }
+
+    {
+        my ($token, $value, $errors) = $lexer->peek_line();
+        eq_or_diff([$token, $value], ['field', ['Domain Name', ['Domännamn'], 'EXAMPLE.TLD']], 'Should recognize fields with translations');
         eq_or_diff($errors, [], 'Should report no error');
         $lexer->next_line();
     }

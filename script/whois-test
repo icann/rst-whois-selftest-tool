@@ -1,0 +1,510 @@
+#!/usr/bin/perl -w
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+whois-test - Validates Whois output
+
+=head1 SYNOPSIS
+
+=over 4
+
+=item whois-test [ --help | --man ]
+
+=item whois-test --domain=HOST --epp-repo-id=SUFFIX FILE
+
+=item whois-test --registrar=SUBSTRING FILE
+
+=item whois-test --nameserver=HOST FILE
+
+=item whois-test --nameserver-ip=IP FILE
+
+=back
+
+=head1 OPTIONS AND ARGUMENTS
+
+=over 4
+
+=item B<-?>, B<--help>
+
+Display usage and options, and exit.
+
+=item B<--man>
+
+Display full man page.
+
+=item B<-e> I<SUFFIX>, B<--epp-repo-id>=I<SUFFIX>
+
+Specify the EPP repo id to use in validation.
+
+=item B<-d> I<HOST>, B<--domain>=I<HOST>
+
+Validate B<Domain Name Object reply> for the I<HOST> domain name object.
+
+=item B<-r>=I<SUBSTRING>, B<--registrar>=I<SUBSTRING>
+
+Validate B<Registrar Object reply> for a registrar object whose name contains
+the specified I<SUBSTRING>.
+
+=item B<-n>=I<HOST>, B<--nameserver>=I<HOST>
+
+Validate B<Name Server Object reply> for the I<HOST> name server object.
+
+=item B<-i>=I<IP>, B<--nameserver-ip>=I<IP>
+
+Validate B<Name Server Object reply> for the name server objects with the I<IP>
+IPv4 or IPv6 address.
+
+=item B<FILE>
+
+The reply input file to read. If C<-> is specified, the reply is read from
+standard input.
+
+=back
+
+=head1 DESCRIPTION
+
+B<whois-test> reads Whois output from a file or C<STDIN>, validates it according
+to the F<PDT_Whois_TP.pdf> document and reports errors and feedback on
+additional tasks that need to be performed.
+
+Some validation errors prevents the detection of further (possibly more serious)
+validation errors.
+
+For context regarding purspose, scope and disclaimer, see F<README.md>.
+
+=head1 EXAMPLES
+
+=head2 Workflow
+
+=over 4
+
+=item 1. Select a Whois server to query and an existing object to query for.
+
+B<Domain name>, B<Registrar> or B<Nameserver> objects are supported.
+
+=item 2. Submit the query and save the result into a file.
+
+Examples:
+
+=over 4
+
+=item C<echo -n "domain.example\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+
+Make a request for domain name objects matching C<domain.example> to the Whois
+server at IP address C<128.66.0.1>.
+
+=item C<echo -n "roid abc123-IIS\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+
+Make a request for the object with ROID C<abc123-IIS> to the Whois server at IP address
+C<128.66.0.1>.
+
+=item C<echo -n "registrar Partial Registrar Name\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+
+Make a request for registrar objects matching C<Partial Registrar Name> to the
+Whois server at IP address C<128.66.0.1>.
+
+=item C<echo -n "nameserver ns1.domain.example\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+
+Make a request for registrar objects matching C<ns1.domain.example> to the Whois
+server at IP address C<128.66.0.1>.
+
+=item C<echo -n "nameserver 128.66.99.234\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+
+Make a request for registrar objects matching C<128.66.99.234> to the Whois
+server at IP address C<128.66.0.1>.
+
+=back
+
+Note: The C<echo>, C<nc>, C<file> and C<iconv> commands are general tools
+available on all Unix, Linux or Mac computers.
+
+Note: The C<whois> command is not recommended for this task since it does not
+respect the newline format of the responses.
+
+Note: The C<nc> command doesn't support B<-q> on OS X.  Try using the B<-i> option instead.
+
+=item 3. Ensure that the character encoding is UTF-8 or ASCII.
+
+Example:
+
+=over 4
+
+=item C<file queryoutput.txt>
+
+Convert the response with C<iconv> if the encoding is neither UTF-8 nor ASCII.
+
+=back
+
+=item 4. Validate the fetched Whois response.
+
+Examples:
+
+=over 4
+
+=item C<whois-test --domain=domain.example --epp-repo-id=example queryoutput.txt>
+
+Validate the response of a B<Domain Name> object query.
+
+=item C<whois-test --registrar='Partial Registrar Name' queryoutput.txt>
+
+Validate the response of a B<Registrar> object query.
+
+=item C<whois-test --nameserver=ns1.domain.example queryoutput.txt>
+
+Validate the response of a B<Name Server> object query for a domain name.
+
+=item C<whois-test --nameserver-ip=128.66.99.234 queryoutput.txt>
+
+Validate the response of a B<Name Server> object query for an IP address.
+
+=back
+
+=item 5. Resolve any errors indicated in the output and rerun the validation
+command in step 5.
+
+If the response was a B<Multiple name servers response>, C<whois-test> will
+prompt you to make a follow-up test.  In that case, resume from step 2.
+
+=back
+
+=head1 ENVIRONMENT
+
+=over 4
+
+=item HOME
+
+Used to determine the default value of $XDG_DATA_HOME if it's needed.
+
+=item XDG_DATA_HOME
+
+The data home directory. (default: $HOME/.local/share)
+
+=back
+
+=head1 FILES
+
+=over 4
+
+=item F<epp-repo-ids.txt>
+
+The database of EPP repository IDs stored in a text format.  Located in the
+F<$XDG_DATA_HOME/Whois-Selftest-Tool> directory.
+
+=back
+
+=head1 AUTHOR
+
+Mattias Päivärinta <mattias.paivarinta@doxwork.com>
+
+=head1 BUGS
+
+If you think you've found a bug, please search both the list of known issues and
+the L<issue tracker|https://github.com/dotse/Whois-Selftest-Tool/issues> to see
+if this is a known bug.  If you cannot find it, please report it to the issue
+tracker.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2015 IIS (The Internet Foundation In Sweden)
+All rights reserved.
+
+The Whois Selftest Tool and the use hereof is subject to the following licensing
+conditions.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THE SOFTWARE IS PROVIDED AS-IS AND MAKES NO REPRESENTATIONS OR WARRANTIES OF
+ANY KIND CONCERNING THE WORK, EXPRESS, IMPLIED, STATUTORY OR OTHERWISE,
+INCLUDING, WITHOUT LIMITATION, WARRANTIES OF TITLE, MERCHANTIBILITY, FITNESS
+FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER
+DEFECTS, ACCURACY, OR THE PRESENCE OF ABSENCE OF ERRORS, WHETHER OR NOT
+DISCOVERABLE.
+
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item B<Pre-Delegation Testing microsite>
+
+http://newgtlds.icann.org/en/applicants/pdt
+
+=item B<PDT Test Specifications zip>
+
+Present at the B<Pre-Delegation Testing microsite>.
+
+=item F<PDT_Whois_TP.pdf>
+
+Present in the B<PDT Test Specifications zip>.
+
+=back
+
+=cut
+
+use strict;
+use warnings;
+use 5.014;
+
+use Carp;
+use English;
+use Getopt::Long qw( :config );
+use Pod::Usage;
+
+use File::Slurp;
+use Net::IP;
+use Readonly;
+
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Validator qw( validate );
+use PDT::TS::Whois::Grammar qw( $grammar );
+use PDT::TS::Whois::Types;
+use PDT::TS::Whois::Util qw( extract_roid scrub_u_label );
+
+binmode STDIN, ':utf8';
+
+Readonly my $datahome => $ENV{XDG_DATA_HOME} || $ENV{HOME} . '/.local/share';    # Base directory relative to which user specific data files should be stored
+Readonly my $datadir     => $datahome . '/Whois-Selftest-Tool';                  # User specific data directory for Whois-Selftest-Tool
+Readonly my $epp_id_path => $datadir . '/epp-repo-ids.txt';                      # EPP Repository Identifiers database
+
+my $glob_types;
+
+my $opt_help;
+my $opt_man;
+my $opt_domain;
+my $opt_registrar;
+my $opt_nameserver;
+my $opt_nameserver_ip;
+my $opt_epp_repo_id;
+my $opt_stdin;
+
+sub scrub_hostname {
+    my $value = shift;
+    if ( !$glob_types->validate_type( 'hostname', $value ) ) {
+        return lc $value =~ s/\.$//r;
+    }
+    else {
+        return ();
+    }
+}
+
+sub scrub_ip_address {
+    my $value = shift;
+    if ( !$glob_types->validate_type( 'ip address', $value ) ) {
+        return Net::IP->new( $value )->ip();
+    }
+    else {
+        return ();
+    }
+}
+
+sub scrub_postal_line {
+    my $value = shift;
+    if ( !$glob_types->validate_type( 'postal line', $value ) ) {
+        return $value;
+    }
+    else {
+        return ();
+    }
+}
+
+sub scrub_roid {
+    my $value = shift;
+    $glob_types->validate_type( 'roid', $value ) and return ();
+    return $value;
+}
+
+sub scrub_roid_suffix {
+    my $value = shift;
+    $glob_types->validate_type( 'roid suffix', $value ) and return ();
+    return $value;
+}
+
+sub main {
+
+    ##################################################################
+    # Initialize globals
+    #
+    # This section assigns $glob_types.
+    #
+    $glob_types = PDT::TS::Whois::Types->new;
+    $glob_types->load_roid_suffix( $epp_id_path );
+
+    ##################################################################
+    # Parse command line arguments
+    #
+    # This section assings $opt_* and updates @ARGV.
+    #
+    GetOptions(
+        "help|?"            => \$opt_help,
+        "man"               => \$opt_man,
+        "domain|d=s"        => sub { $opt_domain = scrub_hostname( $_[1] ) or die "domain argument must be valid hostname" },
+        "registrar|r=s"     => sub { $opt_registrar = scrub_postal_line( $_[1] ) or die "registrar argument must be valid postal line" },
+        "nameserver|n=s"    => sub { $opt_nameserver = scrub_hostname( $_[1] ) or die "nameserver argument must be valid hostname" },
+        "nameserver-ip|i=s" => sub { $opt_nameserver_ip = scrub_ip_address( $_[1] ) or die "nameserver-ip argument must be valid nameserver IP" },
+        "epp-repo-id|e=s"   => sub { $opt_epp_repo_id = scrub_roid_suffix( $_[1] ) or die "epp-repo-id must be valid ROID suffix" },
+        ""                  => \$opt_stdin,
+    ) or pod2usage( 2 );
+    pod2usage( 1 ) if $opt_help;
+    pod2usage( -exitval => 0, -verbose => 2 ) if $opt_man;
+    my $object_types = scalar grep { $_ } $opt_domain, $opt_registrar, $opt_nameserver, $opt_nameserver_ip;
+    $object_types == 1 or pod2usage( "must specify exactly one of --domain, --registrar, --nameserver, --nameserver-ip" );
+    $opt_domain && !$opt_epp_repo_id and pod2usage( "must specify epp-repo-id" );
+    ( $opt_stdin && @ARGV == 0 ) || ( !$opt_stdin && @ARGV == 1 ) or pod2usage( "must specify exactly one input file" );
+
+    ##################################################################
+    # Process command line arguments
+    #
+    # This section:
+    #  * reads $opt_* and @ARGV
+    #  * assigns the $rule and $text variables
+    #  * updates $glob_types
+    #  * defines callbacks that updates the @errors variable
+    #
+    my $text;
+    if ( @ARGV ) {
+        my $filename = shift @ARGV;
+        $text = read_file( $filename, binmode => ':utf8' ) or croak "Can't read file '$filename': $OS_ERROR";
+    }
+    else {
+        $text = do { local $/; <STDIN> };
+    }
+
+    my $lexer = PDT::TS::Whois::Lexer->new($text);
+    my @errors;
+    my $rule;
+
+    if ( defined $opt_domain ) {
+        $rule = 'Domain Name Object query';
+        $glob_types->add_type(
+            'query domain name' => sub {
+                my $value = scrub_hostname( shift ) or return ( 'must be the domain name specified in --domain' );
+                $value eq $opt_domain or return 'must be the domain name specified in --domainame';
+                return ();
+            }
+        );
+        $glob_types->add_type(
+            'epp repo id' => sub {
+                my $value = scrub_roid( shift ) or return ( 'must be a ROID and its suffix must be a registered EPP Rep ID and must be the one specified in --epp-repo-id' );
+                $value =~ /-$opt_epp_repo_id$/ or return ( 'must be a ROID with the suffix specified in --epp-repo-id' );
+                return ();
+            }
+        );
+        $glob_types->add_type(
+            'u-label' => sub {
+                my $value = scrub_u_label( shift ) or return ( 'must be a U-label matching the domain name specified in --domain' );
+                $value eq $opt_domain or return ( 'must be a U-label matching the domain name specified in --domain' );
+                return ();
+            }
+        );
+    }
+
+    if ( defined $opt_registrar ) {
+        $rule = 'Registrar Object query';
+        $glob_types->add_type(
+            'query registrar name' => sub {
+                my $value = scrub_postal_line( shift ) or return ( 'must be a registrar name matching the substring specified in --registrar' );
+                $value =~ /$opt_registrar/ or return 'must be a registrar name matching the substring specified in --registrar';
+                return ();
+            }
+        );
+    }
+
+    if ( defined $opt_nameserver ) {
+        $rule = 'Name Server Object query';
+        $glob_types->add_type(
+            'query name server' => sub {
+                my $value = scrub_hostname( shift ) or return ( 'must be the nameserver name specified in --nameserver' );
+                $value eq $opt_nameserver or return ( 'must be the nameserver name specified in --nameserver' );
+                return ();
+            }
+        );
+        $glob_types->add_type( 'query name server ip' => sub { return $glob_types->validate_type( 'ip address', shift ) } );
+    }
+
+    my $is_type_1 = '';
+    my $matched_ip = '';
+    my $last_ip_line_no;
+    if ( $opt_nameserver_ip ) {
+        $rule = 'Name Server Object query';
+        $glob_types->add_type(
+            'query name server' => sub {
+                if ( $is_type_1 && !$matched_ip ) {
+                    if ( defined $last_ip_line_no ) {
+                        push @errors, sprintf "line %d: no IP Address in this nameserver section matched the one specified in --nameserver-ip", $last_ip_line_no;
+                    }
+                    elsif ( !@errors ) {
+                        croak 'unexpected error: no IP Address fields would imply validation errors, but none were registered';
+                    }
+                }
+                $is_type_1  = 1;
+                $matched_ip = '';
+                return $glob_types->validate_type( 'hostname', shift );
+            }
+        );
+        $glob_types->add_type(
+            'query name server ip' => sub {
+                my $value = scrub_ip_address( shift );
+                $last_ip_line_no = $lexer->line_no();
+                if ( defined $value && $value eq $opt_nameserver_ip ) {
+                    $matched_ip = 1;
+                }
+                return $glob_types->validate_type( 'ip address', $value );
+            }
+        );
+    }
+
+    ##################################################################
+    # Validate input
+    #
+    # This section updates the @errors variable.
+    #
+    my ( $token ) = $lexer->peek_line();
+    my $is_type_2 = ( $token eq 'multiple name servers line' );
+
+    # Unshift is used so that errors from callbacks go at the end of the list
+    unshift @errors, validate( rule => $rule, lexer => $lexer, grammar => $grammar, types => $glob_types );
+
+    if ( $is_type_1 && !$matched_ip ) {
+        if ( defined $last_ip_line_no ) {
+            push @errors, sprintf "line %d: no IP Address in this nameserver section matched the one specified in --nameserver-ip", $last_ip_line_no;
+        }
+        elsif ( !@errors ) {
+            croak 'unexpected error: no IP Address fields would imply validation errors, but none were registered';
+        }
+    }
+
+    ##################################################################
+    # Display error and feedback messages
+    #
+    # This section prints to STDOUT.
+    #
+    for my $error ( @errors ) {
+        say $error;
+    }
+
+    if ( $is_type_2 && !@errors ) {
+        my $roid = extract_roid( $text );
+        my $option = $opt_nameserver ? '--nameserver' : $opt_nameserver_ip ? '--nameserver-ip' : croak 'unexpected error: unknown flag used';
+        say "Multiple name servers response: Make a new query for ROID '$roid' to the same Whois server. Test that result with the whois-test command. Use the same value for $option when you retest.";
+    }
+}
+
+main();

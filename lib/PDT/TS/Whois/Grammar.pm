@@ -243,7 +243,7 @@ Multiple name servers section:
   - ROID line: { line: roid line, repeatable: unbounded }
 Subsequent name server details section:
   - Empty line: { line: empty line }
-  - A name server details section: { }
+  - Name server details section: { }
 Name server details section:
   - Server Name: { line: field, type: query name server }
   - IP Address: { repeatable: unbounded, line: field, type: query name server ip }

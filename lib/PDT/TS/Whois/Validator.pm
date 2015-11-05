@@ -146,7 +146,31 @@ sub _sequence_section {
                 return;
             }
             else {
-                push @errors, sprintf( "line %d: expected %s", $state->{lexer}->line_no, $key );
+                my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line();
+                defined $token or croak 'unexpected return value';
+                ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
+
+                push @errors, @{ $token_errors };
+
+                my $description;
+                if ( $token eq 'field' ) {
+                    ref $token_value eq 'ARRAY' or croak 'unexpected return value';
+                    my ($field_key, undef, undef) = @{ $token_value };
+                    defined $field_key or croak 'unexpected return value';
+
+                    $description = "field '" . $field_key . "'";
+                }
+                elsif ( $token eq 'non-empty line' ) {
+                    defined $token_value && ref $token_value eq '' or croak 'unexpected return value';
+                    my $contents = ( $token_value =~ s/\W+/ /gru );
+
+                    $contents = ( length $contents > 15 ) ? "'" . substr($contents, 0, 15) . "'..." : "'" . $contents . "'";
+                    $description = "non-empty line " . $contents;
+                }
+                else {
+                    $description = $token;
+                }
+                push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
                 last;
             }
         }

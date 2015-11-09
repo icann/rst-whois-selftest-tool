@@ -352,7 +352,7 @@ sub _set_empty_kind {
         return ();
     }
     else {
-        return ( sprintf( "line %d: mixed empty field markups", $state->{lexer}->line_no ) );
+        return ( sprintf( "line %d: either all empty optional fields must be present or no empty optional field may be present", $state->{lexer}->line_no ) );
     }
 }
 

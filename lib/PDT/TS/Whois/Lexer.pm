@@ -215,7 +215,7 @@ sub next_line {
     $line =~ s/( *)$//;
     my $trail_space = $1;
     if ( length $trail_space > 0 ) {
-        push @errors, sprintf( "line %d: trailing space", $self->{_line_no} );
+        push @errors, sprintf( "line %d: trailing space not allowed", $self->{_line_no} );
     }
 
     # Match token type

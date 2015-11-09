@@ -335,11 +335,11 @@ sub _line {
         ref $translations eq 'ARRAY' or confess;
 
         for my $translation ( @$translations ) {
-            push @$errors, _validate_type( $state, 'key translation', $translation );
+            push @$errors, _validate_type( $state, type_name => 'key translation', value => $translation, prefix => "invalid key translation for field '$key', " );
         }
 
         if ( $type && $subtype eq 'field' ) {
-            push @$errors, _validate_type( $state, $type, $value );
+            push @$errors, _validate_type( $state, type_name => $type, value => $value, prefix => "invalid value for field '$key', " );
         }
     }
     elsif ( $token eq 'roid line' ) {
@@ -348,15 +348,15 @@ sub _line {
 
         my ( $roid, $hostname ) = @$token_value;
 
-        push @$errors, _validate_type( $state, 'roid', $roid );
+        push @$errors, _validate_type( $state, type_name => 'roid', value => $roid );
 
-        push @$errors, _validate_type( $state, 'hostname', $hostname );
+        push @$errors, _validate_type( $state, type_name => 'hostname', value => $hostname );
     }
     elsif ( $token eq 'last update line' ) {
         $token_value && ref $token_value eq '' or confess;
         my $timestamp = $token_value;
 
-        push @$errors, _validate_type( $state, 'time stamp', $timestamp );
+        push @$errors, _validate_type( $state, type_name => 'time stamp', value => $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
@@ -382,12 +382,14 @@ sub _set_empty_kind {
 
 sub _validate_type {
     my $state     = shift or croak 'Missing argument: $state';
-    my $type_name = shift or croak 'Missing argument: $type_name';
-    my $value     = shift or croak 'Missing argument: $value';
+    my %args      = @_;
+    my $type_name = $args{type_name} or croak 'Missing argument: type_name';
+    my $value     = $args{value} or croak 'Missing argument: value';
+    my $prefix    = $args{prefix} || '';
 
     my @errors;
     for my $error ( $state->{types}->validate_type( $type_name, $value ) ) {
-        push @errors, sprintf("line %s: %s", $state->{lexer}->line_no, $error);
+        push @errors, sprintf("line %s: %s%s", $state->{lexer}->line_no, $prefix, $error);
     }
     return @errors;
 }

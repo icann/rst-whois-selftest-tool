@@ -201,7 +201,7 @@ my %default_types;
             return ( 'expected roid' );
         }
         unless (exists $ROID_SUFFIX->{$1}) {
-            return ( 'expected valid roid suffix' );
+            return ( 'expected roid suffix to be a registered epp repo id' );
         }
 
         return ();

@@ -279,6 +279,11 @@ sub _line {
     my $key   = $args{'key'} or croak 'Missing argument: key';
     my $line  = $args{'line'};
     my $type  = $args{'type'};
+    $line || $type or confess;
+    if ( defined $type ) {
+        $line ||= 'field';
+        $line eq 'field' or confess;
+    }
 
     my $token;
     my $token_value;
@@ -329,7 +334,11 @@ sub _line {
         ref $errors eq 'ARRAY' or confess;
     }
 
-    if ( $token eq 'field' ) {
+
+    if ( $line eq 'any line' || $line eq 'non-empty line' ) {
+        # skip validations
+    }
+    elsif ( $token eq 'field' ) {
 
         ref $token_value eq 'ARRAY' or confess;
 

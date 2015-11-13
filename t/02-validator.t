@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Differences;
 use Test::MockObject;
 
@@ -43,15 +43,28 @@ my $grammar = {
         'Domain Name' => { line => 'field', type => 'hostname', },
         'Referral URL' => { line => 'field', type => 'http url', },
     },
+    'Anything' => [
+        { 'Any line' => { line => 'any line', repeatable => 'unbounded' }, },
+    ],
 };
 
+sub mock_validate_type {
+    my $value = shift;
+    if ($value && $value eq 'INVALID!') {
+        return 'validation error';
+    }
+    else {
+        return ();
+    }
+}
+
 my %type_subs = (
-    'hostname' => sub {},
-    'http url' => sub {},
-    'roid' => sub {},
-    'time stamp' => sub {},
-    'key translation' => sub {},
-    'query domain name' => sub {},
+    'hostname' => \&mock_validate_type,
+    'http url' => \&mock_validate_type,
+    'roid' => \&mock_validate_type,
+    'time stamp' => \&mock_validate_type,
+    'key translation' => \&mock_validate_type,
+    'query domain name' => \&mock_validate_type,
 );
 
 my $types = Test::MockObject->new();
@@ -103,7 +116,7 @@ subtest 'Simple line' => sub {
 
     {
         my $lexer = make_mock_lexer (
-            ['non-empty line', []],
+            ['non-empty line', undef, []],
             ['EOF', undef, []],
         );
         my @errors = validate(rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
@@ -226,6 +239,22 @@ subtest 'Repeated choice section' => sub {
         );
         my @errors = validate( rule => 'Repeated choice section', lexer => $lexer, grammar => $grammar, types => $types );
         eq_or_diff \@errors, [], 'Should accept repeated choice section';
+    }
+
+};
+
+subtest 'Anything' => sub {
+    plan tests => 1;
+
+    {
+        my $lexer = make_mock_lexer (
+            ['empty line', undef, []],
+            ['non-empty line', undef, []],
+            ['roid line', ['INVALID!', 'INVALID!'], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Anything', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept anything';
     }
 
 };

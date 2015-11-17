@@ -42,6 +42,7 @@ Technical Contact: John Geek
 Phone Number: +1.3105551215
 Fax Number: +1.3105551216
 Email: johngeek@example-registrar.tld
+
 >>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp

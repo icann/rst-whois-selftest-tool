@@ -138,7 +138,7 @@ sub _sequence_section {
 
         my ( $key, $params ) = %$elem;
 
-        ref $params eq 'HASH' or confess;
+        ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
 
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
         if ( !defined $count ) {
@@ -190,7 +190,7 @@ sub _choice_section {
     for my $key ( keys $section_rule ) {
         my $params = $section_rule->{$key};
 
-        ref $params eq 'HASH' or confess;
+        ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
         if ( defined $count ) {
             return $result;

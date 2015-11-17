@@ -75,6 +75,9 @@ Tech Email: EMAIL@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 Name Server: NS02.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+
+
+
 >>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp

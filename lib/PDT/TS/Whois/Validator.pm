@@ -235,7 +235,13 @@ sub _occurances {
             ref $parsed_errors eq 'ARRAY' or confess;
             push @errors, @$parsed_errors;
             $count++;
-            if ( $count == 1 && $parsed eq 'empty field' ) {
+            if ( $parsed eq 'empty field' ) {
+                if ($count != 1) {
+                    push @errors, sprintf("line %d: empty field in repetition '%s'", $state->{lexer}->line_no - 1, $key);
+                }
+                elsif ( $min_occurs > 0 ) {
+                    push @errors, sprintf("line %d: empty required field '%s'", $state->{lexer}->line_no - 1, $key);
+                }
                 last;
             }
         }

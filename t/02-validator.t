@@ -103,7 +103,7 @@ sub make_mock_lexer {
 }
 
 subtest 'Simple line' => sub {
-    plan tests => 2;
+    plan tests => 3;
 
     {
         my $lexer = make_mock_lexer (
@@ -121,6 +121,15 @@ subtest 'Simple line' => sub {
         );
         my @errors = validate(rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
         is scalar(@errors), 1, 'Should reject non-field line';
+    }
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Domain Name', [], undef], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
+        is scalar(@errors), 1, 'Should reject empty-field line';
     }
 };
 

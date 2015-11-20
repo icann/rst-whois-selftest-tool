@@ -103,7 +103,6 @@ Registrar Object query:
 Domain name reply:
   - Domain name details section: { }
   - Domain name subsection 1: { optional: y }
-  - Last updated footer: { }
   - Empty line: { repeatable: 3, line: empty line }
   - AWIP footer: { }
   - Legal disclaimer: { }
@@ -116,42 +115,75 @@ Domain name subsection 2:
   Empty line: { line: empty line, optional: y, repeatable: 2 }
 Domain name subsection 3:
   - Subsequent domain name details section: { }
-  - Domain name subsection 2: { optional: y }
+  - Domain name subsection 1: { optional: y }
+Domain name subsection 1:
+  Last updated footer: { }
+  Domain name subsection 2: { }
+Domain name subsection 2:
+  - Empty line: { line: empty line }
+  - Domain name subsection 3: { }
+Domain name subsection 3:
+  Domain name subsection 4: { }
+  Last updated subsection 1: { }
+Domain name subsection 4:
+  - Subsequent domain name details section: { }
+  - Domain name subsection 5: { }
+Domain name subsection 5:
+  Last updated footer: { }
+  Domain name subsection 2: { }
 Registrar reply:
   - Registrar details section: { }
   - Registrar subsection 1: { optional: y }
-  - Last updated footer: { }
   - Empty line: { repeatable: 3, line: empty line }
   - AWIP footer: { optional: y }
   - Legal disclaimer: { }
   - EOF: { line: EOF }
 Registrar subsection 1:
-  - Empty line: { line: empty line }
-  - Registrar subsection 2: { optional: y }
+  Last updated footer: { }
+  Registrar subsection 2: { }
 Registrar subsection 2:
-  Registrar subsection 3: { }
-  Empty line: { line: empty line, repeatable: 2 }
+  - Empty line: { line: empty line }
+  - Registrar subsection 3: { }
 Registrar subsection 3:
+  Registrar subsection 4: { }
+  Last updated subsection 1: { }
+Registrar subsection 4:
   - Subsequent registrar details section: { }
-  - Registrar subsection 2: { optional: y }
+  - Registrar subsection 5: { }
+Registrar subsection 5:
+  Last updated footer: { }
+  Registrar subsection 2: { }
 Name server reply type 1:
   - Name server details section: { }
   - Name server subsection 1: { optional: y }
-  - Empty line: { optional: y, repeatable: 3, line: empty line }
-  - Last updated footer: { }
   - Empty line: { repeatable: 3, line: empty line }
   - AWIP footer: { optional: y }
   - Legal disclaimer: { }
   - EOF: { line: EOF }
 Name server subsection 1:
   - Empty line: { line: empty line }
-  - Name server subsection 2: { optional: y }
+  - Name server subsection 2: { }
 Name server subsection 2:
   Name server subsection 3: { }
-  Empty line: { line: empty line, repeatable: 2 }
+  Empty line: { line: empty line, optional: y, repeatable: 2 }
 Name server subsection 3:
   - Subsequent name server details section: { }
-  - Name server subsection 2: { optional: y }
+  - Name server subsection 1: { optional: y }
+Name server subsection 1:
+  Last updated footer: { }
+  Name server subsection 2: { }
+Name server subsection 2:
+  - Empty line: { line: empty line }
+  - Name server subsection 3: { }
+Name server subsection 3:
+  Name server subsection 4: { }
+  Last updated subsection 1: { }
+Name server subsection 4:
+  - Subsequent name server details section: { }
+  - Name server subsection 5: { }
+Name server subsection 5:
+  Last updated footer: { }
+  Name server subsection 2: { }
 Name server reply type 2:
   - Multiple name servers section: { }
   - Empty line: { optional: y, repeatable: 3, line: empty line }
@@ -278,6 +310,12 @@ Name server details section:
   - Referral URL: { optional: y, line: field, type: http url }
 Additional fields section:
   - Additional field: { repeatable: unbounded, line: field }
+Last updated subsection 1:
+  Last updated footer: { }
+  Last updated subsection 2: { }
+Last updated subsection 2:
+  - Empty line: { repeatable: 2, line: empty line }
+  - Last updated footer: { }
 Last updated footer:
   - Last update line: { line: last update line }
 AWIP footer:

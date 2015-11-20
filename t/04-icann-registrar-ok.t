@@ -43,6 +43,24 @@ Phone Number: +1.3105551215
 Fax Number: +1.3105551216
 Email: johngeek@example-registrar.tld
 
+Registrar Name: Example Registrar, Inc.
+Street: 1234 Admiralty Way
+City: Marina del Rey
+State/Province: CA
+Country: US
+Phone Number: +1.3105551212
+Email: registrar@example.tld
+Referral URL: http://www.example-registrar.tld
+
+Registrar Name: Example Registrar, Inc.
+Street: 1234 Admiralty Way
+City: Marina del Rey
+State/Province: CA
+Country: US
+Phone Number: +1.3105551212
+Email: registrar@example.tld
+Referral URL: http://www.example-registrar.tld
+
 >>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp

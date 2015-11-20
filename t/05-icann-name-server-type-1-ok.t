@@ -22,10 +22,13 @@ eq_or_diff \@errors, [], 'Should accept valid name server reply type 1';
 __DATA__
 Server Name: NS1.EXAMPLE.TLD
 IP Address: 192.0.2.123
-IP Address: 2001:0DB8::1
-Registrar: Example Registrar, Inc.
-WHOIS Server: whois.example-registrar.tld
-Referral URL: http://www.example-registrar.tld
+
+Server Name: NS1.EXAMPLE.TLD
+IP Address: 192.0.2.123
+
+Server Name: NS1.EXAMPLE.TLD
+IP Address: 192.0.2.123
+
 >>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
 
 For more information on Whois status codes, please visit https://icann.org/epp

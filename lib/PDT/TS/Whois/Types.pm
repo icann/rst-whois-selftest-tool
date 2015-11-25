@@ -8,6 +8,8 @@ use Carp;
 use URI;
 use Regexp::IPv6;
 
+use PDT::TS::Whois::UnicodeData;
+
 =head1 NAME
 
 PDT::TS::Whois::Types - Simple type checker class
@@ -197,14 +199,26 @@ my %default_types;
             return ( 'expected roid' );
         }
 
-        if ( $default_types{token}->($value) || $value !~ /^\w{1,80}-(\w{1,8})$/o ) {
+        if ( $default_types{token}->($value) ) {
             return ( 'expected roid' );
         }
-        unless (exists $ROID_SUFFIX->{$1}) {
-            return ( 'expected roid suffix to be a registered epp repo id' );
+        if ( $value =~ /^(.{1,80})-(.{1,8})$/ ) {
+            my $prefix = $1;
+            my $suffix = $2;
+            if ( grep { !is_word_char( $_ ) && $_ ne '_' } split //, $prefix ) {
+                return ( 'expected roid' );
+            }
+            if ( grep { !is_word_char( $_ ) } split //, $suffix ) {
+                return ( 'expected roid' );
+            }
+            unless ( exists $ROID_SUFFIX->{$suffix} ) {
+                return ( 'expected roid suffix to be a registered epp repo id' );
+            }
+            return ();
         }
-
-        return ();
+        else {
+            return ( 'expected roid' );
+        }
     },
     'http url'      => sub {
         my $value = shift;
@@ -457,22 +471,27 @@ Load ROID suffixes from a file. Croaks on error.
 =cut
 
 sub load_roid_suffix {
-    my ($self, $file) = @_;
-    my ($suffix, $roid_suffix, $line) = (undef,{},1);
+    my ( $self, $file ) = @_;
+    my ( $fh, $roid_suffix, $line_no ) = ( undef, {}, 1 );
 
-    open($suffix, '<:encoding(UTF-8)', $file) or die "Unable to open $file: $!";
-    while (<$suffix>) {
-        s/[\r\n]+$//o;
+    open( $fh, '<:encoding(UTF-8)', $file ) or die "Unable to open $file: $!";
+    while ( <$fh> ) {
+        s/[\r\n]+$//;
 
-        if (/^(\w{1,8})$/o) {
-            $roid_suffix->{$1} = 1;
+        if ( /^\s*#/ ) {
+            next;
         }
-        elsif (/^\s*[^#]/) {
-            die "$file line $line: Invalid syntax";
+        elsif ( /^(.{1,8})$/ ) {
+            my $suffix = $1;
+            if ( !grep { !is_word_char( $_ ) } split //, $suffix ) {
+                $roid_suffix->{$suffix} = 1;
+                $line_no++;
+                next;
+            }
         }
-        $line++;
+        die "$file line $line_no: Invalid syntax";
     }
-    close($suffix);
+    close( $fh );
 
     $ROID_SUFFIX = $roid_suffix;
 

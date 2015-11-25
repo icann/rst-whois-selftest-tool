@@ -58,18 +58,20 @@ subtest 'Adding rules' => sub {
 };
 
 subtest 'roid' => sub {
-    plan tests => 9;
+    plan tests => 11;
 
     reject_ok 'undef' => 'roid';
     reject_ok 'empty' => 'roid', '';
 
-    accept_ok 'roid-NAME' => 'roid', 'roid-NAME';
-    reject_ok 'wrong roid' => 'roid', 'wrong roid';
-	accept_ok 'abcdefg-IIS' => 'roid', 'abcdefg-IIS';
-	accept_ok 'abdcdd-ÅÄÖ' => 'roid', 'abdcdd-ÅÄÖ';
-	accept_ok 'гцйнштд-ÅÄÖ' => 'roid', 'гцйнштд-ÅÄÖ';
-	reject_ok 'suffix not registered' => 'roid', 'abcdee-iis';
-	reject_ok 'illegal format' => 'roid', 'abscdd';
+    accept_ok 'roid-NAME'             => 'roid', 'roid-NAME';
+    reject_ok 'wrong roid'            => 'roid', 'wrong roid';
+    accept_ok 'abcdefg-IIS'           => 'roid', 'abcdefg-IIS';
+    accept_ok 'non-ascii suffix'      => 'roid', 'abdcdd-ÅÄÖ';
+    accept_ok 'non-latin prefix'      => 'roid', 'гцйнштд-ÅÄÖ';
+    reject_ok 'suffix not registered' => 'roid', 'abcdee-iis';
+    reject_ok 'illegal format'        => 'roid', 'abscdd';
+    reject_ok 'too new codepoint'     => 'roid', "ro\x{0220}id-NAME";
+    accept_ok 'han character'         => 'roid', "689a\x{3BD9}a8812833_DOMAIN-FRES";
 };
 
 subtest 'hostname' => sub {

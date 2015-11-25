@@ -195,29 +195,52 @@ my %default_types;
     'roid'          => sub {
         my $value = shift;
 
-        unless ( defined $value ) {
+        if ( ! defined $value ) {
             return ( 'expected roid' );
         }
-
-        if ( $default_types{token}->($value) ) {
+        elsif ( $default_types{token}->($value) ) {
             return ( 'expected roid' );
         }
-        if ( $value =~ /^(.{1,80})-(.{1,8})$/ ) {
+        elsif ( $value =~ /^(.{1,80})-(.{1,8})$/ ) {
             my $prefix = $1;
             my $suffix = $2;
             if ( grep { !is_word_char( $_ ) && $_ ne '_' } split //, $prefix ) {
                 return ( 'expected roid' );
             }
-            if ( grep { !is_word_char( $_ ) } split //, $suffix ) {
+            elsif ( $default_types{'roid suffix'}->( $suffix ) ) {
                 return ( 'expected roid' );
             }
-            unless ( exists $ROID_SUFFIX->{$suffix} ) {
+            elsif ( !exists $ROID_SUFFIX->{$suffix} ) {
                 return ( 'expected roid suffix to be a registered epp repo id' );
             }
-            return ();
+            else {
+                return ();
+            }
         }
         else {
             return ( 'expected roid' );
+        }
+    },
+    'roid suffix'          => sub {
+        my $value = shift;
+
+        if ( !defined $value ) {
+            return ( 'expected roid suffix' );
+        }
+        elsif ( $default_types{token}->($value) ) {
+            return ( 'expected roid suffix' );
+        }
+        elsif ( $value =~ /^(.{1,8})$/ ) {
+            my $suffix = $1;
+            if ( grep { !is_word_char( $_ ) } split //, $suffix ) {
+                return ( 'expected roid suffix' );
+            }
+            else {
+                return ();
+            }
+        }
+        else {
+            return ( 'expected roid suffix' );
         }
     },
     'http url'      => sub {

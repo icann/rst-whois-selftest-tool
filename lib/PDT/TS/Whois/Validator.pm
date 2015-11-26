@@ -109,12 +109,14 @@ sub _rule {
 
     if ( my $section_rule = $state->{grammar}->{$rule} ) {
         if ( ref $section_rule eq 'ARRAY' ) {
-            my $result = _sequence_section( $state, $section_rule );
-            return $result;
+            @_ = ( $state, $section_rule );
+            no warnings 'recursion';
+            goto &_sequence_section;
         }
         elsif ( ref $section_rule eq 'HASH' ) {
-            my $result = _choice_section( $state, $section_rule );
-            return $result;
+            @_ = ( $state, $section_rule );
+            no warnings 'recursion';
+            goto &_choice_section;
         }
         else {
             croak "invalid grammar rule: $rule";
@@ -140,6 +142,7 @@ sub _sequence_section {
 
         ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
 
+        no warnings 'recursion';
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
         if ( !defined $count ) {
             if ( $total == 0 ) {
@@ -179,7 +182,7 @@ sub _sequence_section {
         $total += $count;
     }
 
-    return \@errors;
+    return ( 'section', \@errors );
 }
 
 sub _choice_section {
@@ -193,7 +196,7 @@ sub _choice_section {
         ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
         if ( defined $count ) {
-            return $result;
+            return ( 'section', $result );
         }
     }
 
@@ -264,9 +267,9 @@ sub _subrule {
         return ( $subtype, $result );
     }
     else {
-        my $result = _rule( $state, $key );
-        my $subtype = ( defined $result ) && 'section' || undef;
-        return ( $subtype, $result );
+        @_ = ( $state, $key );
+        no warnings 'recursion';
+        goto &_rule;
     }
 }
 

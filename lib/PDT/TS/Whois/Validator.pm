@@ -96,7 +96,17 @@ sub validate {
 
     my $result = _rule( $state, $rule );
     if ( defined $result ) {
-        return @$result;
+        ref $result eq 'ARRAY' or croak 'unexpected return value from _rule()';
+        my @errors = @{$result};
+
+        my ( $token ) = $state->{lexer}->peek_line();
+        defined $token or confess 'unexpected return value';
+
+        if ( $token ne 'EOF' ) {
+            push @errors, sprintf 'line %d: validation aborted, no validation was perfomed beyond this line', $state->{lexer}->line_no();
+        }
+
+        return @errors;
     }
     else {
         return ( sprintf( "line %d: unrecognized input", $state->{lexer}->line_no ) );

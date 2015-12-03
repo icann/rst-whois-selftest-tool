@@ -3,6 +3,10 @@ use strict;
 use warnings;
 use 5.014;
 
+=pod
+
+=encoding utf8
+
 =head1 NAME
 
 PDT::TS::Whois - Validates Whois output
@@ -26,6 +30,14 @@ Exports a datastructure representing the ICANN specification.
 =item L<PDT::TS::Whois::Types>
 
 Type checker providing most rules required by the ICANN specification and a means for the user to go the last mile.
+
+=item L<PDT::TS::Whois::Util>
+
+Various utility functions.
+
+=item L<PDT::TS::Whois::UnicodeData>
+
+Character property tests for Unicode 3.1.0.
 
 =item L<PDT::TS::Whois::Validator>
 
@@ -65,19 +77,7 @@ our $VERSION = '1.01';
 
 =head1 AUTHOR
 
-Mattias Päivärinta, C<< <mattias.paivarinta at iis.se> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to C<mats.dufberg at iis.se>, or through
-the web interface at L<http://jira.iis.se/browse/PDTT>.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc PDT::TS::Whois
-
+Mattias Päivärinta, <mattias.paivarinta@doxwork.com>
 
 =head1 LICENSE AND COPYRIGHT
 

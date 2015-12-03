@@ -1,0 +1,539 @@
+#! /usr/bin/perl
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+whois-fetch-epp-repo-ids - Fetches EPP Repository Identifiers registered with IANA
+
+=head1 SYNOPSIS
+
+=over 4
+
+=item whois-fetch-epp-repo-ids
+
+=item whois-fetch-epp-repo-ids [ --help | --man | --version ]
+
+=back
+
+=head1 OPTIONS AND ARGUMENTS
+
+=over 4
+
+=item B<-?>, B<--help>
+
+Display usage and options, and exit.
+
+=item B<--man>
+
+Display full man page.
+
+=item B<-V>, B<--version>
+
+Display version information, and exit.
+
+=back
+
+=head1 DESCRIPTION
+
+B<whois-fetch-epp-repo-ids> fetches the database of EPP Repository Identifiers
+registered with IANA.  The database is converted into a simpler text format and
+stored in the user's data home directory.
+
+=head1 ERRORS
+
+If a fatal error occurs before the script terminates normally, the database file
+in the user's data home directory is untouched.
+
+=head1 ENVIRONMENT
+
+=over 4
+
+=item HOME
+
+Used to determine the default value of $XDG_DATA_HOME if it's needed.
+
+=item XDG_DATA_HOME
+
+The data home directory. (default: $HOME/.local/share)
+
+=back
+
+=head1 FILES
+
+=over 4
+
+=item F<epp-repo-ids.txt>
+
+The database of EPP repository IDs stored in a text format.  Located in the
+F<$XDG_DATA_HOME/Whois-Selftest-Tool> directory.
+
+=back
+
+=head1 AUTHOR
+
+=over 4
+
+=item Mats Dufberg <mats.dufberg@iis.se>
+
+First release version
+
+=item Mattias Päivärinta <mattias.paivarinta@doxwork.com>
+
+Adaptions for public use
+
+=back
+
+=head1 BUGS
+
+If you think you've found a bug, please search both the list of known issues and
+the L<issue tracker|https://github.com/dotse/Whois-Selftest-Tool/issues> to see
+if this is a known bug.  If you cannot find it, please report it to the issue
+tracker.
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright (c) 2015 IIS (The Internet Foundation In Sweden)
+All rights reserved.
+
+The Whois Selftest Tool and the use hereof is subject to the following licensing
+conditions.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THE SOFTWARE IS PROVIDED AS-IS AND MAKES NO REPRESENTATIONS OR WARRANTIES OF
+ANY KIND CONCERNING THE WORK, EXPRESS, IMPLIED, STATUTORY OR OTHERWISE,
+INCLUDING, WITHOUT LIMITATION, WARRANTIES OF TITLE, MERCHANTIBILITY, FITNESS
+FOR A PARTICULAR PURPOSE, NONINFRINGEMENT, OR THE ABSENCE OF LATENT OR OTHER
+DEFECTS, ACCURACY, OR THE PRESENCE OF ABSENCE OF ERRORS, WHETHER OR NOT
+DISCOVERABLE.
+
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=head1 SEE ALSO
+
+=over 4
+
+=item https://www.iana.org/assignments/epp-repository-ids/epp-repository-ids.xhtml
+
+The database of EPP Repository Identifiers registered with IANA.
+
+=item https://www.iana.org/assignments/epp-repository-ids/epp-repository-ids-1.csv
+
+The database in CSV format, used by this script.
+
+=back
+
+=cut
+
+use strict;
+use warnings;
+use 5.014;
+use utf8;
+
+our $VERSION = '1.1';
+
+use Carp;
+use Encode;
+use English;
+use File::Basename;
+use File::Copy;
+use File::Path qw( make_path );
+use File::Temp qw( tempdir );
+use Getopt::Long;
+use Pod::Usage;
+
+use DateTime;
+use File::Which;
+use Readonly;
+use Text::CSV_XS 0.90;
+use Text::CSV;
+
+# General settings that cannot be changed.
+Readonly my $iana_url => 'https://www.iana.org/assignments/epp-repository-ids/epp-repository-ids-1.csv';    # IANA URL for EPP Repository Identifiers
+
+Readonly my $wget      => 'wget';                                                                           # wget to fetch file with
+Readonly my @ext_progs => ( $wget );                                                                        # To be able to test that they are there and execut
+
+Readonly my $datahome => $ENV{XDG_DATA_HOME} || $ENV{HOME} . '/.local/share';                               # Base directory relative to which user specific data files should be stored
+Readonly my $datadir     => $datahome . '/Whois-Selftest-Tool';                                             # User specific data directory for Whois-Selftest-Tool
+Readonly my $epp_id_path => $datadir . '/epp-repo-ids.txt';                                                 # EPP Repository Identifiers database
+
+Readonly my $tempdir => tempdir( CLEANUP => 1 );
+Readonly my $new_lf_name  => $tempdir . '/list';                                                            # Filename for new list temporary file
+Readonly my $workfilename => $tempdir . '/work';                                                            # Temporary working file to put the file which we are about to fetch from IANA into.
+
+Readonly my @id_char_ranges   => get_id_char_ranges();                                                      # For check each character in an ID
+Readonly my $valid_epp_rep_id => create_re_for_char_range( @id_char_ranges );                               # For matching EPP Rep IDs
+Readonly my $me               => basename( $0 );                                                            # Extract the script name
+
+# The expected header structure of the fetched CSV file
+Readonly my $CSV_EPP_Rep_ID  => 'EPP Repository ID';
+Readonly my $CSV_Change_Ctrl => 'Change Controller';
+Readonly my $CSV_Ref_Cont    => 'Reference/Contact';
+Readonly my $CSV_Reg_Date    => 'Registration Date';
+Readonly my @CSV_exp_header  => ( $CSV_EPP_Rep_ID, $CSV_Change_Ctrl, $CSV_Ref_Cont, $CSV_Reg_Date, );
+
+# CLI arguments - defined early to be usable anywhere
+my $opt_help;         # Ask for help
+my $opt_version;      # Print version
+my $opt_man;
+
+# Print info message
+sub info {
+    print STDERR "INFO: ", ( map { $_ =~ tr/\x{0020}-\x{007E}/?/cr } @_ ), "\n";
+}
+
+# Trim leading and trailing whitespace (copied from csvimp)
+sub trim_space {
+    my ( $string ) = @_;
+    $string =~ s{\A \s* | \s* \z}{}gx;
+    return $string;
+}
+
+# Read and normalize the lines in the CSV file (copied from csvimp and modified)
+sub read_csv {
+    my (
+        $fh,    # Must be a file handler ref
+        $csv    # Must be a CSV object ref
+    ) = @_;
+
+    # Read line
+    my $octets = readline $fh;
+    return unless defined $octets;
+
+    # Decode characters
+    my $line = eval { decode( 'UTF-8', $octets, Encode::FB_CROAK ) };
+    if ( my $exception = $@ ) {    # Errors
+        if ( $exception =~ m{\Autf8 (.*) does not map to Unicode at }ms ) {
+            croak( "Non unicode character found in record " . $csv->record_number . " in fetched file." );
+        }
+        else {
+            croak( $exception );
+        }
+    }
+
+    # Normalize characters
+    $line =~ s/[\r\n]+$//;         # Remove line terminators.
+    $line =~ tr/\t/ /;             # Replace TAB with SPACE.
+    if ( $line =~ m{[\x00-\x1f]}xms ) {    # Some other control character in ASCII range
+        croak( "Control character found in record " . $csv->record_number . " in fetched file." );
+    }
+
+    # Parse CSV
+    unless ( $csv->parse( $line ) ) {
+        croak( "Invalid csv found in record " . $csv->record_number + 1 . ": " . $csv->error_input || 'fatal' );
+    }
+
+    # Trim field whitespace
+    my @trimmed_fields = map { trim_space $_ } $csv->fields();
+
+    # Normalize empty lines
+    if ( grep { $_ ne '' } @trimmed_fields ) {
+        return \@trimmed_fields;
+    }
+    else {
+        return [];
+    }
+}
+
+# From the first field, extract the two reperesentations of the EPP Repository Identifier.  Validate and, if valid,
+# return the ID. Else break.
+sub extract_and_validate_id {
+    my ( $fi, $no ) = @_;    # The field content and record no.
+
+    # Split into two parts, must not be anything else. The two parts must represent the same thing. Real examples on next
+    # two lines after "# ":
+    # ENUMAT, #x0045 #x004E #x0055 #x004D #x0041 #x0054
+    # MX, #x004D #x0058
+    unless ( $fi =~ /(^[^, ]+) *,([ #x0-9a-fA-F]+)$/ ) {
+
+        # Be liberal on space before comma.
+
+        info( "ID expression in record $no could not be parsed: >>$fi<<" );
+        info( "The ID is ignored and not included in the list." );
+
+        # We set the string to a comment
+        return 'ID expression in record $no could not be parsed: "' . $fi . '"';
+    }
+
+    my $id     = $1;    # This should be equal to the EPP Rep ID
+    my $idchar = $2;    # This should be a textual representation of the code points.
+
+    # Is the code point representation valid?
+    unless ( $idchar =~ /^( *#x[0-9a-fA-F]{4,6})+ *$/ ) {
+
+        info( "ID expression in record $no could not be parsed: >>$fi<<" );
+        info( "The ID is ignored and not included in the list." );
+
+        # We set the string to a comment
+        return '# ID ignored, no match: "' . $fi . '" vs. "' . $idchar . '"';
+    }
+
+    # We check the Identifier and replace it with a comment unless valid.
+    #
+    # 1. Do the two represent the same string?
+    # 2. Do they have the correct lenght?
+    # 3. Are the code points legal in this context?
+
+    # The same string?
+    my $id2 = &make_string_from_code_points( $idchar );
+    unless ( $id eq $id2 ) {
+
+        info( "Second representation of ID in record $no does not match first: >>$id<< vs. >>$idchar<<" );
+        info( "The ID is ignored and not included in the list." );
+
+        # We set the string to a comment
+        return '# ID ignored, no match: "' . $id . '" vs. "' . $idchar . '"';
+    }
+
+    # Lenght
+    if ( length $id > 8 ) {
+        info( "ID in record $no is too long (more than 8 characters): " . $fi );
+        info( "The ID is ignored and not included in the list." );
+
+        # We set the string to a comment
+        return '# ID ignored, too long: "' . $id . '"';
+    }
+
+    # Only legal
+    unless ( $id =~ $valid_epp_rep_id ) {
+        info( "Illegal character in ID in record $no: " . $fi );
+        info( "The ID is ignored and not included in the list." );
+
+        # We set the string to a comment
+        return '# ID ignored, illegal code point in string: "' . $id . '"';
+    }
+
+    # We only return if OK.
+    return $id;
+}
+
+# Get a string of code points in the form that is used in the database and convert that
+# into a string.
+sub make_string_from_code_points {
+    my ( $str ) = @_;
+
+    $str =~ s/ +//g;    # Remove space from code point string
+
+    # Make it to a string of characters
+    $str =~ s/#x([0-9a-zA-Z]+)/pack "U*", hex($1)/eg;
+    return $str;
+}
+
+# Parse the __DATA__ section with code point ranges
+sub get_id_char_ranges {
+    my $line;
+    my @ranges;
+
+    # Read from the __DATA__ section at the end of this file
+    while ( $line = <DATA> ) {
+
+        # Remove EOL and any trailing space
+        $line =~ s/\s+$//;
+
+        # Ignore comment lines.
+        next if $line =~ /^#/;
+
+        # Ignore empty lines.
+        next if $line =~ /^\s*$/;
+
+        my @ra = split( / +\| +/, $line );
+
+        # Each element in the array should either be one code point (e.g. "#x3007") or a range (e.g. "[#x0F20-#x0F29]").
+        # Convert it to use in a perl tr/// expression.
+        foreach my $e ( @ra ) {
+
+            if ( $e =~ /^#x([0-9a-fA-F]{4,6})$/ ) {
+                push @ranges, "\x{5C}x{" . $1 . '}';
+            }
+            elsif ( $e =~ /^\[#x([0-9a-fA-F]{4,6})-#x([0-9a-fA-F]{4,6})\]$/ ) {
+                push @ranges, "\x{5C}x{" . $1 . "}-\x{5C}x{" . $2 . '}';
+            }
+            else {
+                croak( "Illegal character range in __DATA__ section in this script." );
+            }
+
+        }
+    }
+    return @ranges;
+}
+
+# Create a regular expression from a list of code point ranges
+sub create_re_for_char_range {
+    my @ranges = @_;
+
+    # Return a regular expression.
+    my $chars = '[' . join( '', @ranges ) . ']';
+    return qr/^$chars*$/;
+}
+
+# Parse indata stream (based on code from "csvimp")
+sub parse {
+    my ( $fh ) = @_;    # Must be a file handler ref
+
+    my $csv = Text::CSV->new( { sep_char => ',' } );
+    my @header;
+    my @records;
+    my $fields;
+
+    # CSV header line
+    unless ( $fields = &read_csv( $fh, $csv ) ) {
+        croak( "Unexpected end of file in record " . $csv->record_number . " in fetched file." );
+    }
+    @header = @{$fields};
+
+    # Compare the header in the actual CSV file with the stored value of expected header fields.
+    for ( my $i = 0 ; $i < @CSV_exp_header ; $i++ ) {
+        my $actual = ( $i < @header ) ? $header[$i] : 'end of line';
+        unless ( $CSV_exp_header[$i] eq $header[$i] ) {
+            croak( "Column number " . $i + 1 . ": expected header '" . $CSV_exp_header[$i] . "', got '" . $actual . "' in fetched file." );
+        }
+    }
+    if ( @header > @CSV_exp_header ) {
+        croak( "Extra header after " . $CSV_exp_header[$#CSV_exp_header] . " in fetched file." );
+    }
+
+    # Data lines
+    #
+    # Read first record
+    unless ( $fields = read_csv( $fh, $csv ) ) {
+        croak( "Unexpected end of file in record " . $csv->record_number . " in fetched file." );
+    }
+
+    #
+    # For each record (next record is read in the end of the loop)
+    while ( defined $fields && @{$fields} > 0 ) {
+
+        #
+        # We will only consider the first column, "EPP Repository ID", which must be parsed
+
+        # Empty ID?
+        unless ( $fields->[0] ) {
+            croak( "Unexpected empty ID in record " . $csv->record_number . " in fetched file." );
+        }
+
+        # Get the ID extracted from the first field.
+        if ( my $record = &extract_and_validate_id( $fields->[0], $csv->record_number ) ) {
+            push @records, $record;
+        }
+        else {
+
+            # We should never come here because the previous call will stop the script if there are errors.
+            die "Script fatal ";
+        }
+
+        # Read next record
+        $fields = &read_csv( $fh, $csv );
+    }
+    return @records;
+}
+
+# Fetch the url using wget
+sub fetch_url {
+    my $url      = shift;
+    my $filename = shift;
+
+    my $to  = 1200;                                              # Timeout after 20 minutes if wget hangs
+    my $cmd = "$wget -t $to -nv -O $filename $url";
+    my @log = qx/$cmd 2>&1/;
+    chomp @log;
+    if ( $? == 0 ) {
+        info( "@log" );
+    }
+    else {
+        croak( "@log\nFailed running '$cmd'" );
+    }
+}
+
+# Parse CLI arguments
+GetOptions(
+    'help|?'    => \$opt_help,
+    'version|V' => \$opt_version,
+    'man'       => \$opt_man,
+) || pod2usage( -verbose => 0, -exitval => 2 );
+pod2usage( 1 ) if $opt_help;
+pod2usage( -exitval => 0, -verbose => 2 ) if $opt_man;
+
+# Error if there are extra parameters on the commnd line. Not permitted.
+pod2usage( -verbose => 0, -exitval => 2, -message => "Unknown parameter: @ARGV" ) if @ARGV;
+
+# Handle CLI meta-options (--help or --version)
+pod2usage(
+    -exitval => 1,
+    -verbose => 0,
+    -message => "$me version $VERSION\n"
+) if $opt_version;
+pod2usage( -verbose => 2, -exitval => 1 ) if $opt_help;
+
+# Start -- print a nice message
+info( "Start $me version $VERSION" );
+
+# Verify that externa programs are there and executable by me
+foreach my $prog ( @ext_progs ) {
+    which $prog or croak "program not found: $prog";
+}
+
+# Create data directory
+unless ( -d $datadir ) {
+    make_path($datadir) or croak "Can't create path '$datadir': $OS_ERROR";
+}
+
+# Fetch the file from IANA into the temporary work file
+fetch_url($iana_url, $workfilename);
+
+# Now we are about to parse the tempfile and push to the new list file in correct format
+
+# Read the tempfile
+open( my $inf, '<', $workfilename ) or croak( "Cannot open $workfilename for reading: $!" );
+my @records = parse( $inf );
+close $inf or croak( "Could not close $workfilename: $!" );
+
+# Create a new list file under a temporary file name with records between human friendly header and footer
+my $dt = DateTime->now;    # To get time and date
+open( my $outf, '>:encoding(UTF-8)', $new_lf_name ) or croak( "Cannot open $new_lf_name for writing: $!" );
+print $outf "# This file was automatically generated at ", $dt->ymd, " ", $dt->hms, " ", $dt->time_zone_short_name(), ".\n", "#\n", "# Do not edit manually. Regenerate it using $me.\n#\n" or croak "Cannot write to $new_lf_name: $!";
+foreach my $rec ( @records ) {
+    $rec =~ s/[^\x{0020}-\x{007E}@id_char_ranges]/?/g;
+    say $outf $rec or croak( "Cannot write to $new_lf_name: $!" );
+}
+print $outf "# END-OF-FILE\n" or croak( "Cannot write to $new_lf_name: $!" );
+close $outf or croak( "Could not close $new_lf_name: $!" );
+info( "Wrote the new list to temporary file $new_lf_name" );
+
+# Move the new list into the target place
+File::Copy::move( $new_lf_name, $epp_id_path ) or croak( "Could not move $new_lf_name to $epp_id_path: $!" );
+info( "The EPP Repository Identifier list $epp_id_path has been updated." );
+
+__DATA__
+# Taken from http://www.w3.org/TR/2000/REC-xml-20001006#CharClasses
+#
+# Letters and digits
+#
+# Letter    ::=    BaseChar | Ideographic
+#
+# BaseChar::=
+[#x0041-#x005A] | [#x0061-#x007A] | [#x00C0-#x00D6] | [#x00D8-#x00F6] | [#x00F8-#x00FF] | [#x0100-#x0131] | [#x0134-#x013E] | [#x0141-#x0148] | [#x014A-#x017E] | [#x0180-#x01C3] | [#x01CD-#x01F0] | [#x01F4-#x01F5] | [#x01FA-#x0217] | [#x0250-#x02A8] | [#x02BB-#x02C1] | #x0386 | [#x0388-#x038A] | #x038C | [#x038E-#x03A1] | [#x03A3-#x03CE] | [#x03D0-#x03D6] | #x03DA | #x03DC | #x03DE | #x03E0 | [#x03E2-#x03F3] | [#x0401-#x040C] | [#x040E-#x044F] | [#x0451-#x045C] | [#x045E-#x0481] | [#x0490-#x04C4] | [#x04C7-#x04C8] | [#x04CB-#x04CC] | [#x04D0-#x04EB] | [#x04EE-#x04F5] | [#x04F8-#x04F9] | [#x0531-#x0556] | #x0559 | [#x0561-#x0586] | [#x05D0-#x05EA] | [#x05F0-#x05F2] | [#x0621-#x063A] | [#x0641-#x064A] | [#x0671-#x06B7] | [#x06BA-#x06BE] | [#x06C0-#x06CE] | [#x06D0-#x06D3] | #x06D5 | [#x06E5-#x06E6] | [#x0905-#x0939] | #x093D | [#x0958-#x0961] | [#x0985-#x098C] | [#x098F-#x0990] | [#x0993-#x09A8] | [#x09AA-#x09B0] | #x09B2 | [#x09B6-#x09B9] | [#x09DC-#x09DD] | [#x09DF-#x09E1] | [#x09F0-#x09F1] | [#x0A05-#x0A0A] | [#x0A0F-#x0A10] | [#x0A13-#x0A28] | [#x0A2A-#x0A30] | [#x0A32-#x0A33] | [#x0A35-#x0A36] | [#x0A38-#x0A39] | [#x0A59-#x0A5C] | #x0A5E | [#x0A72-#x0A74] | [#x0A85-#x0A8B] | #x0A8D | [#x0A8F-#x0A91] | [#x0A93-#x0AA8] | [#x0AAA-#x0AB0] | [#x0AB2-#x0AB3] | [#x0AB5-#x0AB9] | #x0ABD | #x0AE0 | [#x0B05-#x0B0C] | [#x0B0F-#x0B10] | [#x0B13-#x0B28] | [#x0B2A-#x0B30] | [#x0B32-#x0B33] | [#x0B36-#x0B39] | #x0B3D | [#x0B5C-#x0B5D] | [#x0B5F-#x0B61] | [#x0B85-#x0B8A] | [#x0B8E-#x0B90] | [#x0B92-#x0B95] | [#x0B99-#x0B9A] | #x0B9C | [#x0B9E-#x0B9F] | [#x0BA3-#x0BA4] | [#x0BA8-#x0BAA] | [#x0BAE-#x0BB5] | [#x0BB7-#x0BB9] | [#x0C05-#x0C0C] | [#x0C0E-#x0C10] | [#x0C12-#x0C28] | [#x0C2A-#x0C33] | [#x0C35-#x0C39] | [#x0C60-#x0C61] | [#x0C85-#x0C8C] | [#x0C8E-#x0C90] | [#x0C92-#x0CA8] | [#x0CAA-#x0CB3] | [#x0CB5-#x0CB9] | #x0CDE | [#x0CE0-#x0CE1] | [#x0D05-#x0D0C] | [#x0D0E-#x0D10] | [#x0D12-#x0D28] | [#x0D2A-#x0D39] | [#x0D60-#x0D61] | [#x0E01-#x0E2E] | #x0E30 | [#x0E32-#x0E33] | [#x0E40-#x0E45] | [#x0E81-#x0E82] | #x0E84 | [#x0E87-#x0E88] | #x0E8A | #x0E8D | [#x0E94-#x0E97] | [#x0E99-#x0E9F] | [#x0EA1-#x0EA3] | #x0EA5 | #x0EA7 | [#x0EAA-#x0EAB] | [#x0EAD-#x0EAE] | #x0EB0 | [#x0EB2-#x0EB3] | #x0EBD | [#x0EC0-#x0EC4] | [#x0F40-#x0F47] | [#x0F49-#x0F69] | [#x10A0-#x10C5] | [#x10D0-#x10F6] | #x1100 | [#x1102-#x1103] | [#x1105-#x1107] | #x1109 | [#x110B-#x110C] | [#x110E-#x1112] | #x113C | #x113E | #x1140 | #x114C | #x114E | #x1150 | [#x1154-#x1155] | #x1159 | [#x115F-#x1161] | #x1163 | #x1165 | #x1167 | #x1169 | [#x116D-#x116E] | [#x1172-#x1173] | #x1175 | #x119E | #x11A8 | #x11AB | [#x11AE-#x11AF] | [#x11B7-#x11B8] | #x11BA | [#x11BC-#x11C2] | #x11EB | #x11F0 | #x11F9 | [#x1E00-#x1E9B] | [#x1EA0-#x1EF9] | [#x1F00-#x1F15] | [#x1F18-#x1F1D] | [#x1F20-#x1F45] | [#x1F48-#x1F4D] | [#x1F50-#x1F57] | #x1F59 | #x1F5B | #x1F5D | [#x1F5F-#x1F7D] | [#x1F80-#x1FB4] | [#x1FB6-#x1FBC] | #x1FBE | [#x1FC2-#x1FC4] | [#x1FC6-#x1FCC] | [#x1FD0-#x1FD3] | [#x1FD6-#x1FDB] | [#x1FE0-#x1FEC] | [#x1FF2-#x1FF4] | [#x1FF6-#x1FFC] | #x2126 | [#x212A-#x212B] | #x212E | [#x2180-#x2182] | [#x3041-#x3094] | [#x30A1-#x30FA] | [#x3105-#x312C] | [#xAC00-#xD7A3]
+#
+# Ideographic::=
+[#x4E00-#x9FA5] | #x3007 | [#x3021-#x3029]
+#
+# Digit::=
+[#x0030-#x0039] | [#x0660-#x0669] | [#x06F0-#x06F9] | [#x0966-#x096F] | [#x09E6-#x09EF] | [#x0A66-#x0A6F] | [#x0AE6-#x0AEF] | [#x0B66-#x0B6F] | [#x0BE7-#x0BEF] | [#x0C66-#x0C6F] | [#x0CE6-#x0CEF] | [#x0D66-#x0D6F] | [#x0E50-#x0E59] | [#x0ED0-#x0ED9] | [#x0F20-#x0F29] 
+
+# EOF

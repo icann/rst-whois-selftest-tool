@@ -49,7 +49,7 @@ sub extract_roid {
             defined $value->[1] or croak "'hostname' value expected to have roid at position 1";
             my ( $roid, $hostname ) = @{$value};
             my @errors;
-            push @errors, $types->validate_type( 'roid', $roid );
+            push @errors, grep { $_ ne 'expected roid suffix to be a registered epp repo id' } $types->validate_type( 'roid', $roid );
             push @errors, $types->validate_type( 'hostname', $hostname );
             if ( !@errors ) {
                 return $roid;

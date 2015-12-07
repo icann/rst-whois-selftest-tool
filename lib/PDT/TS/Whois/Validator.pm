@@ -246,18 +246,22 @@ sub _occurances {
             push @errors, @$parsed_errors;
             $count++;
             if ( $parsed eq 'empty field' ) {
+                my $line_no = $state->{lexer}->line_no - 1;
                 if ($count != 1) {
-                    push @errors, sprintf("line %d: empty field in repetition '%s'", $state->{lexer}->line_no - 1, $key);
+                    push @errors, sprintf( "line %d: empty field in repetition '%s'", $line_no, $key );
                 }
                 elsif ( $min_occurs > 0 ) {
-                    push @errors, sprintf("line %d: empty required field '%s'", $state->{lexer}->line_no - 1, $key);
+                      push @errors, sprintf( "line %d: field '%s' is required and must not be empty", $line_no, $key );
+                }
+                else {
+                    push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_no, key => $key );
                 }
                 last;
             }
         }
         else {
-            if ( $count == 0 && defined $line && $line eq 'field' ) {
-                push @errors, _set_empty_kind( $state, 'omitted field' );
+            if ( $count == 0 && defined $line && $line eq 'field' && $min_occurs == 0 ) {
+                push @errors, _set_empty_kind( $state, kind => 'omitted field', line_no => $state->{lexer}->line_no, key => $key );
             }
             last;
         }
@@ -324,9 +328,6 @@ sub _line {
             return;
         }
         $subtype = ( defined $field_value ) && 'field' || 'empty field';
-        if ($subtype eq 'empty field') {
-            push @$errors, _set_empty_kind( $state, 'empty field' );
-        }
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
@@ -396,15 +397,18 @@ sub _line {
 }
 
 sub _set_empty_kind {
-    my $state = shift or croak 'Missing argument: $state';
-    my $kind  = shift or croak 'Missing argument: $kind';
+    my $state   = shift or croak 'Missing argument: $state';
+    my %args    = @_;
+    my $kind    = $args{kind} or croak 'Missing argument: kind';
+    my $key     = $args{key} or croak 'Missing argument: key';
+    my $line_no = $args{line_no} or croak 'Missing argument: line_no';
 
     $state->{empty_kind} ||= $kind;
     if ( $state->{empty_kind} eq $kind ) {
         return ();
     }
     else {
-        return ( sprintf( "line %d: either all empty optional fields must be present or no empty optional field may be present", $state->{lexer}->line_no ) );
+        return ( sprintf( "line %d: optional field '%s': either all empty optional fields must be present or no empty optional field may be present", $line_no, $key ) );
     }
 }
 

@@ -5,6 +5,7 @@ lib/PDT/TS/Whois/Grammar.pm
 lib/PDT/TS/Whois/Lexer.pm
 lib/PDT/TS/Whois/Types.pm
 lib/PDT/TS/Whois/UnicodeData.pm
+lib/PDT/TS/Whois/UnicodeIDNA630.pm
 lib/PDT/TS/Whois/Util.pm
 lib/PDT/TS/Whois/Validator.pm
 LICENSE
@@ -21,6 +22,7 @@ t/04-icann-registrar-ok.t
 t/05-icann-name-server-type-1-ok.t
 t/06-icann-name-server-type-2-ok.t
 t/07-types.t
+t/08-util.t
 t/boilerplate.t
 t/iana-epp-rep-id.txt
 t/manifest.t

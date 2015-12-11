@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 8;
+use Test::More tests => 9;
 use Test::Differences;
 use Test::MockObject;
 
@@ -14,9 +14,14 @@ my $grammar = {
         { 'Domain Name' => { type => 'hostname', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
-    'Optional field' => [
-        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'y', }, },
-        { 'Referral URL' => { line => 'field', type => 'http url', optional => 'y', }, },
+    'Optional-constrained field' => [
+        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'constrained', }, },
+        { 'Referral URL' => { line => 'field', type => 'http url', optional => 'constrained', }, },
+        { 'EOF' => { line => 'EOF', }, },
+    ],
+    'Optional-free field' => [
+        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'constrained', }, },
+        { 'Referral URL' => { line => 'field', type => 'http url', optional => 'free', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable field' => [
@@ -28,7 +33,7 @@ my $grammar = {
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional repeatable section' => [
-        { 'A domain name' => { optional => 'y', repeatable => 'unbounded', }, },
+        { 'A domain name' => { optional => 'constrained', repeatable => 'unbounded', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'A domain name' => [
@@ -133,15 +138,15 @@ subtest 'Simple line' => sub {
     }
 };
 
-subtest 'Optional subrule' => sub {
-    plan tests => 6;
+subtest 'Optional-free subrule' => sub {
+    plan tests => 3;
 
     {
         my $lexer = make_mock_lexer (
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
             ['EOF', undef, []],
         );
-        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        my @errors = validate( rule => 'Optional-free field', lexer => $lexer, grammar => $grammar, types => $types );
         eq_or_diff \@errors, [], 'Should accept omitted field line';
     }
 
@@ -151,7 +156,7 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], 'http://domain.example/'], []],
             ['EOF', undef, []],
         );
-        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        my @errors = validate( rule => 'Optional-free field', lexer => $lexer, grammar => $grammar, types => $types );
         eq_or_diff \@errors, [], 'Should accept empty field line';
     }
 
@@ -160,7 +165,39 @@ subtest 'Optional subrule' => sub {
             ['field', ['Referral URL', [], undef], []],
             ['EOF', undef, []],
         );
-        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        my @errors = validate( rule => 'Optional-free field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept mixed empty field syntaxes';
+    }
+};
+
+subtest 'Optional-constrained subrule' => sub {
+    plan tests => 6;
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Referral URL', [], 'http://domain.example/'], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Optional-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept omitted field line';
+    }
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Domain Name', [], undef], []],
+            ['field', ['Referral URL', [], 'http://domain.example/'], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Optional-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept empty field line';
+    }
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Referral URL', [], undef], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Optional-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
         is scalar(@errors), 1, 'Should reject mixed empty field syntaxes';
         like $errors[0], qr/line 1/, 'Should refer to line number of the empty field';
     }
@@ -170,7 +207,7 @@ subtest 'Optional subrule' => sub {
             ['field', ['Domain Name', [], undef], []],
             ['EOF', undef, []],
         );
-        my @errors = validate( rule => 'Optional field', lexer => $lexer, grammar => $grammar, types => $types );
+        my @errors = validate( rule => 'Optional-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
         is scalar(@errors), 1, 'Should reject mixed empty field syntaxes';
         like $errors[0], qr/line 2/, 'Should refer to line number where empty field was expected';
     }

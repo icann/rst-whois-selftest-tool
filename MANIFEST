@@ -23,6 +23,7 @@ t/05-icann-name-server-type-1-ok.t
 t/06-icann-name-server-type-2-ok.t
 t/07-types.t
 t/08-util.t
+t/09-grammar.t
 t/boilerplate.t
 t/iana-epp-rep-id.txt
 t/manifest.t

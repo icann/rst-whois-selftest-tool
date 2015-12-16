@@ -245,7 +245,7 @@ Domain name details section:
   - Registrant Fax: { optional: constrained, line: field, type: phone number }
   - Registrant Fax Ext: { optional: constrained, line: field, type: token }
   - Registrant Email: { line: field, type: email address }
-  - Admin ID: { line: field, type: roid }
+  - Admin ID: { line: field, type: token }
   - Admin Name: { line: field, type: postal line }
   - Admin Organization: { optional: constrained, line: field, type: postal line }
   - Admin Street: { repeatable: unbounded, line: field, type: postal line }
@@ -258,7 +258,7 @@ Domain name details section:
   - Admin Fax: { optional: constrained, line: field, type: phone number }
   - Admin Fax Ext: { optional: constrained, line: field, type: token }
   - Admin Email: { line: field, type: email address }
-  - Tech ID: { line: field, type: roid }
+  - Tech ID: { line: field, type: token }
   - Tech Name: { line: field, type: postal line }
   - Tech Organization: { optional: constrained, line: field, type: postal line }
   - Tech Street: { repeatable: unbounded, line: field, type: postal line }
@@ -276,7 +276,7 @@ Domain name details section:
   - DNSSEC: { line: field, type: dnssec }
   - Additional fields section: { optional: free }
 Billing contact section:
-  - Billing ID: { line: field, type: roid }
+  - Billing ID: { line: field, type: token }
   - Billing Name: { line: field, type: postal line }
   - Billing Organization: { optional: free, line: field, type: postal line }
   - Billing Street: { repeatable: unbounded, line: field, type: postal line }

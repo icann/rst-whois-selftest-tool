@@ -13,6 +13,7 @@ my $builder = Module::Build->new(
         'Test::Differences' => 0,
         'Test::MockObject' => 0,
     },
+    configure_requires => { 'Module::Build' => 0.42 },
     requires => {
         'perl' => 5.006,
         'YAML::Syck' => 0,

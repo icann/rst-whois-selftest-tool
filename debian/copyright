@@ -1,0 +1,16 @@
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Maintainer: Jerry Lundström <jerry.lundstrom@iis.se>
+Source:
+Name: PDT-TS-Whois
+DISCLAIMER: void
+
+Files: *
+Copyright: Jerry Lundström <jerry.lundstrom@iis.se>
+License: void
+
+Files: debian/*
+Copyright: 2015, Jerry Lundström <jerry.lundstrom@iis.se>
+License: void
+
+License: void
+ void

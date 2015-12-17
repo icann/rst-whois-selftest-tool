@@ -1,0 +1,25 @@
+Build.PL
+Changes
+lib/PDT/TS/Whois.pm
+lib/PDT/TS/Whois/Grammar.pm
+lib/PDT/TS/Whois/Lexer.pm
+lib/PDT/TS/Whois/Types.pm
+lib/PDT/TS/Whois/UnicodeData.pm
+lib/PDT/TS/Whois/Util.pm
+lib/PDT/TS/Whois/Validator.pm
+MANIFEST			This list of files
+README
+t/00-load.t
+t/01-lexer.t
+t/02-validator.t
+t/03-icann-domain-ok.t
+t/04-icann-registrar-ok.t
+t/05-icann-name-server-type-1-ok.t
+t/06-icann-name-server-type-2-ok.t
+t/07-types.t
+t/boilerplate.t
+t/iana-epp-rep-id.txt
+t/manifest.t
+t/pod-coverage.t
+t/pod.t
+t/roid-example.txt

@@ -1,5 +1,5 @@
 package PDT::TS::Whois::Util;
-
+use utf8;
 use strict;
 use warnings;
 use 5.014;
@@ -10,6 +10,8 @@ use Unicode::Normalize qw( NFC );
 
 use Net::IDN::Encode qw( domain_to_ascii );
 
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Types;
 use PDT::TS::Whois::UnicodeIDNA630 qw( is_pvalid is_contextj is_contexto );
 
 our @EXPORT_OK = qw( extract_roid scrub_u_label );
@@ -48,8 +50,8 @@ sub extract_roid {
         }
         elsif ( $token eq 'roid line' ) {
             ref $value eq 'ARRAY' or croak "'roid line' value expected to be arrayref";
-            defined $value->[0] or croak "'roid line' value expected to have roid at position 0";
-            defined $value->[1] or croak "'hostname' value expected to have roid at position 1";
+            defined $value->[0]   or croak "'roid line' value expected to have roid at position 0";
+            defined $value->[1]   or croak "'hostname' value expected to have roid at position 1";
             my ( $roid, $hostname ) = @{$value};
             my @errors;
             push @errors, grep { $_ ne 'expected roid suffix to be a registered epp repo id' } $types->validate_type( 'roid', $roid );
@@ -60,6 +62,7 @@ sub extract_roid {
         }
         $lexer->next_line();
     }
+    croak "execution should never get here";
 }
 
 =head2 scrub_u_label( $u_label )

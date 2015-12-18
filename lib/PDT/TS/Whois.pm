@@ -1,4 +1,5 @@
 package PDT::TS::Whois;
+use utf8;
 use strict;
 use warnings;
 use 5.014;

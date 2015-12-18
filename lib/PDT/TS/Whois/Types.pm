@@ -1,10 +1,11 @@
 package PDT::TS::Whois::Types;
-
+use utf8;
 use strict;
 use warnings;
 use 5.014;
 
 use Carp;
+use English;
 use URI;
 use Regexp::IPv6;
 
@@ -157,48 +158,48 @@ my %default_types;
 
         return ( 'expected translation clause' );
     },
-    'hostname'      => sub {
+    'hostname' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
             return ( 'expected hostname' );
         }
 
-        if ( $value !~ /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])*\.){1,}[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])\.?$/o
-             || ( $value =~ /\.$/o && length($value) > 255 )
-             || ( $value !~ /\.$/o && length($value) > 254 ) )
+        if (   $value !~ /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])*\.){1,}[a-zA-Z]([a-zA-Z0-9-]*[a-zA-Z0-9])\.?$/o
+            || ( $value =~ /\.$/o && length( $value ) > 255 )
+            || ( $value !~ /\.$/o && length( $value ) > 254 ) )
         {
             return ( 'expected hostname' );
         }
 
-        foreach ( split(/\./o, $value) ) {
-            if ( length($_) > 63 ) {
+        foreach ( split( /\./o, $value ) ) {
+            if ( length( $_ ) > 63 ) {
                 return ( 'expected hostname' );
             }
         }
 
         return ();
     },
-    'u-label'       => sub {
+    'u-label' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
             return ( 'expected u-label' );
         }
 
-        if ( $value && $default_types{hostname}->($value) ) {
+        if ( $value && $default_types{hostname}->( $value ) ) {
             return ();
         }
 
         return ( 'expected u-label' );
     },
-    'roid'          => sub {
+    'roid' => sub {
         my $value = shift;
 
-        if ( ! defined $value ) {
+        if ( !defined $value ) {
             return ( 'expected roid' );
         }
-        elsif ( $default_types{token}->($value) ) {
+        elsif ( $default_types{token}->( $value ) ) {
             return ( 'expected roid' );
         }
         elsif ( $value =~ /^(.{1,80})-(.{1,8})$/ ) {
@@ -221,13 +222,13 @@ my %default_types;
             return ( 'expected roid' );
         }
     },
-    'roid suffix'          => sub {
+    'roid suffix' => sub {
         my $value = shift;
 
         if ( !defined $value ) {
             return ( 'expected roid suffix' );
         }
-        elsif ( $default_types{token}->($value) ) {
+        elsif ( $default_types{token}->( $value ) ) {
             return ( 'expected roid suffix' );
         }
         elsif ( $value =~ /^(.{1,8})$/ ) {
@@ -243,21 +244,21 @@ my %default_types;
             return ( 'expected roid suffix' );
         }
     },
-    'http url'      => sub {
+    'http url' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
             return ( 'expected http url' );
         }
 
-        my $uri = URI->new($value);
+        my $uri = URI->new( $value );
         if ( $uri->scheme && $uri->scheme =~ /^https?$/oi && $uri->opaque ) {
             return ();
         }
 
         return ( 'expected http url' );
     },
-    'time stamp'    => sub {
+    'time stamp' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
@@ -274,7 +275,7 @@ my %default_types;
 
         return ();
     },
-    'token'         => sub {
+    'token' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
@@ -302,40 +303,40 @@ my %default_types;
 
         return ( 'expected domain status' );
     },
-    'postal line'   => sub {
+    'postal line' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
             return ( 'expected postal line' );
         }
 
-        if ( length($value) < 1 || length($value) > 255 || $value =~ /[\r\n\t]/o ) {
+        if ( length( $value ) < 1 || length( $value ) > 255 || $value =~ /[\r\n\t]/o ) {
             return ( 'expected postal line' );
         }
 
         return ();
     },
-    'postal code'   => sub {
+    'postal code' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
             return ( 'expected postal code' );
         }
 
-        if ( length($value) > 16 || $default_types{token}->($value) ) {
+        if ( length( $value ) > 16 || $default_types{token}->( $value ) ) {
             return ( 'expected postal code' );
         }
 
         return ();
     },
-    'phone number'  => sub {
+    'phone number' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
             return ( 'expected phone number' );
         }
 
-        if ( length($value) > 17 || $default_types{token}->($value) || $value !~ /^\+[0-9]{1,3}\.[0-9]{1,14}$/o ) {
+        if ( length( $value ) > 17 || $default_types{token}->( $value ) || $value !~ /^\+[0-9]{1,3}\.[0-9]{1,14}$/o ) {
             return ( 'expected phone number' );
         }
 
@@ -350,7 +351,7 @@ my %default_types;
 
         my ( $localpart, $domain ) = split( '@', $value, 2 );
 
-        if ( !$localpart || $default_types{hostname}->($domain) || $domain =~ /\.$/o ) {
+        if ( !$localpart || $default_types{hostname}->( $domain ) || $domain =~ /\.$/o ) {
             return ( 'expected email address' );
         }
 
@@ -362,7 +363,7 @@ my %default_types;
 
         return ();
     },
-    'ip address'    => sub {
+    'ip address' => sub {
         my $value = shift;
 
         unless ( defined $value ) {
@@ -370,11 +371,11 @@ my %default_types;
         }
 
         if ( $value =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/o ) {
-            foreach ( ($1, $2, $3, $4) ) {
+            foreach ( ( $1, $2, $3, $4 ) ) {
                 if ( $_ eq '0' ) {
                     next;
                 }
-                if ( $default_types{'positive integer'}->($_) || $_ > 255 ) {
+                if ( $default_types{'positive integer'}->( $_ ) || $_ > 255 ) {
                     return ( 'expected ip address' );
                 }
             }
@@ -394,7 +395,7 @@ my %default_types;
             return ( 'expected epp repo id' );
         }
 
-        if ( $default_types{roid}->($value) ) {
+        if ( $default_types{roid}->( $value ) ) {
             return ( 'expected epp repo id' );
         }
 
@@ -440,6 +441,7 @@ sub add_type {
     my $sub       = shift or croak 'Missing argument: $sub';
     ref $sub eq 'CODE' or croak 'Argument $sub must be a coderef';
     $self->{_types}{$type_name} = $sub;
+    return;
 }
 
 =head2 has_type
@@ -456,7 +458,7 @@ Test if a type is recognized by this type checker.
 =cut
 
 sub has_type {
-    my $self      = shift;
+    my $self = shift;
     my $type_name = shift or croak 'Missing argument: $type_name';
     return exists $self->{_types}{$type_name};
 }
@@ -497,8 +499,11 @@ sub load_roid_suffix {
     my ( $self, $file ) = @_;
     my ( $fh, $roid_suffix, $line_no ) = ( undef, {}, 1 );
 
-    open( $fh, '<:encoding(UTF-8)', $file ) or die "Unable to open $file: $!";
-    while ( <$fh> ) {
+    open $fh, '<:encoding(UTF-8)', $file or croak "Couldn't open '$file': $OS_ERROR";
+    my @lines = <$fh>;
+    close( $fh ) or croak "Couldn't close '$file': $OS_ERROR";
+
+    for ( @lines ) {
         s/[\r\n]+$//;
 
         if ( /^\s*#/ ) {
@@ -514,7 +519,6 @@ sub load_roid_suffix {
         }
         die "$file line $line_no: Invalid syntax";
     }
-    close( $fh );
 
     $ROID_SUFFIX = $roid_suffix;
 

@@ -1,4 +1,5 @@
 package PDT::TS::Whois::UnicodeIDNA630;
+use utf8;
 use strict;
 use warnings;
 use 5.014;
@@ -9,8 +10,8 @@ use Exporter;
 
 use Text::CSV;
 
-our @ISA    = 'Exporter';
-our @EXPORT = qw( is_pvalid is_contextj is_contexto );
+our @ISA       = 'Exporter';
+our @EXPORT_OK = qw( is_pvalid is_contextj is_contexto );
 
 my %properties = (
     PVALID   => {},
@@ -32,7 +33,7 @@ Returns true or false.
 
 sub is_pvalid {
     my $char = shift;
-    defined $char && ref $char eq '' && length $char == 1 or croak 'Argument must be a single character string: $char';
+    ( defined $char && ref $char eq '' && length $char == 1 ) or croak 'Argument must be a single character string: $char';
     return exists $properties{'PVALID'}{$char};
 }
 
@@ -50,7 +51,7 @@ Returns true or false.
 
 sub is_contextj {
     my $char = shift;
-    defined $char && ref $char eq '' && length $char == 1 or croak 'Argument must be a single character string: $char';
+    ( defined $char && ref $char eq '' && length $char == 1 ) or croak 'Argument must be a single character string: $char';
     return exists $properties{'CONTEXTJ'}{$char};
 }
 
@@ -68,7 +69,7 @@ Returns true or false.
 
 sub is_contexto {
     my $char = shift;
-    defined $char && ref $char eq '' && length $char == 1 or croak 'Argument must be a single character string: $char';
+    ( defined $char && ref $char eq '' && length $char == 1 ) or croak 'Argument must be a single character string: $char';
     return exists $properties{'CONTEXTO'}{$char};
 }
 

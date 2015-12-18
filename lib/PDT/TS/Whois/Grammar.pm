@@ -1,5 +1,5 @@
 package PDT::TS::Whois::Grammar;
-
+use utf8;
 use strict;
 use warnings;
 use 5.014;
@@ -90,6 +90,8 @@ subrule contains line => 'field'.
 =cut
 
 our $grammar = LoadFile( *DATA );
+
+1;
 
 __DATA__
 ---

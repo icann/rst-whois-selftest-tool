@@ -86,27 +86,26 @@ Installation
 Clone the project repository and choose version according to the specification
 compatibility matrix.
 
-    $> git clone https://github.com/dotse/Whois-Selftest-Tool.git <installdir>
-    $> cd <installdir>
+    $> git clone https://github.com/dotse/Whois-Selftest-Tool.git <srcdir>
+    $> cd <srcdir>
     $> git checkout <version>
 
-`<installdir>` is assumed to be in the PATH in code examples throughout the
-rest of this document.
+Install Whois Selftest Tool scripts and libraries.
 
-Create a program directory `<programdir>` to install Whois Selftest Tool in,
-and copy the scripts and libraries there.
+    $> perl Build.PL
+    $> ./Build
+    $> ./Build test
+    $> ./Build install
 
-    $> cd <somewhere>
-    $> mkdir <programdir>
-    $> cp <installdir>/script/* <programdir>/
-    $> cp -r <installdir>/lib/PDT <programdir>/
+To check the installation run the scripts with `--help`.
 
-Now the script is installed and can be run from `<programdir>`. To check the
-installation run the scripts with `--help`.
+    $> whois-test --help
+    $> whois-fetch-epp-repo-ids --help
 
-    $> cd <programdir>
-    $> ./whois-test --help
-    $> ./whois-fetch-epp-repo-ids --help
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc PDT::TS::Whois
 
 Before use
 ==========

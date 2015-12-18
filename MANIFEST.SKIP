@@ -32,6 +32,7 @@
 \bBuild.COM$
 \bBUILD.COM$
 \bbuild.com$
+^MANIFEST\.SKIP
 
 # Avoid dh-make-perl generated and utility files.
 ^debian
@@ -63,15 +64,6 @@
 
 # Avoid configuration metadata file
 ^MYMETA\.
-
-# Avoid Module::Build generated and utility files.
-\bBuild$
-\bBuild.bat$
-\b_build
-\bBuild.COM$
-\bBUILD.COM$
-\bbuild.com$
-^MANIFEST\.SKIP
 
 # Avoid archives of this distribution
 \bPDT-TS-Whois-[\d\.\_]+

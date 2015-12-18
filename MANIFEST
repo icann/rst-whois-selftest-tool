@@ -1,5 +1,4 @@
 Build.PL
-Changes
 lib/PDT/TS/Whois.pm
 lib/PDT/TS/Whois/Grammar.pm
 lib/PDT/TS/Whois/Lexer.pm
@@ -10,7 +9,6 @@ lib/PDT/TS/Whois/Util.pm
 lib/PDT/TS/Whois/Validator.pm
 LICENSE
 MANIFEST			This list of files
-README
 README.md
 script/whois-fetch-epp-repo-ids
 script/whois-test

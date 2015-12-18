@@ -1,18 +1,5 @@
-libpdt-ts-whois-perl (1.01-1) unstable; urgency=low
+libwhois-selftest-tool-perl (1.0.0) unstable; urgency=low
 
-  * Release 1.01.
-    0b76fc8 Remove test script from MANIFEST
+  * Initial public release.
 
- -- Jerry Lundström <lundstrom.jerry@gmail.com>  Thu, 22 Oct 2015 11:38:00 +0200
-
-libpdt-ts-whois-perl (1.00-1) unstable; urgency=low
-
-  * Release 1.00.
-
- -- Jerry Lundström <lundstrom.jerry@gmail.com>  Wed, 21 Oct 2015 13:30:12 +0200
-
-libpdt-ts-whois-perl (0.01-1) unstable; urgency=low
-
-  * Initial Release.
-
- -- Jerry Lundström <lundstrom.jerry@gmail.com>  Tue, 20 Oct 2015 08:15:37 +0200
+ -- Mattias Päivärinta <mattias.paivarinta@doxwork.com>  Thu, 03 Dec 2015 16:06:00 +0200

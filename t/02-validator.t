@@ -121,11 +121,11 @@ subtest 'Simple line' => sub {
 
     {
         my $lexer = make_mock_lexer (
-            ['non-empty line', undef, []],
+            ['non-empty line', 'gibberish', []],
             ['EOF', undef, []],
         );
         my @errors = validate(rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
-        is scalar(@errors), 1, 'Should reject non-field line';
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject non-field line';
     }
 
     {
@@ -134,7 +134,7 @@ subtest 'Simple line' => sub {
             ['EOF', undef, []],
         );
         my @errors = validate( rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
-        is scalar(@errors), 1, 'Should reject empty-field line';
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject empty-field line';
     }
 };
 
@@ -198,7 +198,7 @@ subtest 'Optional-constrained subrule' => sub {
             ['EOF', undef, []],
         );
         my @errors = validate( rule => 'Optional-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
-        is scalar(@errors), 1, 'Should reject mixed empty field syntaxes';
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject mixed empty field syntaxes';
         like $errors[0], qr/line 1/, 'Should refer to line number of the empty field';
     }
 
@@ -208,7 +208,7 @@ subtest 'Optional-constrained subrule' => sub {
             ['EOF', undef, []],
         );
         my @errors = validate( rule => 'Optional-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
-        is scalar(@errors), 1, 'Should reject mixed empty field syntaxes';
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject mixed empty field syntaxes';
         like $errors[0], qr/line 2/, 'Should refer to line number where empty field was expected';
     }
 };
@@ -295,7 +295,7 @@ subtest 'Anything' => sub {
     {
         my $lexer = make_mock_lexer (
             ['empty line', undef, []],
-            ['non-empty line', undef, []],
+            ['non-empty line', 'gibberish', []],
             ['roid line', ['INVALID!', 'INVALID!'], []],
             ['EOF', undef, []],
         );

@@ -94,29 +94,30 @@ sub validate {
         empty_kind => undef,
     };
 
+    # Validate rule
     my $result = _rule( $state, key => $rule );
+
+    # Pick up validation warnings
+    my @errors;
     if ( defined $result ) {
         ref $result eq 'ARRAY' or croak 'unexpected return value from _rule()';
-        my @errors = @{$result};
+        @errors = @{$result};
+    }
 
-        my ( $token, $token_value ) = $state->{lexer}->peek_line();
-        defined $token or confess 'unexpected return value';
+    # Check status of parsed input
+    my ( $token, $token_value ) = $state->{lexer}->peek_line();
+    defined $token or confess 'unexpected return value from peek_line()';
 
-        if ( $token ne 'EOF' ) {
-            if ( @errors ) {
-                push @errors, sprintf 'line %d: validation aborted, no validation was perfomed beyond this line', $state->{lexer}->line_no();
-            }
-            else {
-                my $description = _describe_line( $token, $token_value );
-                push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
-            }
+    # Pick up fatal validation errors
+    unless ( defined $result && $token eq 'EOF' ) {
+        if ( !@errors ) {
+            my $description = _describe_line( $token, $token_value );
+            push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
         }
+        push @errors, sprintf 'line %d: validation aborted, no validation was perfomed beyond this line', $state->{lexer}->line_no();
+    }
 
-        return @errors;
-    }
-    else {
-        return ( sprintf( "line %d: unrecognized input", $state->{lexer}->line_no ) );
-    }
+    return @errors;
 }
 
 sub _describe_line {
@@ -125,14 +126,14 @@ sub _describe_line {
 
     my $description;
     if ( $token eq 'field' ) {
-        ref $token_value eq 'ARRAY' or croak 'unexpected return value';
+        ref $token_value eq 'ARRAY' or croak 'unexpected token_value for field token';
         my ( $field_key, undef, undef ) = @{$token_value};
-        defined $field_key or croak 'unexpected return value';
+        defined $field_key or croak 'unexpected token_value for field token';
 
         return "field '" . $field_key . "'";
     }
     elsif ( $token eq 'non-empty line' ) {
-        ( defined $token_value && ref $token_value eq '' ) or croak 'unexpected return value';
+        ( defined $token_value && ref $token_value eq '' ) or croak 'unexpected token_value for non-empty line token';
         my $contents = ( $token_value =~ s/\W+/ /gru );
 
         $contents = ( length $contents > 15 ) ? "'" . substr( $contents, 0, 15 ) . "'..." : "'" . $contents . "'";

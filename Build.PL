@@ -4,7 +4,7 @@ use warnings;
 use Module::Build;
 
 my $builder = Module::Build->new(
-    module_name         => 'PDT::TS::Whois',
+    module_name         => 'Whois::Selftest::Tool',
     dist_author         => q{Mattias Päivärinta <mattias.paivarinta@doxwork.com>},
     dist_version_from   => 'lib/PDT/TS/Whois.pm',
     build_requires => {
@@ -30,7 +30,7 @@ my $builder = Module::Build->new(
         'URI' => 0,
         'YAML::Syck' => 0,
     },
-    add_to_cleanup      => [ 'PDT-TS-Whois-*' ],
+    add_to_cleanup      => [ 'Whois-Selftest-Tool-*' ],
     create_makefile_pl => 'traditional',
     script_files => [
         'script/whois-fetch-epp-repo-ids',

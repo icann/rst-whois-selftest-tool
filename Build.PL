@@ -32,6 +32,10 @@ my $builder = Module::Build->new(
     },
     add_to_cleanup      => [ 'PDT-TS-Whois-*' ],
     create_makefile_pl => 'traditional',
+    script_files => [
+        'script/whois-fetch-epp-repo-ids',
+        'script/whois-test',
+    ],
 );
 
 $builder->create_build_script();

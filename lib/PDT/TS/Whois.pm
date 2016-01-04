@@ -1,7 +1,10 @@
 package PDT::TS::Whois;
+use utf8;
 use strict;
 use warnings;
 use 5.014;
+
+use version; our $VERSION = qv( 1.1.0 );
 
 =pod
 
@@ -45,14 +48,6 @@ Validates the output of a lexer according to a grammar and types.
 
 =back
 
-
-=head1 VERSION
-
-Version 1.01
-
-=cut
-
-our $VERSION = '1.01';
 
 =head1 SYNOPSIS
 

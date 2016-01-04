@@ -1,0 +1,5 @@
+libwhois-selftest-tool-perl (1.0.0-1) unstable; urgency=low
+
+  * Initial public release.
+
+ -- Mattias Päivärinta <mattias.paivarinta@doxwork.com>  Thu, 03 Dec 2015 16:06:00 +0200

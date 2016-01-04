@@ -1,5 +1,5 @@
 package PDT::TS::Whois::Validator;
-
+use utf8;
 use strict;
 use warnings;
 use 5.014;
@@ -85,7 +85,7 @@ sub validate {
     croak "roid: missing type"            unless $args{types}->has_type( 'roid' );
     croak "hostname: missing type"        unless $args{types}->has_type( 'hostname' );
 
-    my $rule  = $args{rule};
+    my $rule = $args{rule};
 
     my $state = {
         lexer      => $args{lexer},
@@ -94,46 +94,53 @@ sub validate {
         empty_kind => undef,
     };
 
-    my $result = _rule( $state, $rule );
+    # Validate rule
+    my $result = _rule( $state, key => $rule );
+
+    # Pick up validation warnings
+    my @errors;
     if ( defined $result ) {
         ref $result eq 'ARRAY' or croak 'unexpected return value from _rule()';
-        my @errors = @{$result};
+        @errors = @{$result};
+    }
 
-        my ( $token ) = $state->{lexer}->peek_line();
-        defined $token or confess 'unexpected return value';
+    # Check status of parsed input
+    my ( $token, $token_value ) = $state->{lexer}->peek_line();
+    defined $token or confess 'unexpected return value from peek_line()';
 
-        if ( $token ne 'EOF' ) {
-            push @errors, sprintf 'line %d: validation aborted, no validation was perfomed beyond this line', $state->{lexer}->line_no();
+    # Pick up fatal validation errors
+    unless ( defined $result && $token eq 'EOF' ) {
+        if ( !@errors ) {
+            my $description = _describe_line( $token, $token_value );
+            push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
         }
+        push @errors, sprintf 'line %d: validation aborted, no validation was perfomed beyond this line', $state->{lexer}->line_no();
+    }
 
-        return @errors;
-    }
-    else {
-        return ( sprintf( "line %d: unrecognized input", $state->{lexer}->line_no ) );
-    }
+    return @errors;
 }
 
-sub _rule {
-    my $state = shift or croak 'Missing argument: $state';
-    my $rule  = shift or croak 'Missing argument: $rule';
+sub _describe_line {
+    my $token       = shift;
+    my $token_value = shift;
 
-    if ( my $section_rule = $state->{grammar}->{$rule} ) {
-        if ( ref $section_rule eq 'ARRAY' ) {
-            @_ = ( $state, $section_rule );
-            no warnings 'recursion';
-            goto &_sequence_section;
-        }
-        elsif ( ref $section_rule eq 'HASH' ) {
-            @_ = ( $state, $section_rule );
-            no warnings 'recursion';
-            goto &_choice_section;
-        }
-        else {
-            croak "invalid grammar rule: $rule";
-        }
+    my $description;
+    if ( $token eq 'field' ) {
+        ref $token_value eq 'ARRAY' or croak 'unexpected token_value for field token';
+        my ( $field_key, undef, undef ) = @{$token_value};
+        defined $field_key or croak 'unexpected token_value for field token';
+
+        return "field '" . $field_key . "'";
+    }
+    elsif ( $token eq 'non-empty line' ) {
+        ( defined $token_value && ref $token_value eq '' ) or croak 'unexpected token_value for non-empty line token';
+        my $contents = ( $token_value =~ s/\W+/ /gru );
+
+        $contents = ( length $contents > 15 ) ? "'" . substr( $contents, 0, 15 ) . "'..." : "'" . $contents . "'";
+        return "non-empty line " . $contents;
     }
     else {
-        croak "unknown grammar rule: $rule";
+        return $token;
     }
 }
 
@@ -163,26 +170,9 @@ sub _sequence_section {
                 defined $token or croak 'unexpected return value';
                 ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
 
-                push @errors, @{ $token_errors };
+                push @errors, @{$token_errors};
 
-                my $description;
-                if ( $token eq 'field' ) {
-                    ref $token_value eq 'ARRAY' or croak 'unexpected return value';
-                    my ($field_key, undef, undef) = @{ $token_value };
-                    defined $field_key or croak 'unexpected return value';
-
-                    $description = "field '" . $field_key . "'";
-                }
-                elsif ( $token eq 'non-empty line' ) {
-                    defined $token_value && ref $token_value eq '' or croak 'unexpected return value';
-                    my $contents = ( $token_value =~ s/\W+/ /gru );
-
-                    $contents = ( length $contents > 15 ) ? "'" . substr($contents, 0, 15) . "'..." : "'" . $contents . "'";
-                    $description = "non-empty line " . $contents;
-                }
-                else {
-                    $description = $token;
-                }
+                my $description = _describe_line( $token, $token_value );
                 push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
                 last;
             }
@@ -221,8 +211,10 @@ sub _occurances {
     my $type  = $args{'type'};
 
     my $min_occurs;
-    if ( ( $args{'optional'} || 'n' ) eq 'y' ) {
-        $min_occurs = 0;
+    my $optional_type;
+    if ( ( $args{'optional'} || 'no' ) =~ /^(constrained|free)$/ ) {
+        $min_occurs    = 0;
+        $optional_type = $1;
     }
     else {
         $min_occurs = 1;
@@ -240,24 +232,32 @@ sub _occurances {
     my $count = 0;
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
-        my ( $parsed, $parsed_errors ) = _subrule( $state, line => $line, key => $key, type => $type );
+        my $line_before = $state->{lexer}->line_no;
+        my ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type );
         if ( defined $parsed ) {
             ref $parsed_errors eq 'ARRAY' or confess;
-            push @errors, @$parsed_errors;
             $count++;
+            my $line_after = $state->{lexer}->line_no;
+            if ( $line_before == $line_after ) {
+                last;
+            }
+            push @errors, @$parsed_errors;
             if ( $parsed eq 'empty field' ) {
-                if ($count != 1) {
-                    push @errors, sprintf("line %d: empty field in repetition '%s'", $state->{lexer}->line_no - 1, $key);
+                if ( $count != 1 ) {
+                    push @errors, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
                 }
                 elsif ( $min_occurs > 0 ) {
-                    push @errors, sprintf("line %d: empty required field '%s'", $state->{lexer}->line_no - 1, $key);
+                    push @errors, sprintf( "line %d: field '%s' is required and must not be empty", $line_after - 1, $key );
+                }
+                elsif ( $optional_type eq 'constrained' ) {
+                    push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_after - 1, key => $key );
                 }
                 last;
             }
         }
         else {
-            if ( $count == 0 && defined $line && $line eq 'field' ) {
-                push @errors, _set_empty_kind( $state, 'omitted field' );
+            if ( $count == 0 && defined $line && $line eq 'field' && $min_occurs == 0 && $optional_type eq 'constrained' ) {
+                push @errors, _set_empty_kind( $state, kind => 'omitted field', line_no => $state->{lexer}->line_no, key => $key );
             }
             last;
         }
@@ -271,7 +271,7 @@ sub _occurances {
     }
 }
 
-sub _subrule {
+sub _rule {
     my $state = shift;
     my %args  = @_;
     my $line  = $args{'line'};
@@ -283,9 +283,24 @@ sub _subrule {
         return ( $subtype, $result );
     }
     else {
-        @_ = ( $state, $key );
-        no warnings 'recursion';
-        goto &_rule;
+        if ( my $section_rule = $state->{grammar}->{$key} ) {
+            if ( ref $section_rule eq 'ARRAY' ) {
+                no warnings 'recursion';
+                @_ = ( $state, $section_rule );
+                goto &_sequence_section;
+            }
+            elsif ( ref $section_rule eq 'HASH' ) {
+                @_ = ( $state, $section_rule );
+                no warnings 'recursion';
+                goto &_choice_section;
+            }
+            else {
+                croak "invalid grammar rule: $key";
+            }
+        }
+        else {
+            croak "unknown grammar rule: $key";
+        }
     }
 }
 
@@ -295,7 +310,7 @@ sub _line {
     my $key   = $args{'key'} or croak 'Missing argument: key';
     my $line  = $args{'line'};
     my $type  = $args{'type'};
-    $line || $type or confess;
+    ( $line || $type ) or confess;
     if ( defined $type ) {
         $line ||= 'field';
         $line eq 'field' or confess;
@@ -316,7 +331,7 @@ sub _line {
             return;
         }
 
-        ref $errors eq 'ARRAY' or confess;
+        ref $errors eq 'ARRAY'      or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;
@@ -324,9 +339,6 @@ sub _line {
             return;
         }
         $subtype = ( defined $field_value ) && 'field' || 'empty field';
-        if ($subtype eq 'empty field') {
-            push @$errors, _set_empty_kind( $state, 'empty field' );
-        }
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
@@ -350,8 +362,8 @@ sub _line {
         ref $errors eq 'ARRAY' or confess;
     }
 
-
     if ( $line eq 'any line' || $line eq 'non-empty line' ) {
+
         # skip validations
     }
     elsif ( $token eq 'field' ) {
@@ -381,7 +393,7 @@ sub _line {
         push @$errors, _validate_type( $state, type_name => 'hostname', value => $hostname );
     }
     elsif ( $token eq 'last update line' ) {
-        $token_value && ref $token_value eq '' or confess;
+        ( $token_value && ref $token_value eq '' ) or croak "assertion error";
         my $timestamp = $token_value;
 
         push @$errors, _validate_type( $state, type_name => 'time stamp', value => $timestamp );
@@ -396,15 +408,18 @@ sub _line {
 }
 
 sub _set_empty_kind {
-    my $state = shift or croak 'Missing argument: $state';
-    my $kind  = shift or croak 'Missing argument: $kind';
+    my $state   = shift or croak 'Missing argument: $state';
+    my %args    = @_;
+    my $kind    = $args{kind} or croak 'Missing argument: kind';
+    my $key     = $args{key} or croak 'Missing argument: key';
+    my $line_no = $args{line_no} or croak 'Missing argument: line_no';
 
     $state->{empty_kind} ||= $kind;
     if ( $state->{empty_kind} eq $kind ) {
         return ();
     }
     else {
-        return ( sprintf( "line %d: either all empty optional fields must be present or no empty optional field may be present", $state->{lexer}->line_no ) );
+        return ( sprintf( "line %d: optional field '%s' (%s): either all empty optional fields must be present or no empty optional field may be present", $line_no, $key, $kind ) );
     }
 }
 
@@ -417,7 +432,7 @@ sub _validate_type {
 
     my @errors;
     for my $error ( $state->{types}->validate_type( $type_name, $value ) ) {
-        push @errors, sprintf("line %s: %s%s", $state->{lexer}->line_no, $prefix, $error);
+        push @errors, sprintf( "line %s: %s%s", $state->{lexer}->line_no, $prefix, $error );
     }
     return @errors;
 }

@@ -87,7 +87,7 @@ Dependencies
    * Text::CSV\_XS
    * URI
    * YAML::Syck
-   * wget
+ * wget
 
 The Whois Selftest Tool has been developed on Unbuntu Linux, but we have tried to
 avoid Linux specific coding. There is, however, no guarantee that it works on
@@ -151,7 +151,7 @@ See the man pages for the respective commands for details on how to run them.
 Known issues
 ============
 
-None.
+* The description of the two types of replies on queries for nameserver objects is a bit unclear. For full understanding, please see the PDT Test Case WhoisCLI03 found in the PDT\_Whois\_TC\_CLI document listed in the references above.
 
 Reporting bugs
 --------------

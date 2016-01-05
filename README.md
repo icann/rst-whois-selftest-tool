@@ -23,6 +23,9 @@ reference of the Whois tests under PDT see the PDT Whois documents.
 Version history
 ===============
 * v1.0.0 - Initial public release (2015-12-03)
+* v1.1.0 - Uppdated public release (2016-01-08)
+
+The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
 
 Specification compatibility matrix
 ----------------------------------
@@ -30,14 +33,23 @@ Refer to this compatibility matrix when deciding which version of Whois Selftest
 Tool to use.
 
 <table>
-<tr><th>Whois Selftest Tool version</th><th>PDT Test Specifications</th></tr>
-<tr><td>v1.0.0</td><td>v.2.8</td></tr>
+  <tr>
+    <th>Whois Selftest Tool version</th>
+    <th>PDT Test Specifications</th>
+  </tr>
+  <tr>
+    <td>v1.0.0</td>
+    <td>v.2.8</td>
+  </tr>
+  <tr>
+    <td>v1.1.0</td>
+    <td>v.2.9</td>
+  </tr>
 </table>
 
 Roadmap
 =======
-The plan is to solve know issues and any bugs of importance before the
-stricter Whois testing is enforced at 2016-01-31. New versions will be released
+The plan is to solve know issues and any bugs of importance. New versions will be released
 when fixes are stable.
 
 References
@@ -75,7 +87,7 @@ Dependencies
    * Text::CSV\_XS
    * URI
    * YAML::Syck
- * wget
+   * wget
 
 The Whois Selftest Tool has been developed on Unbuntu Linux, but we have tried to
 avoid Linux specific coding. There is, however, no guarantee that it works on
@@ -138,16 +150,8 @@ See the man pages for the respective commands for details on how to run them.
 
 Known issues
 ============
- * The Perl library that converts between IDN U-label and IDN A-label,
-   Net::IDN::encode, will magically make upper-case characters into its
-   equivalent lower-case characters.  The upper-case characters are not valid
-   in a U-label. This issue can make false positive validations of Whois
-   responses when the "Internationalized Domain Name" field is present in a
-   Domain Object response.
 
-* Perl 5.14 only supports Unicode 6.0.0. If an "Internationalized Domain Name"
-  field contains code points available in Unicode 6.3.0 but not in Unicode 6.0.0, and valid for IDNA,
-  then they will incorrectly be reported as invalid.
+None.
 
 Reporting bugs
 --------------

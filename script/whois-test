@@ -14,7 +14,7 @@ whois-test - Validates Whois output
 
 =item whois-test [ --help | --man ]
 
-=item whois-test --domain=HOST --epp-repo-id=SUFFIX FILE
+=item whois-test --domain=DOMAIN --epp-repo-id=SUFFIX FILE
 
 =item whois-test --registrar=SUBSTRING FILE
 
@@ -40,9 +40,9 @@ Display full man page.
 
 Specify the EPP repo id to use in validation.
 
-=item B<-d> I<HOST>, B<--domain>=I<HOST>
+=item B<-d> I<DOMAIN>, B<--domain>=I<DOMAIN>
 
-Validate B<Domain Name Object reply> for the I<HOST> domain name object.
+Validate B<Domain Name Object reply> for the I<DOMAIN> domain name object.
 
 =item B<-r>=I<SUBSTRING>, B<--registrar>=I<SUBSTRING>
 

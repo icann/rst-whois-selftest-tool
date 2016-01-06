@@ -230,6 +230,7 @@ sub _occurances {
     }
 
     my $count = 0;
+    my @pending_empty_error = ();
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
         my $line_before = $state->{lexer}->line_no;
@@ -243,8 +244,10 @@ sub _occurances {
             }
             push @errors, @$parsed_errors;
             if ( $parsed eq 'empty field' ) {
+                push @pending_empty_error, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
                 if ( $count != 1 ) {
-                    push @errors, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
+                    push @errors, @pending_empty_error;
+                    @pending_empty_error = ();
                 }
                 elsif ( $min_occurs > 0 ) {
                     push @errors, sprintf( "line %d: field '%s' is required and must not be empty", $line_after - 1, $key );
@@ -252,7 +255,10 @@ sub _occurances {
                 elsif ( $optional_type eq 'constrained' ) {
                     push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_after - 1, key => $key );
                 }
-                last;
+            }
+            else {
+                push @errors, @pending_empty_error;
+                @pending_empty_error = ();
             }
         }
         else {

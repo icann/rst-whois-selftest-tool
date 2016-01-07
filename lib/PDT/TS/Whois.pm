@@ -76,7 +76,7 @@ Mattias Päivärinta, <mattias.paivarinta@doxwork.com>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015 IIS (The Internet Infrastructure Foundation).
+Copyright (C) 2015-2016 IIS (The Internet Infrastructure Foundation).
 All rights reserved.
 
 This module is subject to the following licensing conditions.

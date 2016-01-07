@@ -23,7 +23,7 @@ reference of the Whois tests under PDT see the PDT Whois documents.
 Version history
 ===============
 * v1.0.0 - Initial public release (2015-12-03)
-* v1.1.0 - Uppdated public release (2016-01-08)
+* v1.1.0 - Updated public release (2016-01-08)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
 

@@ -1,3 +1,11 @@
+libwhois-selftest-tool-perl (1.1.0-1) unstable; urgency=low
+
+  * Matches the updates to the PDT Whois TP and TCs in the version 2.9 document release
+  * Handles the issue with IDN in the v1.0.0 release
+  * Corrects found bugs
+
+ -- Mattias Päivärinta <mattias.paivarinta@doxwork.com>  Fri, 08 Jan 2016 16:00:00 +0200
+
 libwhois-selftest-tool-perl (1.0.0-1) unstable; urgency=low
 
   * Initial public release.

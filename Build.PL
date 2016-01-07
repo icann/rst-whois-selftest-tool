@@ -15,7 +15,6 @@ my $builder = Module::Build->new(
     configure_requires => { 'Module::Build' => 0.42 },
     requires => {
         'perl' => 5.014,
-        'common::sense' => 0,
         'DateTime' => 0,
         'File::Slurp' => 0,
         'File::Which' => 0,

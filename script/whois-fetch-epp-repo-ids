@@ -1,4 +1,5 @@
 #! /usr/bin/perl
+
 =pod
 
 =encoding utf8
@@ -149,7 +150,7 @@ use utf8;
 our $VERSION = '1.1';
 
 use Carp;
-use Encode;
+use Encode qw( decode FB_CROAK );
 use English;
 use File::Basename;
 use File::Copy;
@@ -190,13 +191,14 @@ Readonly my $CSV_Reg_Date    => 'Registration Date';
 Readonly my @CSV_exp_header  => ( $CSV_EPP_Rep_ID, $CSV_Change_Ctrl, $CSV_Ref_Cont, $CSV_Reg_Date, );
 
 # CLI arguments - defined early to be usable anywhere
-my $opt_help;         # Ask for help
-my $opt_version;      # Print version
+my $opt_help;                                                                                               # Ask for help
+my $opt_version;                                                                                            # Print version
 my $opt_man;
 
 # Print info message
 sub info {
     print STDERR "INFO: ", ( map { $_ =~ tr/\x{0020}-\x{007E}/?/cr } @_ ), "\n";
+    return;
 }
 
 # Trim leading and trailing whitespace (copied from csvimp)
@@ -218,7 +220,7 @@ sub read_csv {
     return unless defined $octets;
 
     # Decode characters
-    my $line = eval { decode( 'UTF-8', $octets, Encode::FB_CROAK ) };
+    my $line = eval { decode( 'UTF-8', $octets, FB_CROAK ) };
     if ( my $exception = $@ ) {    # Errors
         if ( $exception =~ m{\Autf8 (.*) does not map to Unicode at }ms ) {
             croak( "Non unicode character found in record " . $csv->record_number . " in fetched file." );
@@ -406,7 +408,7 @@ sub parse {
         }
     }
     if ( @header > @CSV_exp_header ) {
-        croak( "Extra header after " . $CSV_exp_header[$#CSV_exp_header] . " in fetched file." );
+        croak( "Extra header after " . $CSV_exp_header[-1] . " in fetched file." );
     }
 
     # Data lines
@@ -449,12 +451,13 @@ sub fetch_url {
     my $url      = shift;
     my $filename = shift;
 
-    my $to  = 1200;                                              # Timeout after 20 minutes if wget hangs
+    my $to  = 1200;                                   # Timeout after 20 minutes if wget hangs
     my $cmd = "$wget -t $to -nv -O $filename $url";
     my @log = qx/$cmd 2>&1/;
     chomp @log;
     if ( $? == 0 ) {
         info( "@log" );
+        return;
     }
     else {
         croak( "@log\nFailed running '$cmd'" );
@@ -491,11 +494,11 @@ foreach my $prog ( @ext_progs ) {
 
 # Create data directory
 unless ( -d $datadir ) {
-    make_path($datadir) or croak "Can't create path '$datadir': $OS_ERROR";
+    make_path( $datadir ) or croak "Can't create path '$datadir': $OS_ERROR";
 }
 
 # Fetch the file from IANA into the temporary work file
-fetch_url($iana_url, $workfilename);
+fetch_url( $iana_url, $workfilename );
 
 # Now we are about to parse the tempfile and push to the new list file in correct format
 

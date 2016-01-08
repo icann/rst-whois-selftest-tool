@@ -109,15 +109,6 @@ Domain name reply:
   - AWIP footer: { }
   - Legal disclaimer: { }
 Domain name subsection 1:
-  - Empty line: { line: empty line }
-  - Domain name subsection 2: { }
-Domain name subsection 2:
-  Domain name subsection 3: { }
-  Empty line: { line: empty line, optional: free, repeatable: 2 }
-Domain name subsection 3:
-  - Domain name details section: { }
-  - Domain name subsection 1: { optional: free }
-Domain name subsection 1:
   Last updated footer: { }
   Domain name subsection 2: { }
 Domain name subsection 2:
@@ -159,15 +150,13 @@ Name server reply type 1:
   - Empty line: { repeatable: 3, line: empty line }
   - AWIP footer: { optional: free }
   - Legal disclaimer: { }
-Name server subsection 1:
-  - Empty line: { line: empty line }
-  - Name server subsection 2: { }
-Name server subsection 2:
-  Name server subsection 3: { }
-  Empty line: { line: empty line, optional: free, repeatable: 2 }
-Name server subsection 3:
-  - Name server details section: { }
-  - Name server subsection 1: { optional: free }
+Name server details section:
+  - Server Name: { line: field, type: query name server }
+  - IP Address: { optional: free, repeatable: unbounded, line: field, type: query name server ip }
+  - Registrar: { optional: constrained, line: field, type: postal line }
+  - WHOIS Server: { optional: constrained, line: field, type: hostname }
+  - Referral URL: { optional: constrained, line: field, type: http url }
+  - Additional fields section: { optional: free }
 Name server subsection 1:
   Last updated footer: { }
   Name server subsection 2: { }
@@ -298,13 +287,6 @@ Multiple name servers section:
   - Multiple name servers line: { line: multiple name servers line }
   - ROID line: { line: roid line }
   - ROID line: { line: roid line, repeatable: unbounded }
-Name server details section:
-  - Server Name: { line: field, type: query name server }
-  - IP Address: { optional: free, repeatable: unbounded, line: field, type: query name server ip }
-  - Registrar: { optional: constrained, line: field, type: postal line }
-  - WHOIS Server: { optional: constrained, line: field, type: hostname }
-  - Referral URL: { optional: constrained, line: field, type: http url }
-  - Additional fields section: { optional: free }
 Additional fields section:
   - Additional field: { repeatable: unbounded, line: field }
 Last updated subsection 1:

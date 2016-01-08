@@ -1,4 +1,5 @@
 #!/usr/bin/perl -w
+
 =pod
 
 =encoding utf8
@@ -13,7 +14,7 @@ whois-test - Validates Whois output
 
 =item whois-test [ --help | --man ]
 
-=item whois-test --domain=HOST --epp-repo-id=SUFFIX FILE
+=item whois-test --domain=DOMAIN --epp-repo-id=SUFFIX FILE
 
 =item whois-test --registrar=SUBSTRING FILE
 
@@ -39,9 +40,9 @@ Display full man page.
 
 Specify the EPP repo id to use in validation.
 
-=item B<-d> I<HOST>, B<--domain>=I<HOST>
+=item B<-d> I<DOMAIN>, B<--domain>=I<DOMAIN>
 
-Validate B<Domain Name Object reply> for the I<HOST> domain name object.
+Validate B<Domain Name Object reply> for the I<DOMAIN> domain name object.
 
 =item B<-r>=I<SUBSTRING>, B<--registrar>=I<SUBSTRING>
 
@@ -208,7 +209,7 @@ tracker.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2015 IIS (The Internet Foundation In Sweden)
+Copyright (c) 2015-2016 IIS (The Internet Foundation In Sweden)
 All rights reserved.
 
 The Whois Selftest Tool and the use hereof is subject to the following licensing
@@ -278,7 +279,7 @@ use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Types;
 use PDT::TS::Whois::Util qw( extract_roid scrub_u_label );
 
-binmode STDIN, ':utf8';
+binmode STDIN, ':encoding(UTF-8)';
 
 Readonly my $datahome => $ENV{XDG_DATA_HOME} || $ENV{HOME} . '/.local/share';    # Base directory relative to which user specific data files should be stored
 Readonly my $datadir     => $datahome . '/Whois-Selftest-Tool';                  # User specific data directory for Whois-Selftest-Tool
@@ -366,8 +367,8 @@ sub main {
     pod2usage( -exitval => 0, -verbose => 2 ) if $opt_man;
     my $object_types = scalar grep { $_ } $opt_domain, $opt_registrar, $opt_nameserver, $opt_nameserver_ip;
     $object_types == 1 or pod2usage( "must specify exactly one of --domain, --registrar, --nameserver, --nameserver-ip" );
-    $opt_domain && !$opt_epp_repo_id and pod2usage( "must specify epp-repo-id" );
-    ( $opt_stdin && @ARGV == 0 ) || ( !$opt_stdin && @ARGV == 1 ) or pod2usage( "must specify exactly one input file" );
+    ( $opt_domain && !$opt_epp_repo_id ) and pod2usage( "must specify epp-repo-id" );
+    ( ( $opt_stdin && @ARGV == 0 ) || ( !$opt_stdin && @ARGV == 1 ) ) or pod2usage( "must specify exactly one input file" );
 
     ##################################################################
     # Process command line arguments
@@ -387,7 +388,7 @@ sub main {
         $text = do { local $/; <STDIN> };
     }
 
-    my $lexer = PDT::TS::Whois::Lexer->new($text);
+    my $lexer = PDT::TS::Whois::Lexer->new( $text );
     my @errors;
     my $rule;
 
@@ -439,7 +440,7 @@ sub main {
         $glob_types->add_type( 'query name server ip' => sub { return $glob_types->validate_type( 'ip address', shift ) } );
     }
 
-    my $is_type_1 = '';
+    my $is_type_1  = '';
     my $matched_ip = '';
     my $last_ip_line_no;
     if ( $opt_nameserver_ip ) {
@@ -505,6 +506,8 @@ sub main {
         my $option = $opt_nameserver ? '--nameserver' : $opt_nameserver_ip ? '--nameserver-ip' : croak 'unexpected error: unknown flag used';
         say "Multiple name servers response: Make a new query for ROID '$roid' to the same Whois server. Test that result with the whois-test command. Use the same value for $option when you retest.";
     }
+
+    return;
 }
 
 main();

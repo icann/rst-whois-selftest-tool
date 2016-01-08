@@ -4,15 +4,14 @@ Source:
 Name: Whois-Selftest-Tool
 
 Files: *
-Copyright: 2015, IIS (The Internet Foundation In Sweden)
+Copyright: 2015-2016, IIS (The Internet Foundation In Sweden)
 License: BSD-2-like
 
 Files: debian/*
-Copyright: 2015, IIS (The Internet Foundation In Sweden)
+Copyright: 2015-2016, IIS (The Internet Foundation In Sweden)
 License: BSD-2-like
 
 License: BSD-2-like
- Copyright (c) 2015 IIS (The Internet Foundation In Sweden).
  All rights reserved.
 
  The Whois Selftest Tool and the use hereof is subject to the following licensing

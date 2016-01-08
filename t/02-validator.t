@@ -36,6 +36,10 @@ my $grammar = {
         { 'A domain name' => { optional => 'constrained', repeatable => 'unbounded', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
+    'Optional repeatable field' => [
+        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'free', repeatable => 'unbounded', }, },
+        { 'EOF' => { line => 'EOF', }, },
+    ],
     'A domain name' => [
         { 'Domain Name' => { line => 'field', type => 'hostname', }, },
     ],
@@ -262,7 +266,7 @@ subtest 'Error propagation' => sub {
 };
 
 subtest 'Optional repeatable subrule' => sub {
-    plan tests => 1;
+    plan tests => 3;
 
     {
         my $lexer = make_mock_lexer (
@@ -270,6 +274,26 @@ subtest 'Optional repeatable subrule' => sub {
         );
         my @errors = validate( rule => 'Optional repeatable section', lexer => $lexer, grammar => $grammar, types => $types );
         eq_or_diff \@errors, [], 'Should accept omitted lines';
+    }
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Domain Name', [], 'DOMAIN1.EXAMPLE'], []],
+            ['field', ['Domain Name', [], undef], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Optional repeatable field', lexer => $lexer, grammar => $grammar, types => $types );
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject empty field in repetition';
+    }
+
+    {
+        my $lexer = make_mock_lexer (
+            ['field', ['Domain Name', [], undef], []],
+            ['field', ['Domain Name', [], 'DOMAIN1.EXAMPLE'], []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate( rule => 'Optional repeatable field', lexer => $lexer, grammar => $grammar, types => $types );
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject empty field at start of repetition';
     }
 
 };

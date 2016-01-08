@@ -159,8 +159,11 @@ sub _sequence_section {
 
         ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
 
+        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         no warnings 'recursion';
+        ## use critic
         my ( $count, $result ) = _occurances( $state, %$params, key => $key );
+
         if ( !defined $count ) {
             if ( $total == 0 ) {
                 return;
@@ -204,11 +207,10 @@ sub _choice_section {
 }
 
 sub _occurances {
-    my $state = shift;
-    my %args  = @_;
-    my $key   = $args{'key'} or croak 'Missing argument: key';
-    my $line  = $args{'line'};
-    my $type  = $args{'type'};
+    my ( $state, %args ) = @_;
+    my $key  = $args{'key'} or croak 'Missing argument: key';
+    my $line = $args{'line'};
+    my $type = $args{'type'};
 
     my $min_occurs;
     my $optional_type;
@@ -229,7 +231,8 @@ sub _occurances {
         $max_occurs >= 1 or croak 'Argument must not be zero or negative: repeatable';
     }
 
-    my $count = 0;
+    my $count               = 0;
+    my @pending_empty_error = ();
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
         my $line_before = $state->{lexer}->line_no;
@@ -243,8 +246,10 @@ sub _occurances {
             }
             push @errors, @$parsed_errors;
             if ( $parsed eq 'empty field' ) {
+                push @pending_empty_error, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
                 if ( $count != 1 ) {
-                    push @errors, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
+                    push @errors, @pending_empty_error;
+                    @pending_empty_error = ();
                 }
                 elsif ( $min_occurs > 0 ) {
                     push @errors, sprintf( "line %d: field '%s' is required and must not be empty", $line_after - 1, $key );
@@ -252,7 +257,10 @@ sub _occurances {
                 elsif ( $optional_type eq 'constrained' ) {
                     push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_after - 1, key => $key );
                 }
-                last;
+            }
+            else {
+                push @errors, @pending_empty_error;
+                @pending_empty_error = ();
             }
         }
         else {
@@ -271,12 +279,12 @@ sub _occurances {
     }
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub _rule {
-    my $state = shift;
-    my %args  = @_;
-    my $line  = $args{'line'};
-    my $key   = $args{'key'} or croak 'Missing argument: key';
-    my $type  = $args{'type'};
+    my ( $state, %args ) = @_;
+    my $line = $args{'line'};
+    my $key  = $args{'key'} or croak 'Missing argument: key';
+    my $type = $args{'type'};
 
     if ( defined $line || defined $type ) {
         my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type );
@@ -285,13 +293,17 @@ sub _rule {
     else {
         if ( my $section_rule = $state->{grammar}->{$key} ) {
             if ( ref $section_rule eq 'ARRAY' ) {
+                ## no critic (TestingAndDebugging::ProhibitNoWarnings)
                 no warnings 'recursion';
+                ## use critic
                 @_ = ( $state, $section_rule );
                 goto &_sequence_section;
             }
             elsif ( ref $section_rule eq 'HASH' ) {
-                @_ = ( $state, $section_rule );
+                ## no critic (TestingAndDebugging::ProhibitNoWarnings)
                 no warnings 'recursion';
+                ## use critic
+                @_ = ( $state, $section_rule );
                 goto &_choice_section;
             }
             else {
@@ -303,13 +315,13 @@ sub _rule {
         }
     }
 }
+## use critic
 
 sub _line {
-    my $state = shift;
-    my %args  = @_;
-    my $key   = $args{'key'} or croak 'Missing argument: key';
-    my $line  = $args{'line'};
-    my $type  = $args{'type'};
+    my ( $state, %args ) = @_;
+    my $key  = $args{'key'} or croak 'Missing argument: key';
+    my $line = $args{'line'};
+    my $type = $args{'type'};
     ( $line || $type ) or confess;
     if ( defined $type ) {
         $line ||= 'field';
@@ -408,10 +420,10 @@ sub _line {
 }
 
 sub _set_empty_kind {
-    my $state   = shift or croak 'Missing argument: $state';
-    my %args    = @_;
-    my $kind    = $args{kind} or croak 'Missing argument: kind';
-    my $key     = $args{key} or croak 'Missing argument: key';
+    my ( $state, %args ) = @_;
+    $state or croak 'Missing argument: $state';
+    my $kind    = $args{kind}    or croak 'Missing argument: kind';
+    my $key     = $args{key}     or croak 'Missing argument: key';
     my $line_no = $args{line_no} or croak 'Missing argument: line_no';
 
     $state->{empty_kind} ||= $kind;
@@ -424,11 +436,11 @@ sub _set_empty_kind {
 }
 
 sub _validate_type {
-    my $state     = shift or croak 'Missing argument: $state';
-    my %args      = @_;
+    my ( $state, %args ) = @_;
+    $state or croak 'Missing argument: $state';
     my $type_name = $args{type_name} or croak 'Missing argument: type_name';
-    my $value     = $args{value} or croak 'Missing argument: value';
-    my $prefix    = $args{prefix} || '';
+    my $value     = $args{value}     or croak 'Missing argument: value';
+    my $prefix = $args{prefix} || '';
 
     my @errors;
     for my $error ( $state->{types}->validate_type( $type_name, $value ) ) {

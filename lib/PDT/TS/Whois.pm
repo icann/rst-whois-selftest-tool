@@ -1,7 +1,10 @@
 package PDT::TS::Whois;
+use utf8;
 use strict;
 use warnings;
 use 5.014;
+
+use version; our $VERSION = qv( 1.1.0 );
 
 =pod
 
@@ -46,14 +49,6 @@ Validates the output of a lexer according to a grammar and types.
 =back
 
 
-=head1 VERSION
-
-Version 1.01
-
-=cut
-
-our $VERSION = '1.01';
-
 =head1 SYNOPSIS
 
     use PDT::TS::Whois::Grammar qw( $grammar );
@@ -81,7 +76,7 @@ Mattias Päivärinta, <mattias.paivarinta@doxwork.com>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright (C) 2015 IIS (The Internet Infrastructure Foundation).
+Copyright (C) 2015-2016 IIS (The Internet Infrastructure Foundation).
 All rights reserved.
 
 This module is subject to the following licensing conditions.

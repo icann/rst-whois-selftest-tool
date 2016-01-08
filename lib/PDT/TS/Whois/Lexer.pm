@@ -1,4 +1,5 @@
 package PDT::TS::Whois::Lexer;
+use utf8;
 use strict;
 use warnings;
 use 5.014;
@@ -30,7 +31,7 @@ current line number and to advance onto the next line.
         printf("%d: [%s] [%s]", $lexer->line_no(), $token, join(", ", @$errors));
 
         $lexer->next_line();
-    } while ($token ne 'EOF');
+    } while ( $token ne 'EOF' );
 
 =head1 CONSTRUCTORS
 
@@ -142,7 +143,7 @@ expression.
 =cut
 
 sub matches {
-    my $self    = shift;
+    my $self = shift;
     my $pattern = shift or croak 'Missing argument: $pattern';
 
     if ( !exists $self->{_lookahead_line} ) {

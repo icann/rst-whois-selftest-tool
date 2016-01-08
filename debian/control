@@ -1,0 +1,42 @@
+Source: libwhois-selftest-tool-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 7)
+Build-Depends-Indep: perl,
+ libdatetime-perl,
+ libfile-slurp-perl,
+ libfile-which-perl,
+ libnet-idn-encode-perl,
+ libnet-ip-perl,
+ libreadonly-perl,
+ libregexp-ipv6-perl,
+ libtest-differences-perl,
+ libtest-mockobject-perl,
+ libtext-csv-perl,
+ libtext-csv-xs-perl,
+ liburi-perl,
+ libyaml-syck-perl
+Maintainer: PDT <pdt@iis.se>
+Standards-Version: 3.9.1
+Homepage:
+
+Package: libwhois-selftest-tool-perl
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends},
+ perl,
+ libdatetime-perl,
+ libfile-slurp-perl,
+ libfile-which-perl,
+ libnet-idn-encode-perl,
+ libnet-ip-perl,
+ libreadonly-perl,
+ libregexp-ipv6-perl,
+ libtest-differences-perl,
+ libtest-mockobject-perl,
+ libtext-csv-perl,
+ libtext-csv-xs-perl,
+ liburi-perl,
+ libyaml-syck-perl,
+ wget
+Description: Validates Whois output
+ Validates Whois output strings according to the ICANN specification.

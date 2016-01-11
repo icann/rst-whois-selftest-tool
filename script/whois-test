@@ -440,32 +440,28 @@ sub main {
         $glob_types->add_type( 'query name server ip' => sub { return $glob_types->validate_type( 'ip address', shift ) } );
     }
 
-    my $is_type_1  = '';
-    my $matched_ip = '';
-    my $last_ip_line_no;
+    my $matched_ip = 'none';
+    my $name_server_object_start_line;
     if ( $opt_nameserver_ip ) {
         $rule = 'Name Server Object query';
         $glob_types->add_type(
             'query name server' => sub {
-                if ( $is_type_1 && !$matched_ip ) {
-                    if ( defined $last_ip_line_no ) {
-                        push @errors, sprintf "line %d: no IP Address in this nameserver section matched the one specified in --nameserver-ip", $last_ip_line_no;
-                    }
-                    elsif ( !@errors ) {
-                        croak 'unexpected error: no IP Address fields would imply validation errors, but none were registered';
-                    }
+                if ( defined $name_server_object_start_line && $matched_ip eq 'mismatch' ) {
+                    push @errors, sprintf "line %d: no IP Address in this nameserver section matched the one specified in --nameserver-ip", $name_server_object_start_line;
                 }
-                $is_type_1  = 1;
-                $matched_ip = '';
+                $name_server_object_start_line = $lexer->line_no();
+                $matched_ip                    = 'none';
                 return $glob_types->validate_type( 'hostname', shift );
             }
         );
         $glob_types->add_type(
             'query name server ip' => sub {
                 my $value = scrub_ip_address( shift );
-                $last_ip_line_no = $lexer->line_no();
                 if ( defined $value && $value eq $opt_nameserver_ip ) {
-                    $matched_ip = 1;
+                    $matched_ip = 'match';
+                }
+                elsif ( $matched_ip eq 'none' ) {
+                    $matched_ip = 'mismatch';
                 }
                 return $glob_types->validate_type( 'ip address', $value );
             }
@@ -483,13 +479,8 @@ sub main {
     # Unshift is used so that errors from callbacks go at the end of the list
     unshift @errors, validate( rule => $rule, lexer => $lexer, grammar => $grammar, types => $glob_types );
 
-    if ( $is_type_1 && !$matched_ip ) {
-        if ( defined $last_ip_line_no ) {
-            push @errors, sprintf "line %d: no IP Address in this nameserver section matched the one specified in --nameserver-ip", $last_ip_line_no;
-        }
-        elsif ( !@errors ) {
-            croak 'unexpected error: no IP Address fields would imply validation errors, but none were registered';
-        }
+    if ( defined $name_server_object_start_line && $matched_ip eq 'mismatch' ) {
+        push @errors, sprintf "line %d: no IP Address in this nameserver section matched the one specified in --nameserver-ip", $name_server_object_start_line;
     }
 
     ##################################################################

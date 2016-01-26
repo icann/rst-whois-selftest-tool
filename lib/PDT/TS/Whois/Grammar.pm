@@ -63,13 +63,12 @@ A subrule value HASHREF may have the following keys:
 
 =over 4
 
-=item optional
+=item quantifier
 
-Values: 'y'|'n' (default: n)
-
-=item repeatable
-
-Values: non-negative integer|'unbounded' (default: 1)
+Values: 'required' | 'optional-free' | 'optional-not-empty' |
+        'optional-constrained' | 'empty-constrained' | 'omitted-constrained' |
+        /repeatable (max \d+)?/ | /optional-repeatable (max \d+)?/ (default:
+        required)
 
 =item line
 

@@ -211,24 +211,51 @@ sub _occurances {
     my $key  = $args{'key'} or croak 'Missing argument: key';
     my $line = $args{'line'};
     my $type = $args{'type'};
+    my $quantifier = $args{'quantifier'} || 'required';
 
     my $min_occurs;
     my $optional_type;
-    if ( ( $args{'optional'} || 'no' ) =~ /^(constrained|free)$/ ) {
-        $min_occurs    = 0;
-        $optional_type = $1;
-    }
-    else {
-        $min_occurs = 1;
-    }
-
     my $max_occurs;
-    if ( !exists $args{'repeatable'} ) {
-        $max_occurs = 1;
-    }
-    elsif ( $args{'repeatable'} ne 'unbounded' ) {
-        $max_occurs = int $args{'repeatable'};
-        $max_occurs >= 1 or croak 'Argument must not be zero or negative: repeatable';
+
+    for ( $quantifier ) {
+        when ( 'required' ) {
+            $min_occurs = 1;
+            $max_occurs = 1;
+        }
+        when ( 'optional-free' ) {
+            $min_occurs    = 0;
+            $max_occurs    = 1;
+            $optional_type = 'free';
+        }
+        when ( 'optional-constrained' ) {
+            $min_occurs    = 0;
+            $max_occurs    = 1;
+            $optional_type = 'constrained';
+        }
+        when ( /^optional-repeatable(?: max (\d+))?$/ ) {
+            $min_occurs    = 0;
+            $optional_type = 'free';
+            if ( defined $1 ) {
+                $max_occurs = int $1;
+                $max_occurs >= 1 or croak 'Argument must not be zero or negative: repeatable';
+            }
+            else {
+                $max_occurs = undef;
+            }
+        }
+        when ( /^repeatable(?: max (\d+))?$/ ) {
+            $min_occurs = 1;
+            if ( defined $1 ) {
+                $max_occurs = int $1;
+                $max_occurs >= 1 or croak 'Argument must not be zero or negative: repeatable';
+            }
+            else {
+                $max_occurs = undef;
+            }
+        }
+        default {
+            croak "internal error: unhandled quantifier '$_'";
+        }
     }
 
     my $count               = 0;

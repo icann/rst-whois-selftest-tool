@@ -15,29 +15,29 @@ my $grammar = {
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional-constrained field' => [
-        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'constrained', }, },
-        { 'Referral URL' => { line => 'field', type => 'http url', optional => 'constrained', }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', quantifier => 'optional-constrained', }, },
+        { 'Referral URL' => { line => 'field', type => 'http url', quantifier => 'optional-constrained', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional-free field' => [
-        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'constrained', }, },
-        { 'Referral URL' => { line => 'field', type => 'http url', optional => 'free', }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', quantifier => 'optional-constrained', }, },
+        { 'Referral URL' => { line => 'field', type => 'http url', quantifier => 'optional-free', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable field' => [
-        { 'Domain Name' => { line => 'field', type => 'hostname', repeatable => 'unbounded', }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', quantifier => 'repeatable', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeatable max 2 field' => [
-        { 'Domain Name' => { line => 'field', type => 'hostname', repeatable => 2, }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', quantifier => 'repeatable max 2', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional repeatable section' => [
-        { 'A domain name' => { optional => 'constrained', repeatable => 'unbounded', }, },
+        { 'A domain name' => { quantifier => 'optional-repeatable', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional repeatable field' => [
-        { 'Domain Name' => { line => 'field', type => 'hostname', optional => 'free', repeatable => 'unbounded', }, },
+        { 'Domain Name' => { line => 'field', type => 'hostname', quantifier => 'optional-repeatable', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'A domain name' => [
@@ -53,7 +53,7 @@ my $grammar = {
         'Referral URL' => { line => 'field', type => 'http url', },
     },
     'Anything' => [
-        { 'Any line' => { line => 'any line', repeatable => 'unbounded' }, },
+        { 'Any line' => { line => 'any line', quantifier => 'repeatable' }, },
     ],
 };
 

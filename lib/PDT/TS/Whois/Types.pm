@@ -47,6 +47,7 @@ The default types are:
  * domain name object additional field key
  * registrar object additional field key
  * name server object additional field key
+ * void
 
 =cut
 
@@ -522,6 +523,9 @@ my %default_types;
         }
 
         return ();
+    },
+    'void' => sub {
+        return ( 'no values are allowed for type void' );
     },
 );
 

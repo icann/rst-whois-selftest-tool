@@ -185,7 +185,7 @@ Registrar details section:
   - State/Province: { quantifier: optional-constrained, line: field, type: postal line }
   - Postal Code: { quantifier: optional-constrained, line: field, type: postal code }
   - Country: { line: field, type: country code }
-  - Phone Number: { line: field, type: phone number }
+  - Phone number section: { quantifier: repeatable }
   - Phone Ext: { quantifier: optional-free, line: field, type: token }
   - Fax number section: { quantifier: optional-free }
   - Email: { line: field, type: email address }

@@ -49,6 +49,9 @@ City: Marina del Rey
 State/Province: CA
 Country: US
 Phone Number: +1.3105551212
+Phone Number: +1.3105551215
+Fax Number: +1.3105551213
+Fax Ext:
 Email: registrar@example.tld
 Referral URL: http://www.example-registrar.tld
 

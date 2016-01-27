@@ -262,7 +262,7 @@ Domain name details section:
   - Tech Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Tech Email: { line: field, type: email address }
   - Billing contact section: { quantifier: optional-free }
-  - Name server section: { quantifier: repeatable }
+  - Name server section: { }
   - DNSSEC: { line: field, type: dnssec }
   - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
 Billing contact section:
@@ -280,8 +280,18 @@ Billing contact section:
   - Billing Fax Ext: { quantifier: optional-free, line: field, type: token }
   - Billing Email: { line: field, type: email address }
 Name server section:
-  - Name Server: { quantifier: optional-constrained, line: field, type: hostname }
-  - IP Address: { quantifier: optional-repeatable, line: field, type: ip address }
+  Name server section type A: { quantifier: repeatable }
+  Name server section type B: { quantifier: repeatable }
+  Name server section type C: { quantifier: repeatable }
+Name server section type A:
+  - Name Server: { line: field, type: hostname }
+  - IP address section: { quantifier: repeatable }
+Name server section type B:
+  - Name Server: { quantifier: empty-constrained, line: field, type: void }
+Name server section type C:
+  - Name Server: { quantifier: omitted-constrained, line: field, type: void }
+IP address section:
+  - IP Address: { quantifier: optional-not-empty, line: field, type: ip address }
 Multiple name servers section:
   - Multiple name servers line: { line: multiple name servers line }
   - ROID line: { line: roid line }

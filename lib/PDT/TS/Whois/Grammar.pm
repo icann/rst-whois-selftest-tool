@@ -187,7 +187,7 @@ Registrar details section:
   - Country: { line: field, type: country code }
   - Phone number section: { quantifier: repeatable }
   - Phone Ext: { quantifier: optional-free, line: field, type: token }
-  - Fax number section: { quantifier: optional-free }
+  - Fax number section: { quantifier: required }
   - Email: { quantifier: repeatable, line: field, type: email address }
   - WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
   - Referral URL: { line: field, type: http url }
@@ -197,19 +197,28 @@ Registrar details section:
 Admin contact section:
   - Admin Contact: { line: field, type: postal line }
   - Phone number section: { quantifier: repeatable }
-  - Fax number section: { quantifier: optional-repeatable }
+  - Fax number section: { quantifier: required }
   - Email: { line: field, type: email address, quantifier: repeatable }
 Technical contact section:
   - Technical Contact: { line: field, type: postal line }
   - Phone number section: { quantifier: repeatable }
-  - Fax number section: { quantifier: optional-repeatable }
+  - Fax number section: { quantifier: required }
   - Email: { line: field, type: email address, quantifier: repeatable }
 Phone number section:
   - Phone Number: { line: field, type: phone number }
   - Phone Ext: { quantifier: optional-free, line: field, type: token }
 Fax number section:
-  - Fax Number: { line: field, type: phone number }
-  - Fax Ext: { quantifier: optional-free, line: field, type: token }
+  Fax number section type A: { quantifier: repeatable }
+  Fax number section type B: { quantifier: required }
+  Fax number section type C: { quantifier: required }
+Fax number section type A:
+  - Fax Number: { line: field, type: phone number, quantifier: required }
+  - Fax Ext: { line: field, type: token, quantifier: optional-free }
+Fax number section type B:
+  - Fax Number: { line: field, type: void, quantifier: empty-constrained }
+  - Fax Ext: { line: field, type: token, quantifier: optional-free }
+Fax number section type C:
+  - Fax Number: { line: field, type: void, quantifier: omitted-constrained }
 Domain name details section:
   - Domain Name: { line: field, type: query domain name }
   - Internationalized Domain Name: { quantifier: optional-free, line: field, type: u-label }

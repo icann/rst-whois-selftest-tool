@@ -188,7 +188,7 @@ Registrar details section:
   - Phone number section: { quantifier: repeatable }
   - Phone Ext: { quantifier: optional-free, line: field, type: token }
   - Fax number section: { quantifier: optional-free }
-  - Email: { line: field, type: email address }
+  - Email: { quantifier: repeatable, line: field, type: email address }
   - WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
   - Referral URL: { line: field, type: http url }
   - Admin contact section: { quantifier: optional-repeatable }

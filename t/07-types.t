@@ -3,7 +3,7 @@ use warnings;
 use 5.014;
 use utf8;
 
-use Test::More tests => 21;
+use Test::More tests => 24;
 use Test::Differences;
 
 # This is needed to get rid of wide character print warnings
@@ -293,5 +293,73 @@ subtest 'domain status code' => sub {
     }
     for my $value ( @not_ok ) {
         reject_ok "Value $value", 'domain status code', $value;
+    }
+};
+
+subtest 'domain name object additional field key' => sub {
+    my @ok = (
+        'Internationalized Domain Name',
+        'Billing ID',
+        'Billing Name',
+        'Billing Organization',
+        'Billing Street',
+        'Billing City',
+        'Billing State/Province',
+        'Billing Postal Code',
+        'Billing Country',
+        'Billing Phone',
+        'Billing Phone Ext',
+        'Billing Fax',
+        'Billing Fax Ext',
+        'Billing Email',
+    );
+    my @not_ok = ( 'Referral URL' );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'domain name object additional field key';
+    reject_ok 'empty' => 'domain name object additional field key', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'domain name object additional field key', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'domain name object additional field key', $value;
+    }
+};
+
+subtest 'registrar object additional field key' => sub {
+    my @ok = (
+        'Phone Ext',
+        'Fax Ext',
+    );
+    my @not_ok = ( 'Referral URL' );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'registrar object additional field key';
+    reject_ok 'empty' => 'registrar object additional field key', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'registrar object additional field key', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'registrar object additional field key', $value;
+    }
+};
+
+subtest 'name server object additional field key' => sub {
+    my @ok = (
+        'Nisse',
+    );
+    my @not_ok = ( 'Referral URL' );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'registrar object additional field key';
+    reject_ok 'empty' => 'registrar object additional field key', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'registrar object additional field key', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'registrar object additional field key', $value;
     }
 };

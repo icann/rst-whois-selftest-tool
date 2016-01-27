@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 12;
+use Test::More tests => 13;
 use Test::Differences;
 use Test::MockObject;
 
@@ -65,6 +65,10 @@ my $grammar = {
     'A domain name' => [
         { 'Domain Name' => { line => 'field', type => 'hostname', }, },
     ],
+    'Field with keytype' => [
+        { 'Special field' => { line => 'field', keytype => 'valid key' }, quantifier => 'repeatable' },
+        { 'EOF' => { line => 'EOF', }, },
+    ],
     'Repeated choice section' => [
         { 'Domain or referral' => {}, },
         { 'Domain or referral' => {}, },
@@ -96,6 +100,7 @@ my %type_subs = (
     'time stamp' => \&mock_validate_type,
     'key translation' => \&mock_validate_type,
     'query domain name' => \&mock_validate_type,
+    'valid key' => \&mock_validate_type,
 );
 
 my $types = Test::MockObject->new();
@@ -473,6 +478,21 @@ subtest 'Omitted-constrained subrule' => sub {
         my @errors = validate( rule => 'Omitted-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
         cmp_ok scalar(@errors), '>=', 1, 'Should reject mixed empty field syntaxes';
         like $errors[0], qr/line 2/, 'Should refer to line number of the empty field';
+    }
+};
+
+subtest 'Keytype validation' => sub {
+    plan tests => 2;
+
+    {
+        my $lexer = make_mock_lexer(
+            [ 'field', [ 'Valid Field Key', [], undef ], [] ],
+            [ 'field', [ 'INVALID!', [], undef ], [] ],
+            [ 'EOF', undef, [] ],
+        );
+        my @errors = validate( rule => 'Field with keytype', lexer => $lexer, grammar => $grammar, types => $types );
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject field with invalid keytype';
+        like $errors[0], qr/line 2/, 'Should refer to line number of the invalid field';
     }
 };
 

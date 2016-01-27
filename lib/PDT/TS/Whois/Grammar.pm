@@ -155,7 +155,7 @@ Name server details section:
   - Registrar: { quantifier: optional-constrained, line: field, type: postal line }
   - WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
   - Referral URL: { quantifier: optional-constrained, line: field, type: http url }
-  - Additional fields section: { quantifier: optional-free }
+  - Additional field: { quantifier: optional-repeatable, line: field, keytype: name server object additional field key }
 Name server subsection 1:
   Last updated footer: { }
   Name server subsection 2: { }
@@ -193,7 +193,7 @@ Registrar details section:
   - Referral URL: { line: field, type: http url }
   - Admin contact section: { quantifier: optional-repeatable }
   - Technical contact section: { quantifier: optional-repeatable }
-  - Additional fields section: { quantifier: optional-free }
+  - Additional field: { quantifier: optional-repeatable, line: field, keytype: registrar object additional field key }
 Admin contact section:
   - Admin Contact: { line: field, type: postal line }
   - Phone number section: { quantifier: repeatable }
@@ -264,7 +264,7 @@ Domain name details section:
   - Billing contact section: { quantifier: optional-free }
   - Name server section: { quantifier: repeatable }
   - DNSSEC: { line: field, type: dnssec }
-  - Additional fields section: { quantifier: optional-free }
+  - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
 Billing contact section:
   - Billing ID: { line: field, type: token }
   - Billing Name: { line: field, type: postal line }
@@ -286,8 +286,6 @@ Multiple name servers section:
   - Multiple name servers line: { line: multiple name servers line }
   - ROID line: { line: roid line }
   - ROID line: { line: roid line, quantifier: repeatable }
-Additional fields section:
-  - Additional field: { quantifier: repeatable, line: field }
 Last updated subsection 1:
   Last updated footer: { }
   Last updated subsection 2: { }

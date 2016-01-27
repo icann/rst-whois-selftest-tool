@@ -212,6 +212,7 @@ sub _occurances {
     my $line       = $args{'line'};
     my $type       = $args{'type'};
     my $quantifier = $args{'quantifier'} || 'required';
+    my $keytype    = $args{'keytype'};
 
     my $min_occurs;
     my $max_occurs;
@@ -242,7 +243,7 @@ sub _occurances {
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
         my $line_before = $state->{lexer}->line_no;
-        my ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type, quantifier => $quantifier );
+        my ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
         if ( defined $parsed ) {
             ref $parsed_errors eq 'ARRAY' or confess;
             $count++;
@@ -301,9 +302,10 @@ sub _rule {
     my $key        = $args{'key'} or croak 'Missing argument: key';
     my $type       = $args{'type'};
     my $quantifier = $args{'quantifier'} or croak 'Missing argument: quantifier';
+    my $keytype    = $args{'keytype'};
 
     if ( defined $line || defined $type ) {
-        my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier );
+        my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
         return ( $subtype, $result );
     }
     else {
@@ -339,11 +341,16 @@ sub _line {
     my $line       = $args{'line'};
     my $type       = $args{'type'};
     my $quantifier = $args{'quantifier'} or croak 'Missing argument: quantifier';
+    my $keytype    = $args{'keytype'};
     ( $line || $type ) or croak 'Must give at least one of arguments: line, type';
 
     if ( defined $type ) {
+        $state->{types}->has_type( $type ) or croak "unknown type '$type'";
         $line ||= 'field';
         $line eq 'field' or confess;
+    }
+    if ( defined $keytype ) {
+        $state->{types}->has_type( $keytype ) or croak "unknown type '$keytype'";
     }
 
     my $token;
@@ -352,9 +359,6 @@ sub _line {
     my $subtype;
 
     if ( defined $type ) {
-        if ( !$state->{types}->has_type( $type ) ) {
-            croak "unknown type $type";
-        }
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
 
         if ( !defined $token || $token ne 'field' ) {
@@ -415,6 +419,10 @@ sub _line {
         my ( $key, $translations, $value ) = @$token_value;
 
         ref $translations eq 'ARRAY' or confess;
+
+        if ( $keytype ) {
+            push @$errors, _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
+        }
 
         for my $translation ( @$translations ) {
             push @$errors, _validate_type( $state, type_name => 'key translation', value => $translation, prefix => "invalid key translation for field '$key', " );

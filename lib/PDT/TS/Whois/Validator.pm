@@ -193,7 +193,7 @@ sub _choice_section {
     my $section_rule = shift or croak 'Missing argument: $section_rule';
     ref $section_rule eq 'HASH' or croak 'Argument $section_rule must be hashref';
 
-    for my $key ( sort keys %{ $section_rule } ) {
+    for my $key ( sort keys %{$section_rule} ) {
         my $params = $section_rule->{$key};
 
         ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
@@ -221,8 +221,8 @@ sub _occurances {
             $max_occurs = 1;
         }
         when ( /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
-            $min_occurs    = 0;
-            $max_occurs    = 1;
+            $min_occurs = 0;
+            $max_occurs = 1;
         }
         when ( /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
             $min_occurs = 0;

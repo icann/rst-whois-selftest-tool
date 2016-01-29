@@ -65,10 +65,10 @@ A subrule value HASHREF may have the following keys:
 
 =item quantifier
 
-Values: 'required' | 'optional-free' | 'optional-not-empty' |
-        'optional-constrained' | 'empty-constrained' | 'omitted-constrained' |
-        /repeatable (max \d+)?/ | /optional-repeatable (max \d+)?/ (default:
-        required)
+Values: 'required' | 'required-strict' | 'optional-free' |
+        'optional-not-empty' | 'optional-constrained' | 'empty-constrained' |
+        'omitted-constrained' | /repeatable (max \d+)?/ |
+        /optional-repeatable (max \d+)?/ (default: required)
 
 =item line
 
@@ -212,7 +212,7 @@ Fax number section:
   Fax number section type B: { quantifier: required }
   Fax number section type C: { quantifier: required }
 Fax number section type A:
-  - Fax Number: { line: field, type: phone number, quantifier: required }
+  - Fax Number: { line: field, type: phone number, quantifier: required-strict }
   - Fax Ext: { line: field, type: token, quantifier: optional-free }
 Fax number section type B:
   - Fax Number: { line: field, type: void, quantifier: empty-constrained }
@@ -293,7 +293,7 @@ Name server section:
   Name server section type B: { quantifier: repeatable }
   Name server section type C: { quantifier: repeatable }
 Name server section type A:
-  - Name Server: { line: field, type: hostname }
+  - Name Server: { quantifier: required-strict, line: field, type: hostname }
   - IP address section: { quantifier: repeatable }
 Name server section type B:
   - Name Server: { quantifier: empty-constrained, line: field, type: void }

@@ -95,7 +95,7 @@ sub validate {
     };
 
     # Validate rule
-    my $result = _rule( $state, key => $rule );
+    my $result = _rule( $state, key => $rule, quantifier => 'required' );
 
     # Pick up validation warnings
     my @errors;
@@ -193,7 +193,7 @@ sub _choice_section {
     my $section_rule = shift or croak 'Missing argument: $section_rule';
     ref $section_rule eq 'HASH' or croak 'Argument $section_rule must be hashref';
 
-    for my $key ( keys $section_rule ) {
+    for my $key ( sort keys %{$section_rule} ) {
         my $params = $section_rule->{$key};
 
         ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
@@ -208,27 +208,33 @@ sub _choice_section {
 
 sub _occurances {
     my ( $state, %args ) = @_;
-    my $key  = $args{'key'} or croak 'Missing argument: key';
-    my $line = $args{'line'};
-    my $type = $args{'type'};
+    my $key        = $args{'key'} or croak 'Missing argument: key';
+    my $line       = $args{'line'};
+    my $type       = $args{'type'};
+    my $quantifier = $args{'quantifier'} || 'required';
 
     my $min_occurs;
-    my $optional_type;
-    if ( ( $args{'optional'} || 'no' ) =~ /^(constrained|free)$/ ) {
-        $min_occurs    = 0;
-        $optional_type = $1;
-    }
-    else {
-        $min_occurs = 1;
-    }
-
     my $max_occurs;
-    if ( !exists $args{'repeatable'} ) {
-        $max_occurs = 1;
-    }
-    elsif ( $args{'repeatable'} ne 'unbounded' ) {
-        $max_occurs = int $args{'repeatable'};
-        $max_occurs >= 1 or croak 'Argument must not be zero or negative: repeatable';
+    for ( $quantifier ) {
+        when ( 'required' ) {
+            $min_occurs = 1;
+            $max_occurs = 1;
+        }
+        when ( /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
+            $min_occurs = 0;
+            $max_occurs = 1;
+        }
+        when ( /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
+            $min_occurs = 0;
+            $max_occurs = $1;
+        }
+        when ( /^repeatable(?: max ([1-9][0-9]*))?$/ ) {
+            $min_occurs = 1;
+            $max_occurs = $1;
+        }
+        default {
+            croak "internal error: unhandled quantifier '$_'";
+        }
     }
 
     my $count               = 0;
@@ -236,7 +242,7 @@ sub _occurances {
     my @errors;
     while ( !defined $max_occurs || $count < $max_occurs ) {
         my $line_before = $state->{lexer}->line_no;
-        my ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type );
+        my ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type, quantifier => $quantifier );
         if ( defined $parsed ) {
             ref $parsed_errors eq 'ARRAY' or confess;
             $count++;
@@ -251,21 +257,30 @@ sub _occurances {
                     push @errors, @pending_empty_error;
                     @pending_empty_error = ();
                 }
-                elsif ( $min_occurs > 0 ) {
-                    push @errors, sprintf( "line %d: field '%s' is required and must not be empty", $line_after - 1, $key );
+                elsif ( $quantifier =~ /^required$|^repeatable|^omitted-constrained$|^optional-not-empty$/ ) {
+                    push @errors, sprintf( "line %d: field '%s' is %s and must not be present as an empty field", $line_after - 1, $key, $quantifier );
                 }
-                elsif ( $optional_type eq 'constrained' ) {
+                elsif ( $quantifier =~ /^optional-constrained$|^empty-constrained$/ ) {
                     push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_after - 1, key => $key );
                 }
             }
             else {
                 push @errors, @pending_empty_error;
                 @pending_empty_error = ();
+
+                if ( $parsed eq 'field' && $quantifier =~ /^empty-constrained$|^omitted-constrained$/ ) {
+                    push @errors, sprintf( "line %d: field '%s' is %s and must not be present as a non-empty field", $line_after - 1, $key, $quantifier );
+                }
             }
         }
         else {
-            if ( $count == 0 && defined $line && $line eq 'field' && $min_occurs == 0 && $optional_type eq 'constrained' ) {
-                push @errors, _set_empty_kind( $state, kind => 'omitted field', line_no => $state->{lexer}->line_no, key => $key );
+            if ( $count == 0 && defined $line && $line eq 'field' ) {
+                if ( $quantifier eq 'empty-constrained' ) {
+                    push @errors, sprintf( "line %d: field '%s' is empty-constrained and must not be omitted", $state->{lexer}->line_no, $key );
+                }
+                elsif ( $quantifier =~ /^optional-constrained$|^omitted-constrained$/ ) {
+                    push @errors, _set_empty_kind( $state, kind => 'omitted field', line_no => $state->{lexer}->line_no, key => $key );
+                }
             }
             last;
         }
@@ -282,12 +297,13 @@ sub _occurances {
 ## no critic (Subroutines::RequireArgUnpacking)
 sub _rule {
     my ( $state, %args ) = @_;
-    my $line = $args{'line'};
-    my $key  = $args{'key'} or croak 'Missing argument: key';
-    my $type = $args{'type'};
+    my $line       = $args{'line'};
+    my $key        = $args{'key'} or croak 'Missing argument: key';
+    my $type       = $args{'type'};
+    my $quantifier = $args{'quantifier'} or croak 'Missing argument: quantifier';
 
     if ( defined $line || defined $type ) {
-        my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type );
+        my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier );
         return ( $subtype, $result );
     }
     else {
@@ -319,10 +335,12 @@ sub _rule {
 
 sub _line {
     my ( $state, %args ) = @_;
-    my $key  = $args{'key'} or croak 'Missing argument: key';
-    my $line = $args{'line'};
-    my $type = $args{'type'};
-    ( $line || $type ) or confess;
+    my $key        = $args{'key'} or croak 'Missing argument: key';
+    my $line       = $args{'line'};
+    my $type       = $args{'type'};
+    my $quantifier = $args{'quantifier'} or croak 'Missing argument: quantifier';
+    ( $line || $type ) or croak 'Must give at least one of arguments: line, type';
+
     if ( defined $type ) {
         $line ||= 'field';
         $line eq 'field' or confess;
@@ -343,14 +361,26 @@ sub _line {
             return;
         }
 
-        ref $errors eq 'ARRAY'      or confess;
+        ref $errors      eq 'ARRAY' or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;
         if ( $field_key ne $key ) {
             return;
         }
-        $subtype = ( defined $field_value ) && 'field' || 'empty field';
+
+        if ( defined $field_value ) {
+            if ( $quantifier =~ /^(?:omitted-constrained|empty-constrained)$/ ) {
+                return;
+            }
+            $subtype = 'field';
+        }
+        else {
+            if ( $quantifier =~ /^(?:omitted-constrained|required)$/ ) {
+                return;
+            }
+            $subtype = 'empty field';
+        }
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();

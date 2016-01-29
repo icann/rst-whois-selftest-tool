@@ -6,6 +6,7 @@ use 5.014;
 
 use Carp;
 use English;
+use Readonly;
 use URI;
 use Regexp::IPv6;
 
@@ -43,10 +44,14 @@ The default types are:
  * token
  * translation clause
  * u-label
+ * domain name object additional field key
+ * registrar object additional field key
+ * name server object additional field key
+ * void
 
 =cut
 
-my %domain_status_codes = (
+Readonly my %DOMAIN_STATUS_CODES =>(
     addPeriod                => 1,
     autoRenewPeriod          => 1,
     clientDeleteProhibited   => 1,
@@ -70,6 +75,85 @@ my %domain_status_codes = (
     serverTransferProhibited => 1,
     serverUpdateProhibited   => 1,
     transferPeriod           => 1,
+);
+
+Readonly my %DOMAIN_NAME_ADDITIONAL_FIELD_KEY_BLACKLIST => (
+    'Domain Name'                  => 1,
+    'Domain ID'                    => 1,
+    'WHOIS Server'                 => 1,
+    'Referral URL'                 => 1,
+    'Updated Date'                 => 1,
+    'Creation Date'                => 1,
+    'Registry Expiry Date'         => 1,
+    'Sponsoring Registrar'         => 1,
+    'Sponsoring Registrar IANA ID' => 1,
+    'Domain Status'                => 1,
+    'Registrant ID'                => 1,
+    'Registrant Name'              => 1,
+    'Registrant Organization'      => 1,
+    'Registrant Street'            => 1,
+    'Registrant City'              => 1,
+    'Registrant State/Province'    => 1,
+    'Registrant Postal Code'       => 1,
+    'Registrant Country'           => 1,
+    'Registrant Phone'             => 1,
+    'Registrant Phone Ext'         => 1,
+    'Registrant Fax'               => 1,
+    'Registrant Fax Ext'           => 1,
+    'Registrant Email'             => 1,
+    'Admin ID'                     => 1,
+    'Admin Name'                   => 1,
+    'Admin Organization'           => 1,
+    'Admin Street'                 => 1,
+    'Admin City'                   => 1,
+    'Admin State/Province'         => 1,
+    'Admin Postal Code'            => 1,
+    'Admin Country'                => 1,
+    'Admin Phone'                  => 1,
+    'Admin Phone Ext'              => 1,
+    'Admin Fax'                    => 1,
+    'Admin Fax Ext'                => 1,
+    'Admin Email'                  => 1,
+    'Tech ID'                      => 1,
+    'Tech Name'                    => 1,
+    'Tech Organization'            => 1,
+    'Tech Street'                  => 1,
+    'Tech City'                    => 1,
+    'Tech State/Province'          => 1,
+    'Tech Postal Code'             => 1,
+    'Tech Country'                 => 1,
+    'Tech Phone'                   => 1,
+    'Tech Phone Ext'               => 1,
+    'Tech Fax'                     => 1,
+    'Tech Fax Ext'                 => 1,
+    'Tech Email'                   => 1,
+    'DNSSEC'                       => 1,
+    'Name Server'                  => 1,
+    'IP Address'                   => 1,
+);
+
+Readonly my %REGISTRAR_ADDITIONAL_FIELD_KEY_BLACKLIST => (
+    'Registrar Name'    => 1,
+    'Street'            => 1,
+    'City'              => 1,
+    'State/Province'    => 1,
+    'Postal Code'       => 1,
+    'Country'           => 1,
+    'Phone Number'      => 1,
+    'Email'             => 1,
+    'WHOIS Server'      => 1,
+    'Referral URL'      => 1,
+    'Admin Contact'     => 1,
+    'Technical Contact' => 1,
+    'Fax Number'        => 1,
+);
+
+Readonly my %NAME_SERVER_ADDITIONAL_FIELD_KEY_BLACKLIST => (
+    'Server Name'  => 1,
+    'IP Address'   => 1,
+    'Registrar'    => 1,
+    'WHOIS Server' => 1,
+    'Referral URL' => 1,
 );
 
 my $ROID_SUFFIX = {};
@@ -122,7 +206,7 @@ my %default_types;
             return ( 'expected domain status code' );
         }
 
-        if ( !exists $domain_status_codes{$value} ) {
+        if ( !exists $DOMAIN_STATUS_CODES{$value} ) {
             return ( 'expected domain status code' );
         }
 
@@ -296,7 +380,7 @@ my %default_types;
         }
 
         if ( $value =~ /^([^ ]+) {1,9}https:\/\/icann\.org\/epp#(.+)$/o ) {
-            if ( exists $domain_status_codes{$1} && $1 eq $2 ) {
+            if ( exists $DOMAIN_STATUS_CODES{$1} && $1 eq $2 ) {
                 return ();
             }
         }
@@ -400,6 +484,48 @@ my %default_types;
         }
 
         return ();
+    },
+    'domain name object additional field key' => sub {
+        my $value = shift;
+
+        unless ( $value ) {
+            return ( 'expected domain name object additional field key' );
+        }
+
+        if ( exists $DOMAIN_NAME_ADDITIONAL_FIELD_KEY_BLACKLIST{$value} ) {
+            return ( 'forbidden domain name object additional field key' );
+        }
+
+        return ();
+    },
+    'registrar object additional field key' => sub {
+        my $value = shift;
+
+        unless ( $value ) {
+            return ( 'expected registrar object additional field key' );
+        }
+
+        if ( exists $REGISTRAR_ADDITIONAL_FIELD_KEY_BLACKLIST{$value} ) {
+            return ( 'forbidden registrar object additional field key' );
+        }
+
+        return ();
+    },
+    'name server object additional field key' => sub {
+        my $value = shift;
+
+        unless ( $value ) {
+            return ( 'expected name server object additional field key' );
+        }
+
+        if ( exists $NAME_SERVER_ADDITIONAL_FIELD_KEY_BLACKLIST{$value} ) {
+            return ( 'forbidden name server object additional field key' );
+        }
+
+        return ();
+    },
+    'void' => sub {
+        return ( 'no values are allowed for type void' );
     },
 );
 

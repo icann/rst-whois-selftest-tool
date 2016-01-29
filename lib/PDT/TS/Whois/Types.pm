@@ -51,7 +51,7 @@ The default types are:
 
 =cut
 
-Readonly my %DOMAIN_STATUS_CODES =>(
+Readonly my %DOMAIN_STATUS_CODES => (
     addPeriod                => 1,
     autoRenewPeriod          => 1,
     clientDeleteProhibited   => 1,

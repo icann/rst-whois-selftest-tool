@@ -49,6 +49,7 @@ City: Marina del Rey
 State/Province: CA
 Country: US
 Phone Number: +1.3105551212
+Phone Number: +1.3105551215
 Email: registrar@example.tld
 Referral URL: http://www.example-registrar.tld
 
@@ -58,7 +59,8 @@ City: Marina del Rey
 State/Province: CA
 Country: US
 Phone Number: +1.3105551212
-Email: registrar@example.tld
+Email: registrar1@example.tld
+Email: registrar2@example.tld
 Referral URL: http://www.example-registrar.tld
 
 >>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<

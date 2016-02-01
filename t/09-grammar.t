@@ -552,9 +552,11 @@ WHOIS Server:
 Referral URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551214
+Fax Number:
 Email: joeregistrar\@example-registrar.tld
 Technical Contact: John Geek
 Phone Number: +1.3105551216
+Fax Number:
 Email: johngeek\@example-registrar.tld
 Additional field:
 EOF

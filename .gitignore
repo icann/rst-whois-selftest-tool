@@ -14,3 +14,5 @@ PDT-TS-Whois-*
 Makefile.PL
 META.json
 META.yml
+*~
+.DS_Store

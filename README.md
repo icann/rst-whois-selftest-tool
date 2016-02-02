@@ -24,11 +24,11 @@ Version history
 ===============
 * v1.0.0 - Initial public release (2015-12-03)
 * v1.1.0 - Updated public release (2016-01-08)
-* v1.1.2 - Updated public release (2016-02-02)
+* v1.2.0 - Updated public release (2016-02-02)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
 
-The v1.1.2 release primarily matches the updates to the PDT Whois TP in the the version 2.10 document release. It also corrects found bugs.
+The v1.2.0 release primarily matches the updates to the PDT Whois TP in the the version 2.10 document release. It also corrects found bugs.
 
 Specification compatibility matrix
 ----------------------------------
@@ -103,7 +103,7 @@ other OSs.
 Installation
 ============
 Clone the project repository and choose version according to the specification
-compatibility matrix.
+compatibility matrix. In the normal case, choose the lastest version.
 
     $> git clone https://github.com/dotse/Whois-Selftest-Tool.git <srcdir>
     $> cd <srcdir>
@@ -116,10 +116,12 @@ Install Whois Selftest Tool scripts and libraries.
     $> ./Build test
     $> ./Build install
 
-To check the installation run the scripts with `--help`.
+To check the installation run the scripts with `--help`. First, the EPP database
+must be fetched.
 
-    $> whois-test --help
     $> whois-fetch-epp-repo-ids --help
+    $> whois-fetch-epp-repo-ids
+    $> whois-test --help
 
 After installing, you can find documentation for this module with the
 perldoc command.

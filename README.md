@@ -24,8 +24,11 @@ Version history
 ===============
 * v1.0.0 - Initial public release (2015-12-03)
 * v1.1.0 - Updated public release (2016-01-08)
+* v1.1.2 - Updated public release (2016-02-02)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
+
+The v1.1.2 release primarily matches the updates to the PDT Whois TP in the the version 2.10 document release. It also corrects found bugs.
 
 Specification compatibility matrix
 ----------------------------------
@@ -44,6 +47,10 @@ Tool to use.
   <tr>
     <td>v1.1.0</td>
     <td>v.2.9</td>
+  </tr>
+  <tr>
+    <td>v1.2.0</td>
+    <td>v.2.10</td>
   </tr>
 </table>
 

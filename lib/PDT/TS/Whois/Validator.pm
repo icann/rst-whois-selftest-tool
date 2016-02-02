@@ -95,13 +95,13 @@ sub validate {
     };
 
     # Validate rule
-    my $result = _rule( $state, key => $rule );
+    my ( $result, $rule_errors ) = _rule( $state, key => $rule, quantifier => 'required' );
 
     # Pick up validation warnings
     my @errors;
     if ( defined $result ) {
-        ref $result eq 'ARRAY' or croak 'unexpected return value from _rule()';
-        @errors = @{$result};
+        ref $rule_errors eq 'ARRAY' or croak 'unexpected return value from _rule()';
+        @errors = @{$rule_errors};
     }
 
     # Check status of parsed input
@@ -144,188 +144,277 @@ sub _describe_line {
     }
 }
 
-sub _sequence_section {
-    my $state        = shift or croak 'Missing argument: $state';
-    my $section_rule = shift or croak 'Missing argument: $section_rule';
+=head2 B<_occurances( $state, key, line, type, quantifier, keytype )>
 
-    my @errors;
-    my $total = 0;
+Parse a quantified grammar rule or a line type with the given $key.
 
-    for my $elem ( @$section_rule ) {
+    my $result = _occurances( $state, key => 'field', type => 'hostname', quantifier => 'required' );
 
-        ref $elem eq 'HASH' or confess;
+Returns:
 
-        my ( $key, $params ) = %$elem;
+=over 4
 
-        ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
+=item B<()>
 
-        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
-        no warnings 'recursion';
-        ## use critic
-        my ( $count, $result ) = _occurances( $state, %$params, key => $key );
+No match. Input may have been consumed.
 
-        if ( !defined $count ) {
-            if ( $total == 0 ) {
-                return;
-            }
-            else {
-                my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line();
-                defined $token or croak 'unexpected return value';
-                ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
+=item B<$result>
 
-                push @errors, @{$token_errors};
+Match. Input may have been consumed.
 
-                my $description = _describe_line( $token, $token_value );
-                push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
-                last;
-            }
-        }
-        ref $result eq 'ARRAY' or confess;
-        push @errors, @$result;
-        $total += $count;
-    }
+B<$result> is an arrayref containing validation error strings.
 
-    return ( 'section', \@errors );
-}
+=back
 
-sub _choice_section {
-    my $state        = shift or croak 'Missing argument: $state';
-    my $section_rule = shift or croak 'Missing argument: $section_rule';
-    ref $section_rule eq 'HASH' or croak 'Argument $section_rule must be hashref';
-
-    for my $key ( keys $section_rule ) {
-        my $params = $section_rule->{$key};
-
-        ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
-        my ( $count, $result ) = _occurances( $state, %$params, key => $key );
-        if ( defined $count ) {
-            return ( 'section', $result );
-        }
-    }
-
-    return;
-}
+=cut
 
 sub _occurances {
     my ( $state, %args ) = @_;
-    my $key  = $args{'key'} or croak 'Missing argument: key';
-    my $line = $args{'line'};
-    my $type = $args{'type'};
+    my $key        = $args{'key'} or croak 'Missing argument: key';
+    my $line       = $args{'line'};
+    my $type       = $args{'type'};
+    my $quantifier = $args{'quantifier'} || 'required';
+    my $keytype    = $args{'keytype'};
+    if ( $type ) {
+        $line ||= 'field';
+    }
 
     my $min_occurs;
-    my $optional_type;
-    if ( ( $args{'optional'} || 'no' ) =~ /^(constrained|free)$/ ) {
-        $min_occurs    = 0;
-        $optional_type = $1;
-    }
-    else {
-        $min_occurs = 1;
-    }
-
     my $max_occurs;
-    if ( !exists $args{'repeatable'} ) {
-        $max_occurs = 1;
-    }
-    elsif ( $args{'repeatable'} ne 'unbounded' ) {
-        $max_occurs = int $args{'repeatable'};
-        $max_occurs >= 1 or croak 'Argument must not be zero or negative: repeatable';
+    for ( $quantifier ) {
+        when ( /^required$|^required-strict$/ ) {
+            $min_occurs = 1;
+            $max_occurs = 1;
+        }
+        when ( /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
+            $min_occurs = 0;
+            $max_occurs = 1;
+        }
+        when ( /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
+            $min_occurs = 0;
+            $max_occurs = $1;
+        }
+        when ( /^repeatable(?: max ([1-9][0-9]*))?$/ ) {
+            $min_occurs = 1;
+            $max_occurs = $1;
+        }
+        default {
+            croak "internal error: unhandled quantifier '$_'";
+        }
     }
 
-    my $count               = 0;
+    my $first               = 1;
+    my $element_count       = 0;
     my @pending_empty_error = ();
     my @errors;
-    while ( !defined $max_occurs || $count < $max_occurs ) {
+    while ( !defined $max_occurs || $element_count < $max_occurs ) {
         my $line_before = $state->{lexer}->line_no;
-        my ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type );
+        my ( $parsed, $parsed_errors );
+        {
+            ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+            no warnings 'recursion';
+            ## use critic
+            ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
+        }
+
         if ( defined $parsed ) {
-            ref $parsed_errors eq 'ARRAY' or confess;
-            $count++;
+            ref $parsed_errors eq 'ARRAY' or croak 'unexpected return value from _rule()';
             my $line_after = $state->{lexer}->line_no;
-            if ( $line_before == $line_after ) {
-                last;
-            }
             push @errors, @$parsed_errors;
             if ( $parsed eq 'empty field' ) {
                 push @pending_empty_error, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
-                if ( $count != 1 ) {
+                if ( !$first ) {
                     push @errors, @pending_empty_error;
                     @pending_empty_error = ();
                 }
-                elsif ( $min_occurs > 0 ) {
-                    push @errors, sprintf( "line %d: field '%s' is required and must not be empty", $line_after - 1, $key );
+                elsif ( $quantifier =~ /^required$|^repeatable|^optional-repeatable|^omitted-constrained$|^optional-not-empty$/ ) {
+                    push @errors, sprintf( "line %d: field '%s' is %s and must not be present as an empty field", $line_after - 1, $key, $quantifier );
                 }
-                elsif ( $optional_type eq 'constrained' ) {
+                elsif ( $quantifier =~ /^optional-constrained$|^empty-constrained$/ ) {
                     push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_after - 1, key => $key );
                 }
             }
             else {
                 push @errors, @pending_empty_error;
                 @pending_empty_error = ();
+                $element_count++;
+                if ( $parsed eq 'field' && $quantifier =~ /^empty-constrained$|^omitted-constrained$/ ) {
+                    return;    # mismatch: field must not be present as a non-empty field
+                }
+                elsif ( $line_before == $line_after ) {
+                    last;    # successfully parsed zero lines, no need to do it again
+                }
             }
         }
         else {
-            if ( $count == 0 && defined $line && $line eq 'field' && $min_occurs == 0 && $optional_type eq 'constrained' ) {
-                push @errors, _set_empty_kind( $state, kind => 'omitted field', line_no => $state->{lexer}->line_no, key => $key );
+            if ( $first && defined $line && $line eq 'field' ) {
+                if ( $quantifier eq 'empty-constrained' ) {
+                    return;    # mismatch: field must not be omitted
+                }
+                elsif ( $quantifier =~ /^optional-constrained$|^omitted-constrained$/ ) {
+                    push @errors, _set_empty_kind( $state, kind => 'omitted field', line_no => $state->{lexer}->line_no, key => $key );
+                }
             }
             last;
         }
+
+        $first = '';
     }
 
-    if ( $count >= $min_occurs ) {
-        return ( $count, \@errors );
+    if ( $element_count >= $min_occurs ) {
+        return \@errors;
     }
     else {
         return;
     }
 }
 
-## no critic (Subroutines::RequireArgUnpacking)
+=head2 B<_rule( $state, key, line, type, quantifier, keytype )>
+
+Parse a single occurance of a grammar rule or a line type with the given $key.
+
+    my ( $token, $errors ) = _rule( $state, key => 'field', type => 'hostname', quantifier => 'required' );
+
+Returns:
+
+=over 4
+
+=item B<( undef, [] )>
+
+No match. Input may have been consumed.
+
+=item B<( $token, $errors )>
+
+Match. Input may have been consumed.
+
+If a grammar rule was parsed, B<$token> is 'section'. If a line was parsed,
+B<$token> is the one B<_line()> returned.
+
+=back
+
+=cut
+
 sub _rule {
     my ( $state, %args ) = @_;
-    my $line = $args{'line'};
-    my $key  = $args{'key'} or croak 'Missing argument: key';
-    my $type = $args{'type'};
+    my $line       = $args{'line'};
+    my $key        = $args{'key'} or croak 'Missing argument: key';
+    my $type       = $args{'type'};
+    my $quantifier = $args{'quantifier'} or croak 'Missing argument: quantifier';
+    my $keytype    = $args{'keytype'};
 
     if ( defined $line || defined $type ) {
-        my ( $subtype, $result ) = _line( $state, line => $line, key => $key, type => $type );
-        return ( $subtype, $result );
+        my ( $rule_token, $rule_errors ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
+        ref $rule_token eq '' or croak 'unexpected return value from _line()';
+        ( !defined $rule_errors || ref $rule_errors eq 'ARRAY' ) or croak 'unexpected return value from _line()';
+
+        return ( $rule_token, $rule_errors || [] );
     }
-    else {
-        if ( my $section_rule = $state->{grammar}->{$key} ) {
-            if ( ref $section_rule eq 'ARRAY' ) {
-                ## no critic (TestingAndDebugging::ProhibitNoWarnings)
-                no warnings 'recursion';
-                ## use critic
-                @_ = ( $state, $section_rule );
-                goto &_sequence_section;
+    elsif ( my $section_rule = $state->{grammar}->{$key} ) {
+        if ( ref $section_rule eq 'ARRAY' ) {
+            my @errors;
+
+            for my $elem ( @$section_rule ) {
+
+                ref $elem eq 'HASH' or confess;
+
+                my ( $key, $params ) = %$elem;
+
+                ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
+
+                my $result;
+                {
+                    ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+                    no warnings 'recursion';
+                    ## use critic
+                    $result = _occurances( $state, %$params, key => $key );
+                }
+
+                if ( defined $result ) {
+                    ref $result eq 'ARRAY' or croak 'unexpected return value from _occurances()';
+                    push @errors, @{$result};
+                }
+                else {
+                    my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line();
+                    defined $token or croak 'unexpected return value';
+                    ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
+
+                    push @errors, @{$token_errors};
+
+                    my $description = _describe_line( $token, $token_value );
+                    push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
+                    return ( undef, \@errors );
+                }
             }
-            elsif ( ref $section_rule eq 'HASH' ) {
-                ## no critic (TestingAndDebugging::ProhibitNoWarnings)
-                no warnings 'recursion';
-                ## use critic
-                @_ = ( $state, $section_rule );
-                goto &_choice_section;
+
+            return ( 'section', \@errors );
+        }
+        elsif ( ref $section_rule eq 'HASH' ) {
+            for my $key ( sort keys %{$section_rule} ) {
+                my $params = $section_rule->{$key};
+                ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
+
+                my $result;
+                {
+                    ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+                    no warnings 'recursion';
+                    ## use critic
+                    $result = _occurances( $state, %$params, key => $key );
+                }
+                if ( defined $result ) {
+                    ref $result eq 'ARRAY' or croak 'unexpected return value from _occurances()';
+                    return ( 'section', $result );
+                }
             }
-            else {
-                croak "invalid grammar rule: $key";
-            }
+
+            return ( undef, [] );
         }
         else {
-            croak "unknown grammar rule: $key";
+            croak "invalid grammar rule: $key";
         }
     }
+    else {
+        croak "unknown grammar rule: $key";
+    }
 }
-## use critic
+
+=head2 B<_line( $state, key, line, type, quantifier, keytype )>
+
+Parse a line of an expected type.
+
+    my ( $token, $errors ) = _line( $state, key => 'field', type => 'hostname', quantifier => 'required' );
+
+Returns one of the following:
+
+=over 4
+
+=item B<()>
+
+No match. No input was consumed.
+
+=item B<( $token, $errors )>
+
+Match. One line of input was consumed.
+
+B<$token> is one of the B<PDT::TS::Whoiw::Lexer> token types, 'empty field' or 'any line'.
+
+=back
+
+=cut
 
 sub _line {
     my ( $state, %args ) = @_;
-    my $key  = $args{'key'} or croak 'Missing argument: key';
-    my $line = $args{'line'};
-    my $type = $args{'type'};
-    ( $line || $type ) or confess;
+    my $key        = $args{'key'}        or croak 'Missing argument: key';
+    my $line       = $args{'line'}       or croak 'Missing argument: line';
+    my $type       = $args{'type'};
+    my $quantifier = $args{'quantifier'} or croak 'Missing argument: quantifier';
+    my $keytype    = $args{'keytype'};
+
     if ( defined $type ) {
-        $line ||= 'field';
+        $state->{types}->has_type( $type ) or croak "unknown type '$type'";
         $line eq 'field' or confess;
+    }
+    if ( defined $keytype ) {
+        $state->{types}->has_type( $keytype ) or croak "unknown type '$keytype'";
     }
 
     my $token;
@@ -334,23 +423,32 @@ sub _line {
     my $subtype;
 
     if ( defined $type ) {
-        if ( !$state->{types}->has_type( $type ) ) {
-            croak "unknown type $type";
-        }
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
 
         if ( !defined $token || $token ne 'field' ) {
             return;
         }
 
-        ref $errors eq 'ARRAY'      or confess;
+        ref $errors      eq 'ARRAY' or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;
         if ( $field_key ne $key ) {
             return;
         }
-        $subtype = ( defined $field_value ) && 'field' || 'empty field';
+
+        if ( defined $field_value ) {
+            if ( $quantifier =~ /^(?:omitted-constrained|empty-constrained)$/ ) {
+                return;
+            }
+            $subtype = 'field';
+        }
+        else {
+            if ( $quantifier =~ /^(?:omitted-constrained|required-strict)$/ ) {
+                return;
+            }
+            $subtype = 'empty field';
+        }
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
@@ -385,6 +483,10 @@ sub _line {
         my ( $key, $translations, $value ) = @$token_value;
 
         ref $translations eq 'ARRAY' or confess;
+
+        if ( $keytype ) {
+            push @$errors, _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
+        }
 
         for my $translation ( @$translations ) {
             push @$errors, _validate_type( $state, type_name => 'key translation', value => $translation, prefix => "invalid key translation for field '$key', " );

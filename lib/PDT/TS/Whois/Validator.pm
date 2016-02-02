@@ -217,7 +217,7 @@ sub _occurances {
     my $min_occurs;
     my $max_occurs;
     for ( $quantifier ) {
-        when ( 'required' ) {
+        when ( /^required$|^required-strict$/ ) {
             $min_occurs = 1;
             $max_occurs = 1;
         }
@@ -380,7 +380,7 @@ sub _line {
             $subtype = 'field';
         }
         else {
-            if ( $quantifier =~ /^(?:omitted-constrained|required)$/ ) {
+            if ( $quantifier =~ /^(?:omitted-constrained|required-strict)$/ ) {
                 return;
             }
             $subtype = 'empty field';

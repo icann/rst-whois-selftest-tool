@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Test::Differences;
 use Test::MockObject;
 
@@ -10,8 +10,12 @@ require_ok('PDT::TS::Whois::Validator');
 use PDT::TS::Whois::Validator qw( validate );
 
 my $grammar = {
-    'Simple field' => [
+    'Required field' => [
         { 'Domain Name' => { type => 'hostname', }, },
+        { 'EOF' => { line => 'EOF', }, },
+    ],
+    'Required-strict field' => [
+        { 'Domain Name' => { line => 'field', type => 'hostname', quantifier => 'required-strict' }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Optional-constrained field' => [
@@ -138,16 +142,17 @@ sub make_mock_lexer {
             });
 }
 
-subtest 'Simple line' => sub {
-    plan tests => 3;
+subtest 'Required field' => sub {
+    plan tests => 6;
 
     {
         my $lexer = make_mock_lexer (
             ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], []],
             ['EOF', undef, []],
         );
-        my @errors = validate( rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
+        my @errors = validate( rule => 'Required field', lexer => $lexer, grammar => $grammar, types => $types);
         eq_or_diff \@errors, [], 'Should accept field line';
+        is $lexer->line_no(), 2, 'Should consume non-empty-field line';
     }
 
     {
@@ -155,8 +160,9 @@ subtest 'Simple line' => sub {
             ['non-empty line', 'gibberish', []],
             ['EOF', undef, []],
         );
-        my @errors = validate(rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
+        my @errors = validate(rule => 'Required field', lexer => $lexer, grammar => $grammar, types => $types);
         cmp_ok scalar(@errors), '>=', 1, 'Should reject non-field line';
+        is $lexer->line_no(), 1, 'Should not consume non-field line';
     }
 
     {
@@ -164,9 +170,46 @@ subtest 'Simple line' => sub {
             ['field', ['Domain Name', [], undef], []],
             ['EOF', undef, []],
         );
-        my @errors = validate( rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types);
+        my @errors = validate( rule => 'Required field', lexer => $lexer, grammar => $grammar, types => $types);
         cmp_ok scalar(@errors), '>=', 1, 'Should reject empty-field line';
+        is $lexer->line_no(), 2, 'Should consume empty-field line';
     }
+};
+
+subtest 'Required-strict field' => sub {
+    plan tests => 7;
+
+    {
+        my $lexer = make_mock_lexer(
+            [ 'field', [ 'Domain Name', [], 'DOMAIN.EXAMPLE' ], [] ],
+            [ 'EOF', undef, [] ],
+        );
+        my @errors = validate( rule => 'Required-strict field', lexer => $lexer, grammar => $grammar, types => $types );
+        eq_or_diff \@errors, [], 'Should accept non-empty field';
+        is $lexer->line_no(), 2, 'Should consume non-empty field line';
+    }
+
+    {
+        my $lexer = make_mock_lexer (
+            ['non-empty line', 'gibberish', []],
+            ['EOF', undef, []],
+        );
+        my @errors = validate(rule => 'Required-strict field', lexer => $lexer, grammar => $grammar, types => $types);
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject non-field line';
+        is $lexer->line_no(), 1, 'Should not consume non-field line';
+    }
+
+    {
+        my $lexer = make_mock_lexer(
+            [ 'field', [ 'Domain Name', [], undef ], [] ],
+            [ 'EOF', undef, [] ],
+        );
+        my @errors = validate( rule => 'Required-strict field', lexer => $lexer, grammar => $grammar, types => $types );
+        cmp_ok scalar(@errors), '>=', 1, 'Should reject empty field';
+        like $errors[0], qr/line 1/, 'Should refer to line number of the invalid field';
+        is $lexer->line_no(), 1, 'Should not consume empty field line';
+    }
+
 };
 
 subtest 'Optional-free subrule' => sub {
@@ -319,7 +362,7 @@ subtest 'Error propagation' => sub {
         ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], ['BOOM!']],
         ['EOF', undef, []],
     );
-    my @errors = validate( rule => 'Simple field', lexer => $lexer, grammar => $grammar, types => $types );
+    my @errors = validate( rule => 'Required field', lexer => $lexer, grammar => $grammar, types => $types );
     eq_or_diff \@errors, ['BOOM!'], 'Should propagate errors from lexer';
 };
 

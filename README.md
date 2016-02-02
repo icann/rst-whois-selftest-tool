@@ -103,7 +103,7 @@ other OSs.
 Installation
 ============
 Clone the project repository and choose version according to the specification
-compatibility matrix. In the normal case, choose the lastest version.
+compatibility matrix. In the normal case, choose the latest version.
 
     $> git clone https://github.com/dotse/Whois-Selftest-Tool.git <srcdir>
     $> cd <srcdir>
@@ -116,8 +116,8 @@ Install Whois Selftest Tool scripts and libraries.
     $> ./Build test
     $> ./Build install
 
-To check the installation run the scripts with `--help`. First, the EPP database
-must be fetched.
+To check the installation run the scripts with `--help`. Before the whois-test
+script can be run, the EPP database must be fetched.
 
     $> whois-fetch-epp-repo-ids --help
     $> whois-fetch-epp-repo-ids

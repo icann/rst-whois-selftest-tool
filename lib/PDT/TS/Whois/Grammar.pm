@@ -186,7 +186,6 @@ Registrar details section:
   - Postal Code: { quantifier: optional-constrained, line: field, type: postal code }
   - Country: { line: field, type: country code }
   - Phone number section: { quantifier: repeatable }
-  - Phone Ext: { quantifier: optional-free, line: field, type: token }
   - Fax number section: { quantifier: required }
   - Email: { quantifier: repeatable, line: field, type: email address }
   - WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }

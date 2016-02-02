@@ -144,114 +144,6 @@ sub _describe_line {
     }
 }
 
-=head2 B<_sequence_section( $state, $section_rule )>
-
-Parse a sequence section rule.
-
-    my ( $token, $errors ) = _sequence_section( $state, key => 'field', type => 'hostname', quantifier => 'required' );
-
-Returns:
-
-=over 4
-
-=item B<( undef, [] )>
-
-No match. Input may have been consumed.
-
-=item B<( $token, $errors )>
-
-Match. Input may have been consumed.
-
-If a grammar rule was parsed, B<$token> is 'section'. If a line was parsed,
-B<$token> is the one B<_line()> returned.
-
-=back
-
-=cut
-
-sub _sequence_section {
-    my $state        = shift or croak 'Missing argument: $state';
-    my $section_rule = shift or croak 'Missing argument: $section_rule';
-
-    my @errors;
-
-    for my $elem ( @$section_rule ) {
-
-        ref $elem eq 'HASH' or confess;
-
-        my ( $key, $params ) = %$elem;
-
-        ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
-
-        ## no critic (TestingAndDebugging::ProhibitNoWarnings)
-        no warnings 'recursion';
-        ## use critic
-        my $result = _occurances( $state, %$params, key => $key );
-
-        if ( defined $result ) {
-            ref $result eq 'ARRAY' or croak 'unexpected return value from _occurances()';
-            push @errors, @{$result};
-        }
-        else {
-            my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line();
-            defined $token or croak 'unexpected return value';
-            ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
-
-            push @errors, @{$token_errors};
-
-            my $description = _describe_line( $token, $token_value );
-            push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
-            return ( undef, \@errors );
-        }
-    }
-
-    return ( 'section', \@errors );
-}
-
-=head2 B<_choice_section( $state, $section_rule )>
-
-Parse a choice section rule.
-
-    my ( $token, $errors ) = _choice_section( $state, key => 'field', type => 'hostname', quantifier => 'required' );
-
-Returns:
-
-=over 4
-
-=item B<( undef, [] )>
-
-No match. Input may have been consumed.
-
-=item B<( $token, $errors )>
-
-Match. Input may have been consumed.
-
-If a grammar rule was parsed, B<$token> is 'section'. If a line was parsed,
-B<$token> is the one B<_line()> returned.
-
-=back
-
-=cut
-
-sub _choice_section {
-    my $state        = shift or croak 'Missing argument: $state';
-    my $section_rule = shift or croak 'Missing argument: $section_rule';
-    ref $section_rule eq 'HASH' or croak 'Argument $section_rule must be hashref';
-
-    for my $key ( sort keys %{$section_rule} ) {
-        my $params = $section_rule->{$key};
-
-        ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
-        my $result = _occurances( $state, %$params, key => $key );
-        if ( defined $result ) {
-            ref $result eq 'ARRAY' or croak 'unexpected return value from _occurances()';
-            return ( 'section', $result );
-        }
-    }
-
-    return ( undef, [] );
-}
-
 =head2 B<_occurances( $state, key, line, type, quantifier, keytype )>
 
 Parse a quantified grammar rule or a line type with the given $key.
@@ -317,7 +209,13 @@ sub _occurances {
     my @errors;
     while ( !defined $max_occurs || $element_count < $max_occurs ) {
         my $line_before = $state->{lexer}->line_no;
-        my ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
+        my ( $parsed, $parsed_errors );
+        {
+            ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+            no warnings 'recursion';
+            ## use critic
+            ( $parsed, $parsed_errors ) = _rule( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
+        }
 
         if ( defined $parsed ) {
             ref $parsed_errors eq 'ARRAY' or croak 'unexpected return value from _rule()';
@@ -396,7 +294,6 @@ B<$token> is the one B<_line()> returned.
 
 =cut
 
-## no critic (Subroutines::RequireArgUnpacking)
 sub _rule {
     my ( $state, %args ) = @_;
     my $line       = $args{'line'};
@@ -408,36 +305,77 @@ sub _rule {
     if ( defined $line || defined $type ) {
         my ( $rule_token, $rule_errors ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
         ref $rule_token eq '' or croak 'unexpected return value from _line()';
-        !defined $rule_errors || ref $rule_errors eq 'ARRAY' or croak 'unexpected return value from _line()';
+        ( !defined $rule_errors || ref $rule_errors eq 'ARRAY' ) or croak 'unexpected return value from _line()';
 
         return ( $rule_token, $rule_errors || [] );
     }
-    else {
-        if ( my $section_rule = $state->{grammar}->{$key} ) {
-            if ( ref $section_rule eq 'ARRAY' ) {
-                ## no critic (TestingAndDebugging::ProhibitNoWarnings)
-                no warnings 'recursion';
-                ## use critic
-                @_ = ( $state, $section_rule );
-                goto &_sequence_section;
+    elsif ( my $section_rule = $state->{grammar}->{$key} ) {
+        if ( ref $section_rule eq 'ARRAY' ) {
+            my @errors;
+
+            for my $elem ( @$section_rule ) {
+
+                ref $elem eq 'HASH' or confess;
+
+                my ( $key, $params ) = %$elem;
+
+                ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
+
+                my $result;
+                {
+                    ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+                    no warnings 'recursion';
+                    ## use critic
+                    $result = _occurances( $state, %$params, key => $key );
+                }
+
+                if ( defined $result ) {
+                    ref $result eq 'ARRAY' or croak 'unexpected return value from _occurances()';
+                    push @errors, @{$result};
+                }
+                else {
+                    my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line();
+                    defined $token or croak 'unexpected return value';
+                    ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
+
+                    push @errors, @{$token_errors};
+
+                    my $description = _describe_line( $token, $token_value );
+                    push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
+                    return ( undef, \@errors );
+                }
             }
-            elsif ( ref $section_rule eq 'HASH' ) {
-                ## no critic (TestingAndDebugging::ProhibitNoWarnings)
-                no warnings 'recursion';
-                ## use critic
-                @_ = ( $state, $section_rule );
-                goto &_choice_section;
+
+            return ( 'section', \@errors );
+        }
+        elsif ( ref $section_rule eq 'HASH' ) {
+            for my $key ( sort keys %{$section_rule} ) {
+                my $params = $section_rule->{$key};
+                ref $params eq 'HASH' or confess "value of key '$key' must be a hashref";
+
+                my $result;
+                {
+                    ## no critic (TestingAndDebugging::ProhibitNoWarnings)
+                    no warnings 'recursion';
+                    ## use critic
+                    $result = _occurances( $state, %$params, key => $key );
+                }
+                if ( defined $result ) {
+                    ref $result eq 'ARRAY' or croak 'unexpected return value from _occurances()';
+                    return ( 'section', $result );
+                }
             }
-            else {
-                croak "invalid grammar rule: $key";
-            }
+
+            return ( undef, [] );
         }
         else {
-            croak "unknown grammar rule: $key";
+            croak "invalid grammar rule: $key";
         }
     }
+    else {
+        croak "unknown grammar rule: $key";
+    }
 }
-## use critic
 
 =head2 B<_line( $state, key, line, type, quantifier, keytype )>
 

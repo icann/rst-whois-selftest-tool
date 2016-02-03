@@ -365,7 +365,7 @@ sub _line {
             return;
         }
 
-        ref $errors      eq 'ARRAY' or confess;
+        ref $errors eq 'ARRAY'      or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;

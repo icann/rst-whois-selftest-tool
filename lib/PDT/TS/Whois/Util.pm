@@ -50,8 +50,8 @@ sub extract_roid {
         }
         elsif ( $token eq 'roid line' ) {
             ref $value eq 'ARRAY' or croak "'roid line' value expected to be arrayref";
-            defined $value->[0] or croak "'roid line' value expected to have roid at position 0";
-            defined $value->[1] or croak "'hostname' value expected to have roid at position 1";
+            defined $value->[0]   or croak "'roid line' value expected to have roid at position 0";
+            defined $value->[1]   or croak "'hostname' value expected to have roid at position 1";
             my ( $roid, $hostname ) = @{$value};
             my @errors;
             push @errors, grep { $_ ne 'expected roid suffix to be a registered epp repo id' } $types->validate_type( 'roid', $roid );
@@ -95,7 +95,8 @@ sub scrub_u_label {
     );
     defined $ascii or croak 'unexpected return value';
 
-    return lc( $ascii =~ s/\.?$//r );
+    $ascii =~ s/\.?$//;
+    return lc( $ascii );
 }
 
 1;

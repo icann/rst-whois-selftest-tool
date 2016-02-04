@@ -11,10 +11,7 @@ use PDT::TS::Whois::Types;
 
 sub accept_domain {
     my $test_name = shift;
-    my $input = shift;
-
-    chomp $input;
-    $input =~ s/\r?$/\r/gm;
+    my $input     = shift =~ s/\r?\n/\r\n/gmr;
 
     my $types = PDT::TS::Whois::Types->new;
     $types->load_roid_suffix('t/iana-epp-rep-id.txt');

@@ -242,7 +242,7 @@ sub _occurances {
                     return;    # mismatch: field must not be present as a non-empty field
                 }
                 elsif ( $line_before == $line_after ) {
-                    last;    # successfully parsed zero lines, no need to do it again
+                    last;      # successfully parsed zero lines, no need to do it again
                 }
             }
         }

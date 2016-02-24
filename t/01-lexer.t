@@ -209,16 +209,38 @@ subtest 'Leading space' => sub {
 };
 
 subtest 'Trailing space' => sub {
-    plan tests => 4;
+    plan tests => 3;
 
-    my $lexer = PDT::TS::Whois::Lexer->new("Key: Value with trailing space \r\n");
+    my $lexer = PDT::TS::Whois::Lexer->new("Key: Value with trailing space \r\nKey: \r\nKey:  \r\n");
 
-    my ($token, $value, $errors) = $lexer->peek_line();
-    is($token, 'field', 'Should recognize field with stripped value');
-    eq_or_diff($value, ['Key', [], 'Value with trailing space'], 'Should recognize field with stripped value');
-    is(scalar @$errors, 1, 'Should detect an error');
-    like($errors->[0], qr/trailing space/i, 'Should complain about trailing space');
-    $lexer->next_line();
+    subtest 'Strip field value' => sub {
+        plan tests => 4;
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should report correct token');
+        eq_or_diff($value, ['Key', [], 'Value with trailing space'], 'Should report correct token value');
+        is(scalar @$errors, 1, 'Should detect an error');
+        like($errors->[0], qr/trailing space/i, 'Should complain about trailing space');
+        $lexer->next_line();
+    };
+
+    subtest 'Empty field with single trailing space' => sub {
+        plan tests => 3;
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should report correct token');
+        eq_or_diff($value, ['Key', [], undef], 'Should report correct token value');
+        eq_or_diff($errors, [], 'Should report no error');
+        $lexer->next_line();
+    };
+
+    subtest 'Empty field with too much trailing space' => sub {
+        plan tests => 4;
+        my ($token, $value, $errors) = $lexer->peek_line();
+        is($token, 'field', 'Should report correct token');
+        eq_or_diff($value, ['Key', [], undef], 'Should report correct token value');
+        is(scalar @$errors, 1, 'Should detect an error');
+        like($errors->[0], qr/trailing space/i, 'Should complain about trailing space');
+        $lexer->next_line();
+    };
 };
 
 subtest 'Pattern matching' => sub {

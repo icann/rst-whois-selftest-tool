@@ -242,7 +242,7 @@ sub _occurances {
                     return;    # mismatch: field must not be present as a non-empty field
                 }
                 elsif ( $line_before == $line_after ) {
-                    last;    # successfully parsed zero lines, no need to do it again
+                    last;      # successfully parsed zero lines, no need to do it again
                 }
             }
         }
@@ -429,7 +429,7 @@ sub _line {
             return;
         }
 
-        ref $errors      eq 'ARRAY' or confess;
+        ref $errors eq 'ARRAY'      or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;

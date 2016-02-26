@@ -380,8 +380,13 @@ my %default_types;
         }
 
         if ( $value =~ /^([^ ]+) {1,9}https:\/\/icann\.org\/epp#(.+)$/o ) {
-            if ( exists $DOMAIN_STATUS_CODES{$1} && $1 eq $2 ) {
-                return ();
+            if ( exists $DOMAIN_STATUS_CODES{$1} ) {
+                if ( $1 eq $2 ) {
+                    return ();
+                }
+                elsif ( $1 eq 'ok' && $2 eq 'OK' ) {
+                    return ();
+                }
             }
         }
 

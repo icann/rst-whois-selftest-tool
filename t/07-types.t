@@ -132,13 +132,16 @@ subtest 'token' => sub {
 };
 
 subtest 'domain status' => sub {
-    plan tests => 4;
+    plan tests => 7;
 
     reject_ok 'undef' => 'domain status';
     reject_ok 'empty' => 'domain status', '';
 
-    accept_ok 'ok https://icann.org/epp#ok' => 'domain status', 'ok https://icann.org/epp#ok';
-    reject_ok 'bad http://noticann.org/epp#bad' => 'domain status', 'bad http://noticann.org/epp#bad';
+    accept_ok 'ok https://icann.org/epp#ok'             => 'domain status', 'ok https://icann.org/epp#ok';
+    accept_ok 'explicit exception for upper case OK'    => 'domain status', 'ok https://icann.org/epp#OK';
+    accept_ok 'inactive https://icann.org/epp#inactive' => 'domain status', 'inactive https://icann.org/epp#inactive';
+    reject_ok 'inactive https://icann.org/epp#INACTIVE' => 'domain status', 'inactive https://icann.org/epp#INACTIVE';
+    reject_ok 'bad http://noticann.org/epp#bad'         => 'domain status', 'bad http://noticann.org/epp#bad';
 };
 
 subtest 'postal line' => sub {

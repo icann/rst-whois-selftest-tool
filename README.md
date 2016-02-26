@@ -25,10 +25,16 @@ Version history
 * v1.0.0 - Initial public release (2015-12-03)
 * v1.1.0 - Updated public release (2016-01-08)
 * v1.2.0 - Updated public release (2016-02-02)
+* v1.3.0 - Updated public release (2016-02-26)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
 
 The v1.2.0 release primarily matches the updates to the PDT Whois TP in the the version 2.10 document release. It also corrects found bugs.
+
+The v1.3.0 release includes two updates of the PDT Whois TP that will be included in the next document release:
+
+* If the Domain Status is "ok" then the fragment in the URL in the Domain Status field may be "ok" or "OK".
+* If a field is empty (key is there, but no value) there may be one space character (U+0020) after the colon, i.e. trailing space is permitted.
 
 Specification compatibility matrix
 ----------------------------------
@@ -38,19 +44,23 @@ Tool to use.
 <table>
   <tr>
     <th>Whois Selftest Tool version</th>
-    <th>PDT Test Specifications</th>
+    <th>PDT Document Release</th>
   </tr>
   <tr>
     <td>v1.0.0</td>
-    <td>v.2.8</td>
+    <td>2.8</td>
   </tr>
   <tr>
     <td>v1.1.0</td>
-    <td>v.2.9</td>
+    <td>2.9</td>
   </tr>
   <tr>
     <td>v1.2.0</td>
-    <td>v.2.10</td>
+    <td>2.10</td>
+  </tr>
+  <tr>
+    <td>v1.3.0</td>
+    <td>2.10 plus two updates described above</td>
   </tr>
 </table>
 

@@ -25,7 +25,7 @@ Version history
 * v1.0.0 - Initial public release (2015-12-03)
 * v1.1.0 - Updated public release (2016-01-08)
 * v1.2.0 - Updated public release (2016-02-02)
-* v1.3.0 - Updated public release (2016-02-25)
+* v1.3.0 - Updated public release (2016-02-26)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
 

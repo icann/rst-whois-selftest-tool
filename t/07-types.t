@@ -308,7 +308,7 @@ subtest 'domain status code' => sub {
 subtest 'domain name object additional field key' => sub {
     my @ok = (
         'Internationalized Domain Name',
-        'Billing ID',
+        'Registry Billing ID',
         'Billing Name',
         'Billing Organization',
         'Billing Street',
@@ -321,8 +321,26 @@ subtest 'domain name object additional field key' => sub {
         'Billing Fax',
         'Billing Fax Ext',
         'Billing Email',
+        'Billing ID',
     );
-    my @not_ok = ( 'Referral URL' );
+    my @not_ok = (
+        'Registry Domain ID',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar',
+        'Registrar IANA ID',
+        'Registry Registrant ID',
+        'Registry Admin ID',
+        'Registry Tech ID',
+        'Domain ID',
+        'WHOIS Server',
+        'Referral URL',
+        'Sponsoring Registrar',
+        'Sponsoring Registrar IANA ID',
+        'Registrant ID',
+        'Admin ID',
+        'Tech ID',
+    );
     plan tests => scalar @ok + scalar @not_ok + 2;
 
     reject_ok 'undef' => 'domain name object additional field key';
@@ -341,7 +359,14 @@ subtest 'registrar object additional field key' => sub {
         'Phone Ext',
         'Fax Ext',
     );
-    my @not_ok = ( 'Referral URL' );
+    my @not_ok = (
+        'Registrar',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Name',
+        'WHOIS Server',
+        'Referral URL',
+    );
     plan tests => scalar @ok + scalar @not_ok + 2;
 
     reject_ok 'undef' => 'registrar object additional field key';
@@ -359,7 +384,12 @@ subtest 'name server object additional field key' => sub {
     my @ok = (
         'Nisse',
     );
-    my @not_ok = ( 'Referral URL' );
+    my @not_ok = (
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'WHOIS Server',
+        'Referral URL',
+    );
     plan tests => scalar @ok + scalar @not_ok + 2;
 
     reject_ok 'undef' => 'registrar object additional field key';

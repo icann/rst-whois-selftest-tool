@@ -21,19 +21,19 @@ eq_or_diff \@errors, [], 'Should accept valid domain name reply';
 
 __DATA__
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-WHOIS Server: whois.example.tld
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar WHOIS Server: whois.example.tld
+Registrar URL: http://www.example.tld
 Updated Date: 2009-05-29T20:13:00Z
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: 5372808-IIS
+Registry Registrant ID: 5372808-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Organization: EXAMPLE ORGANIZATION
 Registrant Street: 123 EXAMPLE STREET
@@ -46,7 +46,7 @@ Registrant Phone Ext: 1234
 Registrant Fax: +1.5555551213
 Registrant Fax Ext: 4321
 Registrant Email: EMAIL@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Organization: EXAMPLE REGISTRANT ORGANIZATION
 Admin Street: 123 EXAMPLE STREET
@@ -59,7 +59,7 @@ Admin Phone Ext: 1234
 Admin Fax: +1.5555551213
 Admin Fax Ext: 1234
 Admin Email: EMAIL@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Organization: EXAMPLE REGISTRAR LLC
 Tech Street: 123 EXAMPLE STREET

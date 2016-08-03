@@ -153,8 +153,8 @@ Name server details section:
   - Server Name: { line: field, type: query name server }
   - IP Address: { quantifier: optional-repeatable, line: field, type: query name server ip }
   - Registrar: { quantifier: optional-constrained, line: field, type: postal line }
-  - WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
-  - Referral URL: { quantifier: optional-constrained, line: field, type: http url }
+  - Registrar WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
+  - Registrar URL: { quantifier: optional-constrained, line: field, type: http url }
   - Additional field: { quantifier: optional-repeatable, line: field, keytype: name server object additional field key }
 Name server subsection 1:
   Last updated footer: { }
@@ -179,7 +179,7 @@ Name server reply type 2:
   - AWIP footer: { quantifier: optional-free }
   - Legal disclaimer: { }
 Registrar details section:
-  - Registrar Name: { line: field, type: query registrar name }
+  - Registrar: { line: field, type: query registrar name }
   - Street: { line: field, type: postal line, quantifier: repeatable }
   - City: { line: field, type: postal line }
   - State/Province: { quantifier: optional-constrained, line: field, type: postal line }
@@ -188,8 +188,8 @@ Registrar details section:
   - Phone number section: { quantifier: repeatable }
   - Fax number section: { quantifier: required }
   - Email: { quantifier: repeatable, line: field, type: email address }
-  - WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
-  - Referral URL: { line: field, type: http url }
+  - Registrar WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
+  - Registrar URL: { line: field, type: http url }
   - Admin contact section: { quantifier: optional-repeatable }
   - Technical contact section: { quantifier: optional-repeatable }
   - Additional field: { quantifier: optional-repeatable, line: field, keytype: registrar object additional field key }
@@ -221,16 +221,16 @@ Fax number section type C:
 Domain name details section:
   - Domain Name: { line: field, type: query domain name }
   - Internationalized Domain Name: { quantifier: optional-free, line: field, type: u-label }
-  - Domain ID: { line: field, type: epp repo id }
-  - WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
-  - Referral URL: { line: field, type: http url }
+  - Registry Domain ID: { line: field, type: epp repo id }
+  - Registrar WHOIS Server: { quantifier: optional-constrained, line: field, type: hostname }
+  - Registrar URL: { line: field, type: http url }
   - Updated Date: { quantifier: optional-constrained, line: field, type: time stamp }
   - Creation Date: { line: field, type: time stamp }
   - Registry Expiry Date: { line: field, type: time stamp }
-  - Sponsoring Registrar: { line: field, type: token }
-  - Sponsoring Registrar IANA ID: { line: field, type: positive integer }
+  - Registrar: { line: field, type: token }
+  - Registrar IANA ID: { line: field, type: positive integer }
   - Domain Status: { quantifier: repeatable, line: field, type: domain status }
-  - Registrant ID: { line: field, type: token }
+  - Registry Registrant ID: { line: field, type: token }
   - Registrant Name: { line: field, type: postal line }
   - Registrant Organization: { quantifier: optional-constrained, line: field, type: postal line }
   - Registrant Street: { quantifier: repeatable, line: field, type: postal line }
@@ -243,7 +243,7 @@ Domain name details section:
   - Registrant Fax: { quantifier: optional-constrained, line: field, type: phone number }
   - Registrant Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Registrant Email: { line: field, type: email address }
-  - Admin ID: { line: field, type: token }
+  - Registry Admin ID: { line: field, type: token }
   - Admin Name: { line: field, type: postal line }
   - Admin Organization: { quantifier: optional-constrained, line: field, type: postal line }
   - Admin Street: { quantifier: repeatable, line: field, type: postal line }
@@ -256,7 +256,7 @@ Domain name details section:
   - Admin Fax: { quantifier: optional-constrained, line: field, type: phone number }
   - Admin Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Admin Email: { line: field, type: email address }
-  - Tech ID: { line: field, type: token }
+  - Registry Tech ID: { line: field, type: token }
   - Tech Name: { line: field, type: postal line }
   - Tech Organization: { quantifier: optional-constrained, line: field, type: postal line }
   - Tech Street: { quantifier: repeatable, line: field, type: postal line }
@@ -274,7 +274,7 @@ Domain name details section:
   - DNSSEC: { line: field, type: dnssec }
   - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
 Billing contact section:
-  - Billing ID: { line: field, type: token }
+  - Registry Billing ID: { line: field, type: token }
   - Billing Name: { line: field, type: postal line }
   - Billing Organization: { quantifier: optional-free, line: field, type: postal line }
   - Billing Street: { quantifier: repeatable, line: field, type: postal line }

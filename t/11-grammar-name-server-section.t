@@ -25,16 +25,16 @@ sub accept_domain {
 
 accept_domain 'Should accept valid name server section type A with empty fields' => <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-WHOIS Server:
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar WHOIS Server:
+Registrar URL: http://www.example.tld
 Updated Date:
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
-Registrant ID: 5372808-IIS
+Registry Registrant ID: 5372808-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Organization:
 Registrant Street: 123 EXAMPLE STREET
@@ -47,7 +47,7 @@ Registrant Phone Ext:
 Registrant Fax:
 Registrant Fax Ext:
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Organization:
 Admin Street: 123 EXAMPLE STREET
@@ -60,7 +60,7 @@ Admin Phone Ext:
 Admin Fax:
 Admin Fax Ext:
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Organization:
 Tech Street: 123 EXAMPLE STREET
@@ -82,28 +82,28 @@ EOF
 
 accept_domain 'Should accept valid name server section type A with omitted fields' => <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
-Registrant ID: 5372808-IIS
+Registry Registrant ID: 5372808-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123 EXAMPLE STREET
 Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123 EXAMPLE STREET
 Tech City: ANYTOWN
@@ -119,16 +119,16 @@ EOF
 
 accept_domain 'Should accept valid name server section type B with empty fields' => <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-WHOIS Server:
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar WHOIS Server:
+Registrar URL: http://www.example.tld
 Updated Date:
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
-Registrant ID: 5372808-IIS
+Registry Registrant ID: 5372808-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Organization:
 Registrant Street: 123 EXAMPLE STREET
@@ -141,7 +141,7 @@ Registrant Phone Ext:
 Registrant Fax:
 Registrant Fax Ext:
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Organization:
 Admin Street: 123 EXAMPLE STREET
@@ -154,7 +154,7 @@ Admin Phone Ext:
 Admin Fax:
 Admin Fax Ext:
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Organization:
 Tech Street: 123 EXAMPLE STREET
@@ -173,28 +173,28 @@ EOF
 
 accept_domain 'Should accept valid name server section type C with omitted fields' => <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
-Registrant ID: 5372808-IIS
+Registry Registrant ID: 5372808-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123 EXAMPLE STREET
 Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123 EXAMPLE STREET
 Tech City: ANYTOWN

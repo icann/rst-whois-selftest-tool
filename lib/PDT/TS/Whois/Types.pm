@@ -379,7 +379,7 @@ my %default_types;
             return ( 'expected domain status' );
         }
 
-        if ( $value =~ /^([^ ]+) {1,9}https:\/\/icann\.org\/epp#(.+)$/o ) {
+        if ( $value =~ qr{^([^ ]+) {1,9}https://icann\.org/epp\#(.+)$} ) {
             if ( exists $DOMAIN_STATUS_CODES{$1} ) {
                 if ( $1 eq $2 ) {
                     return ();

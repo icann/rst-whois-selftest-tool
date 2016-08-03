@@ -3,7 +3,7 @@ use warnings;
 use 5.014;
 use utf8;
 
-use Test::More tests => 24;
+use Test::More tests => 25;
 use Test::Differences;
 
 # This is needed to get rid of wide character print warnings
@@ -402,5 +402,21 @@ subtest 'name server object additional field key' => sub {
     }
     for my $value ( @not_ok ) {
         reject_ok "Value $value", 'registrar object additional field key', $value;
+    }
+};
+
+subtest 'inaccuracy form url' => sub {
+    my @ok = ( 'https://www.icann.org/wicf/', );
+    my @not_ok = ( 'http://www.icann.org/wicf/', 'https://icann.org/wicf/', 'https://www.icann.org/wicf', 'HTTPS://WWW.ICANN.ORG/wicf/' );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'inaccuracy form url';
+    reject_ok 'empty' => 'inaccuracy form url', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'inaccuracy form url', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'inaccuracy form url', $value;
     }
 };

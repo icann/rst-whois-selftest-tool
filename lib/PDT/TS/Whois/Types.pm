@@ -48,6 +48,7 @@ The default types are:
  * registrar object additional field key
  * name server object additional field key
  * void
+ * inaccuracy form url
 
 =cut
 
@@ -546,6 +547,15 @@ my %default_types;
     },
     'void' => sub {
         return ( 'no values are allowed for type void' );
+    },
+    'inaccuracy form url' => sub {
+        my $value = shift;
+
+        unless ( defined $value && $value eq 'https://www.icann.org/wicf/' ) {
+            return ( 'expected inaccuracy form url' );
+        }
+
+        return ();
     },
 );
 

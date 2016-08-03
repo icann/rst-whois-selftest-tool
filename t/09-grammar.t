@@ -39,7 +39,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
@@ -76,7 +76,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
@@ -120,7 +120,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
@@ -172,7 +172,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Organization:
 Registrant Street: 123 EXAMPLE STREET
@@ -230,7 +230,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Organization:
 Registrant Street: 123 EXAMPLE STREET
@@ -293,7 +293,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
@@ -329,7 +329,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123
 Registrant Street: EXAMPLE
@@ -385,7 +385,7 @@ Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibit
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registry Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123
 Registrant Street: EXAMPLE

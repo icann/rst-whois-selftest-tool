@@ -230,7 +230,7 @@ Domain name details section:
   - Registrar: { line: field, type: token }
   - Registrar IANA ID: { line: field, type: positive integer }
   - Domain Status: { quantifier: repeatable, line: field, type: domain status }
-  - Registry Registrant ID: { line: field, type: token }
+  - Registry Registrant ID: { line: field, type: roid }
   - Registrant Name: { line: field, type: postal line }
   - Registrant Organization: { quantifier: optional-constrained, line: field, type: postal line }
   - Registrant Street: { quantifier: repeatable, line: field, type: postal line }
@@ -243,7 +243,7 @@ Domain name details section:
   - Registrant Fax: { quantifier: optional-constrained, line: field, type: phone number }
   - Registrant Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Registrant Email: { line: field, type: email address }
-  - Registry Admin ID: { line: field, type: token }
+  - Registry Admin ID: { line: field, type: roid }
   - Admin Name: { line: field, type: postal line }
   - Admin Organization: { quantifier: optional-constrained, line: field, type: postal line }
   - Admin Street: { quantifier: repeatable, line: field, type: postal line }
@@ -256,7 +256,7 @@ Domain name details section:
   - Admin Fax: { quantifier: optional-constrained, line: field, type: phone number }
   - Admin Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Admin Email: { line: field, type: email address }
-  - Registry Tech ID: { line: field, type: token }
+  - Registry Tech ID: { line: field, type: roid }
   - Tech Name: { line: field, type: postal line }
   - Tech Organization: { quantifier: optional-constrained, line: field, type: postal line }
   - Tech Street: { quantifier: repeatable, line: field, type: postal line }
@@ -274,7 +274,7 @@ Domain name details section:
   - DNSSEC: { line: field, type: dnssec }
   - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
 Billing contact section:
-  - Registry Billing ID: { line: field, type: token }
+  - Registry Billing ID: { line: field, type: roid }
   - Billing Name: { line: field, type: postal line }
   - Billing Organization: { quantifier: optional-free, line: field, type: postal line }
   - Billing Street: { quantifier: repeatable, line: field, type: postal line }

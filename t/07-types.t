@@ -3,7 +3,7 @@ use warnings;
 use 5.014;
 use utf8;
 
-use Test::More tests => 25;
+use Test::More tests => 26;
 use Test::Differences;
 
 # This is needed to get rid of wide character print warnings
@@ -305,7 +305,7 @@ subtest 'domain status code' => sub {
     }
 };
 
-subtest 'domain name object additional field key' => sub {
+subtest 'domain name object additional field key errors' => sub {
     my @ok = (
         'Internationalized Domain Name',
         'Registry Billing ID',
@@ -353,6 +353,58 @@ subtest 'domain name object additional field key' => sub {
     }
     for my $value ( @not_ok ) {
         reject_ok "Value $value", 'domain name object additional field key', $value;
+    }
+};
+
+subtest 'domain name object additional field key rejections' => sub {
+    my @acceptable = (
+        'Internationalized Domain Name',
+        'Billing Name',
+        'Billing Organization',
+        'Billing Street',
+        'Billing City',
+        'Billing State/Province',
+        'Billing Postal Code',
+        'Billing Country',
+        'Billing Phone',
+        'Billing Phone Ext',
+        'Billing Fax',
+        'Billing Fax Ext',
+        'Billing Email',
+        'Registry Domain ID',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Registration Expiration Date',
+        'Registrar',
+        'Registrar IANA ID',
+        'Reseller',
+        'Registry Registrant ID',
+        'Registry Admin ID',
+        'Registry Tech ID',
+        'Registry Billing ID',
+        'Domain ID',
+        'WHOIS Server',
+        'Referral URL',
+        'Sponsoring Registrar',
+        'Sponsoring Registrar IANA ID',
+        'Registrant ID',
+        'Admin ID',
+        'Tech ID',
+        'Billing ID',
+    );
+    my @rejectable = (
+        'URL of the ICANN Whois Inaccuracy Complaint Form',
+        'Registrar Abuse Contact Email',
+        'Registrar Abuse Contact Phone',
+    );
+
+    plan tests => scalar @acceptable + scalar @rejectable;
+
+    for my $field_key ( @acceptable ) {
+        ok $types->is_acceptable_key( 'domain name object additional field key', $field_key ), "Field key should be acceptable: $field_key";
+    }
+    for my $field_key ( @rejectable ) {
+        ok !$types->is_acceptable_key( 'domain name object additional field key', $field_key ), "Field key should be rejectable: $field_key";
     }
 };
 

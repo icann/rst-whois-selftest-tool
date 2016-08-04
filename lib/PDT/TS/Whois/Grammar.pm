@@ -230,6 +230,18 @@ Domain name details section:
   - Registrar Registration Expiration Date: { quantifier: optional-constrained, line: field, type: time stamp }
   - Registrar: { line: field, type: token }
   - Registrar IANA ID: { line: field, type: positive integer }
+  - Domain name details subsection 1: { }
+  - URL of the ICANN Whois Inaccuracy Complaint Form: { line: field, type: inaccuracy form url }
+Domain name details subsection 1:
+  Domain name details subsection 2: { }
+  Domain name details subsection 3: { }
+Domain name details subsection 2:
+  - Domain abuse contact section: { }
+  - Domain name details subsection 4: { }
+Domain name details subsection 3:
+  - Domain name details subsection 4: { }
+  - Domain abuse contact section: { }
+Domain name details subsection 4:
   - Reseller: { quantifier: optional-constrained, line: field, type: token }
   - Domain Status: { quantifier: repeatable, line: field, type: domain status }
   - Domain registrant contact section: { }
@@ -239,7 +251,6 @@ Domain name details section:
   - Name server section: { }
   - DNSSEC: { line: field, type: dnssec }
   - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
-  - URL of the ICANN Whois Inaccuracy Complaint Form: { line: field, type: inaccuracy form url }
 Domain registrant contact section:
   - Registry Registrant ID: { line: field, type: roid }
   - Registrant Name: { line: field, type: postal line }
@@ -296,6 +307,9 @@ Domain billing contact section:
   - Billing Fax: { quantifier: optional-free, line: field, type: phone number }
   - Billing Fax Ext: { quantifier: optional-free, line: field, type: token }
   - Billing Email: { line: field, type: email address }
+Domain abuse contact section:
+  - Registrar Abuse Contact Email: { line: field, type: email address }
+  - Registrar Abuse Contact Phone: { line: field, type: phone number }
 Name server section:
   Name server section type A: { quantifier: repeatable }
   Name server section type B: { quantifier: repeatable }

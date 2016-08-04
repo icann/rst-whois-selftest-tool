@@ -29,6 +29,8 @@ Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
 Registrar: EXAMPLE REGISTRAR LLC
 Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited

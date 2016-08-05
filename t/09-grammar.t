@@ -166,8 +166,10 @@ Registrar URL: http://www.example.tld
 Updated Date:
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
+Registrar Registration Expiration Date:
 Registrar: EXAMPLE REGISTRAR LLC
 Registrar IANA ID: 5555555
+Reseller:
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
@@ -224,8 +226,10 @@ Registrar URL: http://www.example.tld
 Updated Date:
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
+Registrar Registration Expiration Date:
 Registrar: EXAMPLE REGISTRAR LLC
 Registrar IANA ID: 5555555
+Reseller:
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited

@@ -227,8 +227,10 @@ Domain name details section:
   - Updated Date: { quantifier: optional-constrained, line: field, type: time stamp }
   - Creation Date: { line: field, type: time stamp }
   - Registry Expiry Date: { line: field, type: time stamp }
+  - Registrar Registration Expiration Date: { quantifier: optional-constrained, line: field, type: time stamp }
   - Registrar: { line: field, type: token }
   - Registrar IANA ID: { line: field, type: positive integer }
+  - Reseller: { quantifier: optional-constrained, line: field, type: token }
   - Domain Status: { quantifier: repeatable, line: field, type: domain status }
   - Registry Registrant ID: { line: field, type: roid }
   - Registrant Name: { line: field, type: postal line }

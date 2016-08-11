@@ -62,6 +62,7 @@ Tech Phone: +1.1235551234
 Tech Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_minimal_level_2_ok = <<EOF;
@@ -106,6 +107,7 @@ Billing Phone: +1.1235551234
 Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_free_ok = <<EOF;
@@ -156,6 +158,7 @@ Billing Fax Ext:
 Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_empty_level_1_ok = <<EOF;
@@ -215,6 +218,7 @@ Tech Fax Ext:
 Tech Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_empty_level_2_ok = <<EOF;
@@ -283,6 +287,7 @@ Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
 Additional field:
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_nameserver_minimal_ok = <<EOF;
@@ -319,6 +324,7 @@ Tech Country: EX
 Tech Phone: +1.1235551234
 Tech Email: EMAIL\@EXAMPLE.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_repeated_ok = <<EOF;
@@ -375,6 +381,7 @@ Billing Phone: +1.1235551234
 Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_nameserver_repeated_ok = <<EOF;
@@ -426,6 +433,7 @@ Name Server: NS02.EXAMPLEREGISTRAR.TLD
 IP Address: 192.0.4.123
 IP Address: 192.0.5.123
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $technical_minimal_level_1_ok = <<EOF;

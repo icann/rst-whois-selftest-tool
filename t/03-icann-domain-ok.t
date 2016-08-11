@@ -75,6 +75,7 @@ Tech Email: EMAIL@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 Name Server: NS02.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 
 
 

@@ -172,6 +172,12 @@ Readonly my %NAME_SERVER_ADDITIONAL_FIELD_KEY_BLACKLIST => (
     'Referral URL'           => 1,
 );
 
+Readonly my %REJECTED_KEYS => (
+    'domain name object additional field key' => {
+        'URL of the ICANN Whois Inaccuracy Complaint Form' => 1,
+    },
+);
+
 my $ROID_SUFFIX = {};
 my %default_types;
 
@@ -641,6 +647,30 @@ sub validate_type {
     my $value     = shift;
     croak "$type_name: unknown type" unless exists $self->{_types}{$type_name};
     return $self->{_types}{$type_name}->( $value );
+}
+
+=head2 is_acceptable_key( $key_type, $field_key )
+
+Checks whether a B<$field_key> is acceptable for a given B<$key_type>.
+
+A rule with the given B<$key_type> should accept or reject field lines with the
+given B<$field_key> based on the return value of this method.
+
+    if ( $types->is_acceptable_key( 'domain name object additional field key', 'URL of the ICANN Whois Inaccuracy Complaint Form' ) ) {
+
+        # input line should be accepted
+    }
+    else {
+        # input line should be rejected
+    }
+
+=cut
+
+sub is_acceptable_key {
+    my $self    = shift;
+    my $keytype = shift;
+    my $key     = shift;
+    return !( exists $REJECTED_KEYS{$keytype} && exists $REJECTED_KEYS{$keytype}{$key} );
 }
 
 =head2 load_roid_suffix

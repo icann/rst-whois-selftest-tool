@@ -232,6 +232,15 @@ Domain name details section:
   - Registrar IANA ID: { line: field, type: positive integer }
   - Reseller: { quantifier: optional-constrained, line: field, type: token }
   - Domain Status: { quantifier: repeatable, line: field, type: domain status }
+  - Domain registrant contact section: { }
+  - Domain admin contact section: { }
+  - Domain tech contact section: { }
+  - Domain billing contact section: { quantifier: optional-free }
+  - Name server section: { }
+  - DNSSEC: { line: field, type: dnssec }
+  - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
+  - URL of the ICANN Whois Inaccuracy Complaint Form: { line: field, type: inaccuracy form url }
+Domain registrant contact section:
   - Registry Registrant ID: { line: field, type: roid }
   - Registrant Name: { line: field, type: postal line }
   - Registrant Organization: { quantifier: optional-constrained, line: field, type: postal line }
@@ -245,6 +254,7 @@ Domain name details section:
   - Registrant Fax: { quantifier: optional-constrained, line: field, type: phone number }
   - Registrant Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Registrant Email: { line: field, type: email address }
+Domain admin contact section:
   - Registry Admin ID: { line: field, type: roid }
   - Admin Name: { line: field, type: postal line }
   - Admin Organization: { quantifier: optional-constrained, line: field, type: postal line }
@@ -258,6 +268,7 @@ Domain name details section:
   - Admin Fax: { quantifier: optional-constrained, line: field, type: phone number }
   - Admin Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Admin Email: { line: field, type: email address }
+Domain tech contact section:
   - Registry Tech ID: { line: field, type: roid }
   - Tech Name: { line: field, type: postal line }
   - Tech Organization: { quantifier: optional-constrained, line: field, type: postal line }
@@ -271,11 +282,7 @@ Domain name details section:
   - Tech Fax: { quantifier: optional-constrained, line: field, type: phone number }
   - Tech Fax Ext: { quantifier: optional-constrained, line: field, type: token }
   - Tech Email: { line: field, type: email address }
-  - Billing contact section: { quantifier: optional-free }
-  - Name server section: { }
-  - DNSSEC: { line: field, type: dnssec }
-  - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
-Billing contact section:
+Domain billing contact section:
   - Registry Billing ID: { line: field, type: roid }
   - Billing Name: { line: field, type: postal line }
   - Billing Organization: { quantifier: optional-free, line: field, type: postal line }

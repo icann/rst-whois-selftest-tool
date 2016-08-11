@@ -80,6 +80,7 @@ IP Address: 192.0.2.1
 IP Address: 192.0.2.2
 Name Server: NS02.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 accept_domain 'Should accept valid name server section type A with omitted fields' => <<EOF;
@@ -117,6 +118,7 @@ IP Address: 192.0.2.1
 IP Address: 192.0.2.2
 Name Server: NS02.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 accept_domain 'Should accept valid name server section type B with empty fields' => <<EOF;
@@ -173,6 +175,7 @@ Tech Fax Ext:
 Tech Email: EMAIL\@EXAMPLE.TLD
 Name Server:
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 accept_domain 'Should accept valid name server section type C with omitted fields' => <<EOF;
@@ -209,4 +212,5 @@ Name Server: NS01.EXAMPLEREGISTRAR.TLD
 IP Address: 192.0.2.1
 IP Address: 192.0.2.2
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF

@@ -37,7 +37,13 @@ sub reject_ok {
         plan tests => 1;
 
         my @errors = $types->validate_type( $type_name, $input );
-        like $errors[0], $error_regex, 'Type '.$type_name.' should reject "'.(defined $input ? $input : '<undef>').'" with complaint about type mismatch';
+
+        if ( scalar @errors == 0 ) {
+            fail 'Type ' . $type_name . ' should reject "' . ( defined $input ? $input : '<undef>' ) . '"';
+        }
+        else {
+            like $errors[0], $error_regex, 'Type ' . $type_name . ' should reject "' . ( defined $input ? $input : '<undef>' ) . '" with complaint about type mismatch';
+        }
     };
 }
 

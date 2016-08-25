@@ -95,14 +95,71 @@ subtest 'hostname' => sub {
 };
 
 subtest 'time stamp' => sub {
-    plan tests => 5;
+    plan tests => 37;
 
     reject_ok 'undef' => 'time stamp';
     reject_ok 'empty' => 'time stamp', '';
 
+    # Time zone Z
+    accept_ok '1937-01-01T12:00:27.87Z'      => 'time stamp', '1937-01-01T12:00:27.87Z';
+    reject_ok '1937-01-01T12:00:27.87+00:00' => 'time stamp', '1937-01-01T12:00:27.87+00:00';
+
+    # Upper case Z
     accept_ok '1985-04-12T23:20:50.52Z' => 'time stamp', '1985-04-12T23:20:50.52Z';
-    reject_ok '1999-01-01 23:30:30' => 'time stamp', '1999-01-01 23:30:30';
-    reject_ok '1937-01-01T12:00:27.87+00:20' => 'time stamp', '1937-01-01T12:00:27.87+00:20';
+    reject_ok '1985-04-12T23:20:50.52z' => 'time stamp', '1985-04-12T23:20:50.52z';
+
+    # Upper case T
+    accept_ok '1999-01-01T23:30:30Z' => 'time stamp', '1999-01-01T23:30:30Z';
+    reject_ok '1999-01-01t23:30:30Z' => 'time stamp', '1999-01-01t23:30:30Z';
+    reject_ok '1999-01-01 23:30:30Z' => 'time stamp', '1999-01-01 23:30:30Z';
+
+    # Months of year
+    accept_ok '2016-12-01T00:00:00Z' => 'time stamp', '2016-12-01T00:00:00Z';
+    reject_ok '2016-00-01T00:00:00Z' => 'time stamp', '2016-00-01T00:00:00Z';
+    reject_ok '2016-13-01T00:00:00Z' => 'time stamp', '2016-13-01T00:00:00Z';
+
+    # Days of month
+    accept_ok '2015-01-31T00:00:00Z' => 'time stamp', '2015-01-31T00:00:00Z';
+    reject_ok '2015-01-32T00:00:00Z' => 'time stamp', '2015-01-32T00:00:00Z';
+
+    accept_ok '2015-02-28T00:00:00Z' => 'time stamp', '2015-02-28T00:00:00Z';
+    reject_ok '2015-02-29T00:00:00Z' => 'time stamp', '2015-02-29T00:00:00Z';
+
+    accept_ok '2015-03-31T00:00:00Z' => 'time stamp', '2015-03-31T00:00:00Z';
+    reject_ok '2015-03-32T00:00:00Z' => 'time stamp', '2015-03-32T00:00:00Z';
+
+    accept_ok '2015-04-30T00:00:00Z' => 'time stamp', '2015-04-30T00:00:00Z';
+    reject_ok '2015-04-31T00:00:00Z' => 'time stamp', '2015-04-31T00:00:00Z';
+
+    # Leap days
+    accept_ok '2016-02-29T00:00:00Z' => 'time stamp', '2016-02-29T00:00:00Z';
+    reject_ok '2015-02-29T00:00:00Z' => 'time stamp', '2015-02-29T00:00:00Z';
+    reject_ok '2000-02-29T00:00:00Z' => 'time stamp', '2000-02-29T00:00:00Z';
+
+    # Hours of day
+    accept_ok '2015-01-01T23:00:00Z' => 'time stamp', '2016-01-01T23:00:00Z';
+    reject_ok '2015-01-01T24:00:00Z' => 'time stamp', '2016-01-01T24:00:00Z';
+
+    # Minutes of hour
+    accept_ok '2015-01-01T00:59:00Z' => 'time stamp', '2016-01-01T00:59:00Z';
+    reject_ok '2015-01-01T00:60:00Z' => 'time stamp', '2016-01-01T00:60:00Z';
+
+    # Seconds of minute
+    accept_ok '2016-01-01T00:00:59Z' => 'time stamp', '2016-01-01T00:00:59Z';
+    reject_ok '2016-01-01T00:00:60Z' => 'time stamp', '2016-01-01T00:00:60Z';
+
+    # Allow positive leap seconds during first and second preference months
+    accept_ok '2016-03-31T23:59:60Z' => 'time stamp', '2016-03-31T23:59:60Z';
+    reject_ok '2016-03-31T23:59:61Z' => 'time stamp', '2016-03-31T23:59:61Z';
+
+    accept_ok '2016-06-30T23:59:60Z' => 'time stamp', '2016-06-30T23:59:60Z';
+    reject_ok '2016-06-30T23:59:61Z' => 'time stamp', '2016-06-30T23:59:61Z';
+
+    accept_ok '2016-09-30T23:59:60Z' => 'time stamp', '2016-09-30T23:59:60Z';
+    reject_ok '2016-09-30T23:59:61Z' => 'time stamp', '2016-09-30T23:59:61Z';
+
+    accept_ok '2016-12-31T23:59:60Z' => 'time stamp', '2016-12-31T23:59:60Z';
+    reject_ok '2016-12-31T23:59:61Z' => 'time stamp', '2016-12-31T23:59:61Z';
 };
 
 subtest 'u-label' => sub {

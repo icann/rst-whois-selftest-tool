@@ -373,11 +373,48 @@ my %default_types;
             return ( 'expected time stamp' );
         }
 
-        #
-        # Regex taken from https://mxr.mozilla.org/comm-central/source/calendar/base/modules/calProviderUtils.jsm#316
-        # Modified to remove extraction of values and timezone offset at the end
-        #
-        if ( $value !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[Tt][0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?)?[Zz]?$/o ) {
+        if ( $value =~ /^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:\.[0-9]+)?Z$/o ) {
+            my ( $year, $month, $day, $hour, $minute, $second ) = ( $1, $2, $3, $4, $5, $6 );
+            if ( $month < 1 || $day < 1 || $hour > 23 || $minute > 59 ) {
+                return ( 'expected valid date in time stamp' );
+            }
+
+            my $last_day;
+            if ( $month =~ /01|03|05|07|08|10|12/ ) {
+                $last_day = 31;
+            }
+            elsif ( $month =~ /04|06|09|11/ ) {
+                $last_day = 30;
+            }
+            elsif ( $month eq '02' ) {
+                if ( $year % 4 == 0 && $year % 400 != 0 ) {
+                    $last_day = 29;
+                }
+                else {
+                    $last_day = 28;
+                }
+            }
+            else {
+                return ( 'expected valid date in time stamp' );
+            }
+
+            if ( $day > $last_day ) {
+                return ( 'expected valid date in time stamp' );
+            }
+
+            my $last_second;
+            if ( $day == $last_day && $hour == 23 && $minute == 59 ) {
+                $last_second = 60;
+            }
+            else {
+                $last_second = 59;
+            }
+
+            if ( $second > $last_second ) {
+                return ( 'expected valid date in time stamp' );
+            }
+        }
+        else {
             return ( 'expected time stamp' );
         }
 

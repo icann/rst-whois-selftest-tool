@@ -34,7 +34,7 @@ sub reject_registrar {
 }
 
 accept_registrar 'Fax number section type A, empty' => <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -45,12 +45,12 @@ Fax Number: +1.3105551213
 Fax Ext:
 Fax Number: +1.3105551214
 Email: registrar\@example.tld
-WHOIS Server:
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server:
+Registrar URL: http://www.example-registrar.tld
 EOF
 
 accept_registrar 'Fax number section type A, omitted' => <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -60,11 +60,11 @@ Fax Number: +1.3105551213
 Fax Ext:
 Fax Number: +1.3105551214
 Email: registrar\@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 EOF
 
 accept_registrar 'Fax number section type B, non-empty field' => <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -74,12 +74,12 @@ Phone Number: +1.3105551212
 Fax Number:
 Fax Ext: 567
 Email: registrar\@example.tld
-WHOIS Server:
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server:
+Registrar URL: http://www.example-registrar.tld
 EOF
 
 accept_registrar 'Fax number section type B, empty field' => <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -89,12 +89,12 @@ Phone Number: +1.3105551212
 Fax Number:
 Fax Ext:
 Email: registrar\@example.tld
-WHOIS Server:
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server:
+Registrar URL: http://www.example-registrar.tld
 EOF
 
 accept_registrar 'Fax number section type B, omitted field' => <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -103,23 +103,23 @@ Country: US
 Phone Number: +1.3105551212
 Fax Number:
 Email: registrar\@example.tld
-WHOIS Server:
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server:
+Registrar URL: http://www.example-registrar.tld
 EOF
 
 accept_registrar 'Fax number section type C' => <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
 Country: US
 Phone Number: +1.3105551212
 Email: registrar\@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 EOF
 
 reject_registrar 'Empty fields but omitted Fax Number' => <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province:
@@ -129,8 +129,8 @@ Phone Number: +1.3105551212
 Fax Number: +1.3105551213
 Fax Ext:
 Email: registrar\@example.tld
-WHOIS Server:
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server:
+Registrar URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551214
 Email: joeregistrar\@example-registrar.tld

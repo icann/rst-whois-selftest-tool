@@ -48,6 +48,7 @@ The default types are:
  * registrar object additional field key
  * name server object additional field key
  * void
+ * inaccuracy form url
 
 =cut
 
@@ -78,82 +79,105 @@ Readonly my %DOMAIN_STATUS_CODES => (
 );
 
 Readonly my %DOMAIN_NAME_ADDITIONAL_FIELD_KEY_BLACKLIST => (
-    'Domain Name'                  => 1,
-    'Domain ID'                    => 1,
-    'WHOIS Server'                 => 1,
-    'Referral URL'                 => 1,
-    'Updated Date'                 => 1,
-    'Creation Date'                => 1,
-    'Registry Expiry Date'         => 1,
-    'Sponsoring Registrar'         => 1,
-    'Sponsoring Registrar IANA ID' => 1,
-    'Domain Status'                => 1,
-    'Registrant ID'                => 1,
-    'Registrant Name'              => 1,
-    'Registrant Organization'      => 1,
-    'Registrant Street'            => 1,
-    'Registrant City'              => 1,
-    'Registrant State/Province'    => 1,
-    'Registrant Postal Code'       => 1,
-    'Registrant Country'           => 1,
-    'Registrant Phone'             => 1,
-    'Registrant Phone Ext'         => 1,
-    'Registrant Fax'               => 1,
-    'Registrant Fax Ext'           => 1,
-    'Registrant Email'             => 1,
-    'Admin ID'                     => 1,
-    'Admin Name'                   => 1,
-    'Admin Organization'           => 1,
-    'Admin Street'                 => 1,
-    'Admin City'                   => 1,
-    'Admin State/Province'         => 1,
-    'Admin Postal Code'            => 1,
-    'Admin Country'                => 1,
-    'Admin Phone'                  => 1,
-    'Admin Phone Ext'              => 1,
-    'Admin Fax'                    => 1,
-    'Admin Fax Ext'                => 1,
-    'Admin Email'                  => 1,
-    'Tech ID'                      => 1,
-    'Tech Name'                    => 1,
-    'Tech Organization'            => 1,
-    'Tech Street'                  => 1,
-    'Tech City'                    => 1,
-    'Tech State/Province'          => 1,
-    'Tech Postal Code'             => 1,
-    'Tech Country'                 => 1,
-    'Tech Phone'                   => 1,
-    'Tech Phone Ext'               => 1,
-    'Tech Fax'                     => 1,
-    'Tech Fax Ext'                 => 1,
-    'Tech Email'                   => 1,
-    'DNSSEC'                       => 1,
-    'Name Server'                  => 1,
-    'IP Address'                   => 1,
+    'Domain Name'                            => 1,
+    'Registry Domain ID'                     => 1,
+    'Registrar WHOIS Server'                 => 1,
+    'Registrar URL'                          => 1,
+    'Updated Date'                           => 1,
+    'Creation Date'                          => 1,
+    'Registry Expiry Date'                   => 1,
+    'Registrar Registration Expiration Date' => 1,
+    'Registrar'                              => 1,
+    'Registrar IANA ID'                      => 1,
+    'Reseller'                               => 1,
+    'Domain Status'                          => 1,
+    'Registry Registrant ID'                 => 1,
+    'Registrant Name'                        => 1,
+    'Registrant Organization'                => 1,
+    'Registrant Street'                      => 1,
+    'Registrant City'                        => 1,
+    'Registrant State/Province'              => 1,
+    'Registrant Postal Code'                 => 1,
+    'Registrant Country'                     => 1,
+    'Registrant Phone'                       => 1,
+    'Registrant Phone Ext'                   => 1,
+    'Registrant Fax'                         => 1,
+    'Registrant Fax Ext'                     => 1,
+    'Registrant Email'                       => 1,
+    'Registry Admin ID'                      => 1,
+    'Admin Name'                             => 1,
+    'Admin Organization'                     => 1,
+    'Admin Street'                           => 1,
+    'Admin City'                             => 1,
+    'Admin State/Province'                   => 1,
+    'Admin Postal Code'                      => 1,
+    'Admin Country'                          => 1,
+    'Admin Phone'                            => 1,
+    'Admin Phone Ext'                        => 1,
+    'Admin Fax'                              => 1,
+    'Admin Fax Ext'                          => 1,
+    'Admin Email'                            => 1,
+    'Registry Tech ID'                       => 1,
+    'Tech Name'                              => 1,
+    'Tech Organization'                      => 1,
+    'Tech Street'                            => 1,
+    'Tech City'                              => 1,
+    'Tech State/Province'                    => 1,
+    'Tech Postal Code'                       => 1,
+    'Tech Country'                           => 1,
+    'Tech Phone'                             => 1,
+    'Tech Phone Ext'                         => 1,
+    'Tech Fax'                               => 1,
+    'Tech Fax Ext'                           => 1,
+    'Tech Email'                             => 1,
+    'Name Server'                            => 1,
+    'IP Address'                             => 1,
+    'DNSSEC'                                 => 1,
+    'Domain ID'                              => 1,
+    'WHOIS Server'                           => 1,
+    'Referral URL'                           => 1,
+    'Sponsoring Registrar'                   => 1,
+    'Sponsoring Registrar IANA ID'           => 1,
+    'Registrant ID'                          => 1,
+    'Admin ID'                               => 1,
+    'Tech ID'                                => 1,
 );
 
 Readonly my %REGISTRAR_ADDITIONAL_FIELD_KEY_BLACKLIST => (
-    'Registrar Name'    => 1,
-    'Street'            => 1,
-    'City'              => 1,
-    'State/Province'    => 1,
-    'Postal Code'       => 1,
-    'Country'           => 1,
-    'Phone Number'      => 1,
-    'Email'             => 1,
-    'WHOIS Server'      => 1,
-    'Referral URL'      => 1,
-    'Admin Contact'     => 1,
-    'Technical Contact' => 1,
-    'Fax Number'        => 1,
+    'Registrar'              => 1,
+    'Street'                 => 1,
+    'City'                   => 1,
+    'State/Province'         => 1,
+    'Postal Code'            => 1,
+    'Country'                => 1,
+    'Phone Number'           => 1,
+    'Email'                  => 1,
+    'Registrar WHOIS Server' => 1,
+    'Registrar URL'          => 1,
+    'Admin Contact'          => 1,
+    'Technical Contact'      => 1,
+    'Fax Number'             => 1,
+    'Registrar Name'         => 1,
+    'WHOIS Server'           => 1,
+    'Referral URL'           => 1,
 );
 
 Readonly my %NAME_SERVER_ADDITIONAL_FIELD_KEY_BLACKLIST => (
-    'Server Name'  => 1,
-    'IP Address'   => 1,
-    'Registrar'    => 1,
-    'WHOIS Server' => 1,
-    'Referral URL' => 1,
+    'Server Name'            => 1,
+    'IP Address'             => 1,
+    'Registrar'              => 1,
+    'Registrar WHOIS Server' => 1,
+    'Registrar URL'          => 1,
+    'WHOIS Server'           => 1,
+    'Referral URL'           => 1,
+);
+
+Readonly my %REJECTED_KEYS => (
+    'domain name object additional field key' => {
+        'URL of the ICANN Whois Inaccuracy Complaint Form' => 1,
+        'Registrar Abuse Contact Email' => 1,
+        'Registrar Abuse Contact Phone' => 1,
+    },
 );
 
 my $ROID_SUFFIX = {};
@@ -379,7 +403,7 @@ my %default_types;
             return ( 'expected domain status' );
         }
 
-        if ( $value =~ /^([^ ]+) {1,9}https:\/\/icann\.org\/epp#(.+)$/o ) {
+        if ( $value =~ qr{^([^ ]+) {1,9}https://icann\.org/epp\#(.+)$} ) {
             if ( exists $DOMAIN_STATUS_CODES{$1} ) {
                 if ( $1 eq $2 ) {
                     return ();
@@ -532,6 +556,15 @@ my %default_types;
     'void' => sub {
         return ( 'no values are allowed for type void' );
     },
+    'inaccuracy form url' => sub {
+        my $value = shift;
+
+        unless ( defined $value && $value eq 'https://www.icann.org/wicf/' ) {
+            return ( 'expected inaccuracy form url' );
+        }
+
+        return ();
+    },
 );
 
 =head1 CONSTRUCTORS
@@ -616,6 +649,30 @@ sub validate_type {
     my $value     = shift;
     croak "$type_name: unknown type" unless exists $self->{_types}{$type_name};
     return $self->{_types}{$type_name}->( $value );
+}
+
+=head2 is_acceptable_key( $key_type, $field_key )
+
+Checks whether a B<$field_key> is acceptable for a given B<$key_type>.
+
+A rule with the given B<$key_type> should accept or reject field lines with the
+given B<$field_key> based on the return value of this method.
+
+    if ( $types->is_acceptable_key( 'domain name object additional field key', 'URL of the ICANN Whois Inaccuracy Complaint Form' ) ) {
+
+        # input line should be accepted
+    }
+    else {
+        # input line should be rejected
+    }
+
+=cut
+
+sub is_acceptable_key {
+    my $self    = shift;
+    my $keytype = shift;
+    my $key     = shift;
+    return !( exists $REJECTED_KEYS{$keytype} && exists $REJECTED_KEYS{$keytype}{$key} );
 }
 
 =head2 load_roid_suffix

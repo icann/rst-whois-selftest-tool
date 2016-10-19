@@ -19,7 +19,7 @@ my @errors = validate(rule => 'Registrar Object query', lexer => $lexer, grammar
 eq_or_diff \@errors, [], 'Should accept valid registrar reply';
 
 __DATA__
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -28,8 +28,8 @@ Country: US
 Phone Number: +1.3105551212
 Fax Number: +1.3105551213
 Email: registrar@example.tld
-WHOIS Server: whois.example-registrar.tld
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server: whois.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551213
 Fax Number: +1.3105551213
@@ -43,7 +43,7 @@ Phone Number: +1.3105551215
 Fax Number: +1.3105551216
 Email: johngeek@example-registrar.tld
 
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -51,9 +51,9 @@ Country: US
 Phone Number: +1.3105551212
 Phone Number: +1.3105551215
 Email: registrar@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province: CA
@@ -61,7 +61,7 @@ Country: US
 Phone Number: +1.3105551212
 Email: registrar1@example.tld
 Email: registrar2@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 
 >>> Last update of WHOIS database: 2009-05-29T20:15:00Z <<<
 

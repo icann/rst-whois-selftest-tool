@@ -119,6 +119,12 @@ $types->mock('validate_type', sub {
     my $value = shift;
     return $type_subs{$type_name}($value);
 });
+$types->mock('is_acceptable_key', sub {
+    my $self = shift;
+    my $keytype = shift;
+    my $key = shift;
+    return defined $keytype && !(defined $key && $key eq 'REJECT!');
+});
 
 
 sub make_mock_lexer {

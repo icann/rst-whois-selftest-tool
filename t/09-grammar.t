@@ -16,8 +16,8 @@ EOF
 my $nameserver_details_empty_ok = <<EOF;
 Server Name: NS1.EXAMPLE.TLD
 Registrar:
-WHOIS Server:
-Referral URL:
+Registrar WHOIS Server:
+Registrar URL:
 Additional field:
 EOF
 
@@ -29,31 +29,33 @@ EOF
 
 my $domain_details_minimal_level_1_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123 EXAMPLE STREET
 Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123 EXAMPLE STREET
 Tech City: ANYTOWN
@@ -62,42 +64,45 @@ Tech Phone: +1.1235551234
 Tech Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_minimal_level_2_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123 EXAMPLE STREET
 Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123 EXAMPLE STREET
 Tech City: ANYTOWN
 Tech Country: EX
 Tech Phone: +1.1235551234
 Tech Email: EMAIL\@EXAMPLE.TLD
-Billing ID: 5372811-IIS
+Registry Billing ID: 5372811-IIS
 Billing Name: EXAMPLE REGISTRAR BILLING
 Billing Street: 123 EXAMPLE STREET
 Billing City: ANYTOWN
@@ -106,42 +111,45 @@ Billing Phone: +1.1235551234
 Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_free_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123 EXAMPLE STREET
 Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123 EXAMPLE STREET
 Tech City: ANYTOWN
 Tech Country: EX
 Tech Phone: +1.1235551234
 Tech Email: EMAIL\@EXAMPLE.TLD
-Billing ID: 5372811-IIS
+Registry Billing ID: 5372811-IIS
 Billing Name: EXAMPLE REGISTRAR BILLING
 Billing Organization:
 Billing Street: 123 EXAMPLE STREET
@@ -156,23 +164,28 @@ Billing Fax Ext:
 Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_empty_level_1_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-WHOIS Server:
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar WHOIS Server:
+Registrar URL: http://www.example.tld
 Updated Date:
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar Registration Expiration Date:
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
+Reseller:
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Organization:
 Registrant Street: 123 EXAMPLE STREET
@@ -185,7 +198,7 @@ Registrant Phone Ext:
 Registrant Fax:
 Registrant Fax Ext:
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Organization:
 Admin Street: 123 EXAMPLE STREET
@@ -198,7 +211,7 @@ Admin Phone Ext:
 Admin Fax:
 Admin Fax Ext:
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Organization:
 Tech Street: 123 EXAMPLE STREET
@@ -213,24 +226,29 @@ Tech Fax Ext:
 Tech Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_empty_level_2_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
 Internationalized Domain Name:
-Domain ID: D1234567-IIS
-WHOIS Server:
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar WHOIS Server:
+Registrar URL: http://www.example.tld
 Updated Date:
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar Registration Expiration Date:
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
+Reseller:
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Organization:
 Registrant Street: 123 EXAMPLE STREET
@@ -243,7 +261,7 @@ Registrant Phone Ext:
 Registrant Fax:
 Registrant Fax Ext:
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Organization:
 Admin Street: 123 EXAMPLE STREET
@@ -256,7 +274,7 @@ Admin Phone Ext:
 Admin Fax:
 Admin Fax Ext:
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Organization:
 Tech Street: 123 EXAMPLE STREET
@@ -269,7 +287,7 @@ Tech Phone Ext:
 Tech Fax:
 Tech Fax Ext:
 Tech Email: EMAIL\@EXAMPLE.TLD
-Billing ID: 5372811-IIS
+Registry Billing ID: 5372811-IIS
 Billing Name: EXAMPLE REGISTRAR BILLING
 Billing Street: 123 EXAMPLE STREET
 Billing City: ANYTOWN
@@ -279,35 +297,38 @@ Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
 Additional field:
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_nameserver_minimal_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123 EXAMPLE STREET
 Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123 EXAMPLE STREET
 Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123 EXAMPLE STREET
 Tech City: ANYTOWN
@@ -315,21 +336,22 @@ Tech Country: EX
 Tech Phone: +1.1235551234
 Tech Email: EMAIL\@EXAMPLE.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_repeated_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123
 Registrant Street: EXAMPLE
@@ -339,7 +361,7 @@ Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123
 Admin Street: EXAMPLE
@@ -349,7 +371,7 @@ Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123
 Tech Street: EXAMPLE
@@ -359,7 +381,7 @@ Tech City: ANYTOWN
 Tech Country: EX
 Tech Phone: +1.1235551234
 Tech Email: EMAIL\@EXAMPLE.TLD
-Billing ID: 5372811-IIS
+Registry Billing ID: 5372811-IIS
 Billing Name: EXAMPLE REGISTRAR BILLING
 Billing Street: 123
 Billing Street: EXAMPLE
@@ -371,21 +393,24 @@ Billing Phone: +1.1235551234
 Billing Email: EMAIL\@EXAMPLE.TLD
 Name Server: NS01.EXAMPLEREGISTRAR.TLD
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $domain_details_nameserver_repeated_ok = <<EOF;
 Domain Name: EXAMPLE.TLD
-Domain ID: D1234567-IIS
-Referral URL: http://www.example.tld
+Registry Domain ID: D1234567-IIS
+Registrar URL: http://www.example.tld
 Creation Date: 2000-10-08T00:45:00Z
 Registry Expiry Date: 2010-10-08T00:44:59Z
-Sponsoring Registrar: EXAMPLE REGISTRAR LLC
-Sponsoring Registrar IANA ID: 5555555
+Registrar: EXAMPLE REGISTRAR LLC
+Registrar IANA ID: 5555555
+Registrar Abuse Contact Email: EMAIL\@EXAMPLE.TLD
+Registrar Abuse Contact Phone: +1.5555551212
 Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
 Domain Status: clientRenewProhibited https://icann.org/epp#clientRenewProhibited
 Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
 Domain Status: serverUpdateProhibited https://icann.org/epp#serverUpdateProhibited
-Registrant ID: abc123
+Registry Registrant ID: abc123-IIS
 Registrant Name: EXAMPLE REGISTRANT
 Registrant Street: 123
 Registrant Street: EXAMPLE
@@ -395,7 +420,7 @@ Registrant City: ANYTOWN
 Registrant Country: EX
 Registrant Phone: +1.5555551212
 Registrant Email: EMAIL\@EXAMPLE.TLD
-Admin ID: 5372809-IIS
+Registry Admin ID: 5372809-IIS
 Admin Name: EXAMPLE REGISTRANT ADMINISTRATIVE
 Admin Street: 123
 Admin Street: EXAMPLE
@@ -405,7 +430,7 @@ Admin City: ANYTOWN
 Admin Country: EX
 Admin Phone: +1.5555551212
 Admin Email: EMAIL\@EXAMPLE.TLD
-Tech ID: 5372811-IIS
+Registry Tech ID: 5372811-IIS
 Tech Name: EXAMPLE REGISTRAR TECHNICAL
 Tech Street: 123
 Tech Street: EXAMPLE
@@ -422,6 +447,7 @@ Name Server: NS02.EXAMPLEREGISTRAR.TLD
 IP Address: 192.0.4.123
 IP Address: 192.0.5.123
 DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
 EOF
 
 my $technical_minimal_level_1_ok = <<EOF;
@@ -489,23 +515,23 @@ Email: EMAIL2\@EXAMPLE.TLD
 EOF
 
 my $registrar_details_minimal_level_1_ok = <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 Country: US
 Phone Number: +1.3105551212
 Email: registrar\@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 EOF
 
 my $registrar_details_minimal_level_2_ok = <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 Country: US
 Phone Number: +1.3105551212
 Email: registrar\@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551213
 Email: joeregistrar\@example-registrar.tld
@@ -515,14 +541,14 @@ Email: johngeek\@example-registrar.tld
 EOF
 
 my $registrar_details_free_ok = <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 Country: US
 Phone Number: +1.3105551212
 Phone Ext:
 Email: registrar\@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551212
 Phone Ext:
@@ -538,7 +564,7 @@ Email: johngeek\@example-registrar.tld
 EOF
 
 my $registrar_details_empty_level_1_ok = <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province:
@@ -548,8 +574,8 @@ Phone Number: +1.3105551212
 Fax Number: +1.3105551213
 Fax Ext:
 Email: registrar\@example.tld
-WHOIS Server:
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server:
+Registrar URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551214
 Fax Number:
@@ -562,7 +588,7 @@ Additional field:
 EOF
 
 my $registrar_details_empty_level_2_ok = <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234 Admiralty Way
 City: Marina del Rey
 State/Province:
@@ -571,8 +597,8 @@ Country: US
 Phone Number: +1.3105551212
 Fax Number: +1.3105551213
 Email: registrar\@example.tld
-WHOIS Server:
-Referral URL: http://www.example-registrar.tld
+Registrar WHOIS Server:
+Registrar URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551214
 Fax Number: +1.3105551215
@@ -585,7 +611,7 @@ Additional field:
 EOF
 
 my $registrar_details_repeated_ok = <<EOF;
-Registrar Name: Example Registrar, Inc.
+Registrar: Example Registrar, Inc.
 Street: 1234
 Street: Admiralty
 Street: Way
@@ -594,7 +620,7 @@ City: Marina del Rey
 Country: US
 Phone Number: +1.3105551212
 Email: registrar\@example.tld
-Referral URL: http://www.example-registrar.tld
+Registrar URL: http://www.example-registrar.tld
 Admin Contact: Joe Registrar
 Phone Number: +1.3105551213
 Email: joeregistrar\@example-registrar.tld

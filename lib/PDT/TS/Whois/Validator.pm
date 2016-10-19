@@ -485,6 +485,10 @@ sub _line {
         ref $translations eq 'ARRAY' or confess;
 
         if ( $keytype ) {
+            if ( !_is_acceptable_key( $state, keytype => $keytype, key => $key, )) {
+                return;
+            }
+
             push @$errors, _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
         }
 
@@ -535,6 +539,15 @@ sub _set_empty_kind {
     else {
         return ( sprintf( "line %d: optional field '%s' (%s): either all empty optional fields must be present or no empty optional field may be present", $line_no, $key, $kind ) );
     }
+}
+
+sub _is_acceptable_key {
+    my ( $state, %args ) = @_;
+    $state or croak 'Missing argument: $state';
+    my $keytype = $args{keytype} or croak 'Missing argument: keytype';
+    my $key     = $args{key}     or croak 'Missing argument: key';
+
+    return $state->{types}->is_acceptable_key( $keytype, $key );
 }
 
 sub _validate_type {

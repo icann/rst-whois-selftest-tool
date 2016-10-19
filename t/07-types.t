@@ -3,7 +3,7 @@ use warnings;
 use 5.014;
 use utf8;
 
-use Test::More tests => 24;
+use Test::More tests => 26;
 use Test::Differences;
 
 # This is needed to get rid of wide character print warnings
@@ -37,7 +37,13 @@ sub reject_ok {
         plan tests => 1;
 
         my @errors = $types->validate_type( $type_name, $input );
-        like $errors[0], $error_regex, 'Type '.$type_name.' should reject "'.(defined $input ? $input : '<undef>').'" with complaint about type mismatch';
+
+        if ( scalar @errors == 0 ) {
+            fail 'Type ' . $type_name . ' should reject "' . ( defined $input ? $input : '<undef>' ) . '"';
+        }
+        else {
+            like $errors[0], $error_regex, 'Type ' . $type_name . ' should reject "' . ( defined $input ? $input : '<undef>' ) . '" with complaint about type mismatch';
+        }
     };
 }
 
@@ -299,10 +305,10 @@ subtest 'domain status code' => sub {
     }
 };
 
-subtest 'domain name object additional field key' => sub {
+subtest 'domain name object additional field key errors' => sub {
     my @ok = (
         'Internationalized Domain Name',
-        'Billing ID',
+        'Registry Billing ID',
         'Billing Name',
         'Billing Organization',
         'Billing Street',
@@ -315,8 +321,28 @@ subtest 'domain name object additional field key' => sub {
         'Billing Fax',
         'Billing Fax Ext',
         'Billing Email',
+        'Billing ID',
     );
-    my @not_ok = ( 'Referral URL' );
+    my @not_ok = (
+        'Registry Domain ID',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Registration Expiration Date',
+        'Registrar',
+        'Registrar IANA ID',
+        'Reseller',
+        'Registry Registrant ID',
+        'Registry Admin ID',
+        'Registry Tech ID',
+        'Domain ID',
+        'WHOIS Server',
+        'Referral URL',
+        'Sponsoring Registrar',
+        'Sponsoring Registrar IANA ID',
+        'Registrant ID',
+        'Admin ID',
+        'Tech ID',
+    );
     plan tests => scalar @ok + scalar @not_ok + 2;
 
     reject_ok 'undef' => 'domain name object additional field key';
@@ -330,12 +356,71 @@ subtest 'domain name object additional field key' => sub {
     }
 };
 
+subtest 'domain name object additional field key rejections' => sub {
+    my @acceptable = (
+        'Internationalized Domain Name',
+        'Billing Name',
+        'Billing Organization',
+        'Billing Street',
+        'Billing City',
+        'Billing State/Province',
+        'Billing Postal Code',
+        'Billing Country',
+        'Billing Phone',
+        'Billing Phone Ext',
+        'Billing Fax',
+        'Billing Fax Ext',
+        'Billing Email',
+        'Registry Domain ID',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Registration Expiration Date',
+        'Registrar',
+        'Registrar IANA ID',
+        'Reseller',
+        'Registry Registrant ID',
+        'Registry Admin ID',
+        'Registry Tech ID',
+        'Registry Billing ID',
+        'Domain ID',
+        'WHOIS Server',
+        'Referral URL',
+        'Sponsoring Registrar',
+        'Sponsoring Registrar IANA ID',
+        'Registrant ID',
+        'Admin ID',
+        'Tech ID',
+        'Billing ID',
+    );
+    my @rejectable = (
+        'URL of the ICANN Whois Inaccuracy Complaint Form',
+        'Registrar Abuse Contact Email',
+        'Registrar Abuse Contact Phone',
+    );
+
+    plan tests => scalar @acceptable + scalar @rejectable;
+
+    for my $field_key ( @acceptable ) {
+        ok $types->is_acceptable_key( 'domain name object additional field key', $field_key ), "Field key should be acceptable: $field_key";
+    }
+    for my $field_key ( @rejectable ) {
+        ok !$types->is_acceptable_key( 'domain name object additional field key', $field_key ), "Field key should be rejectable: $field_key";
+    }
+};
+
 subtest 'registrar object additional field key' => sub {
     my @ok = (
         'Phone Ext',
         'Fax Ext',
     );
-    my @not_ok = ( 'Referral URL' );
+    my @not_ok = (
+        'Registrar',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Name',
+        'WHOIS Server',
+        'Referral URL',
+    );
     plan tests => scalar @ok + scalar @not_ok + 2;
 
     reject_ok 'undef' => 'registrar object additional field key';
@@ -353,7 +438,12 @@ subtest 'name server object additional field key' => sub {
     my @ok = (
         'Nisse',
     );
-    my @not_ok = ( 'Referral URL' );
+    my @not_ok = (
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'WHOIS Server',
+        'Referral URL',
+    );
     plan tests => scalar @ok + scalar @not_ok + 2;
 
     reject_ok 'undef' => 'registrar object additional field key';
@@ -364,5 +454,21 @@ subtest 'name server object additional field key' => sub {
     }
     for my $value ( @not_ok ) {
         reject_ok "Value $value", 'registrar object additional field key', $value;
+    }
+};
+
+subtest 'inaccuracy form url' => sub {
+    my @ok = ( 'https://www.icann.org/wicf/', );
+    my @not_ok = ( 'http://www.icann.org/wicf/', 'https://icann.org/wicf/', 'https://www.icann.org/wicf', 'HTTPS://WWW.ICANN.ORG/wicf/' );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'inaccuracy form url';
+    reject_ok 'empty' => 'inaccuracy form url', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'inaccuracy form url', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'inaccuracy form url', $value;
     }
 };

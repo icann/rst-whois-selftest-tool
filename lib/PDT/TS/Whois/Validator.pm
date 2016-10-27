@@ -485,11 +485,18 @@ sub _line {
         ref $translations eq 'ARRAY' or confess;
 
         if ( $keytype ) {
-            if ( !_is_acceptable_key( $state, keytype => $keytype, key => $key, )) {
+            if ( !_is_acceptable_key( $state, keytype => $keytype, key => $key, ) ) {
                 return;
             }
 
-            push @$errors, _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
+            my @keytype_errors = _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
+
+            if ( @keytype_errors ) {
+                push @$errors, @keytype_errors;
+            }
+            elsif ( !defined $type && $subtype eq 'field' ) {
+                push @$errors, ( sprintf( 'line %s: found an additional field: "%s"', $state->{lexer}->line_no, $key ) );
+            }
         }
 
         for my $translation ( @$translations ) {
@@ -499,6 +506,7 @@ sub _line {
         if ( $type && $subtype eq 'field' ) {
             push @$errors, _validate_type( $state, type_name => $type, value => $value, prefix => "invalid value for field '$key', " );
         }
+
     }
     elsif ( $token eq 'roid line' ) {
 

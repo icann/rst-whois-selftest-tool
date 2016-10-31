@@ -88,10 +88,11 @@ sub validate {
     my $rule = $args{rule};
 
     my $state = {
-        lexer      => $args{lexer},
-        grammar    => $args{grammar},
-        types      => $args{types},
-        empty_kind => undef,
+        lexer        => $args{lexer},
+        grammar      => $args{grammar},
+        types        => $args{types},
+        empty_kind   => undef,
+        empty_fields => [],
     };
 
     # Validate rule
@@ -535,6 +536,50 @@ sub _line {
     return $subtype, $errors;
 }
 
+=head2 B<_set_empty_kind( $state, kind, key, line_no )>
+
+Validates the uniformity of an empty field in the context of a sequence of empty fields.
+
+    my @errors = _set_empty_kind(
+        $state,
+        kind    => 'omitted field',
+        key     => 'Fax Ext',
+        line_no => 20,
+    );
+
+The B<kind> is compared to those of previously validated fields. As long as all
+fields have the same empty kind no validation errors are returned. Error
+reporting is turned on as soon as a field with deviating empty kind is reported.
+At this point validation errors are reported retroactively for all previous
+empty fields, including the deviating field. After this point a validation error
+is reported for every validated field.
+
+=head3 Arguments
+
+=over
+
+=item B<$state>
+
+=item B<kind>
+
+C<'empty field'> or C<'omitted field'>. The field's manifestation in the parsed
+input.
+
+=item B<key>
+
+A string. The field key.
+
+=item B<line_no>
+
+A number. For an empty field, the line number where it is present. For an
+omitted field, the line number of the line after where it was omitted.
+
+=back
+
+Returns a list of error message strings.
+
+=cut
+
 sub _set_empty_kind {
     my ( $state, %args ) = @_;
     $state or croak 'Missing argument: $state';
@@ -544,10 +589,19 @@ sub _set_empty_kind {
 
     $state->{empty_kind} ||= $kind;
     if ( $state->{empty_kind} eq $kind ) {
+        push $state->{empty_fields}, [ $line_no, $key ];
         return ();
     }
     else {
-        return ( sprintf( "line %d: optional field '%s' (%s): either all empty optional fields must be present or no empty optional field may be present", $line_no, $key, $kind ) );
+        my @errors;
+        for my $old_field ( @{ $state->{empty_fields} } ) {
+            my ( $old_line_no, $old_key ) = @{$old_field};
+            push @errors, sprintf( "line %d: optional field '%s' (%s): either all empty optional fields must be present or no empty optional field may be present", $old_line_no, $old_key, $state->{empty_kind} );
+        }
+        $state->{empty_fields} = [];
+        $state->{empty_kind}   = 'mixed';
+        push @errors, sprintf( "line %d: optional field '%s' (%s): either all empty optional fields must be present or no empty optional field may be present", $line_no, $key, $kind );
+        return @errors;
     }
 }
 

@@ -282,7 +282,7 @@ subtest 'Optional-not-empty subrule' => sub {
 };
 
 subtest 'Optional-constrained subrule' => sub {
-    plan tests => 6;
+    plan tests => 7;
 
     {
         my $lexer = make_mock_lexer (
@@ -319,8 +319,9 @@ subtest 'Optional-constrained subrule' => sub {
             ['EOF', undef, []],
         );
         my @errors = validate( rule => 'Optional-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
-        cmp_ok scalar(@errors), '>=', 1, 'Should reject mixed empty field syntaxes';
-        like $errors[0], qr/line 2/, 'Should refer to line number where empty field was expected';
+        cmp_ok scalar(@errors), '>=', 2, 'Should reject mixed empty field syntaxes';
+        like $errors[0], qr/line 1: .*Domain Name.*empty/, 'Should refer to line number of the empty field';
+        like $errors[1], qr/line 2: .*Referral URL.*omitted/, 'Should refer to line number of the omitted field';
     }
 };
 
@@ -484,7 +485,7 @@ subtest 'Empty-constrained subrule' => sub {
 };
 
 subtest 'Omitted-constrained subrule' => sub {
-    plan tests => 7;
+    plan tests => 8;
 
     my $field_1_non_empty = [ 'field', [ 'Domain Name',  [], 'DOMAIN1.EXAMPLE' ],        [] ];
     my $field_1_empty     = [ 'field', [ 'Domain Name',  [], undef ],                    [] ];
@@ -525,8 +526,9 @@ subtest 'Omitted-constrained subrule' => sub {
             $eof,
         );
         my @errors = validate( rule => 'Omitted-constrained field', lexer => $lexer, grammar => $grammar, types => $types );
-        cmp_ok scalar(@errors), '>=', 1, 'Should reject mixed empty field syntaxes';
-        like $errors[0], qr/line 2/, 'Should refer to line number of the empty field';
+        cmp_ok scalar(@errors), '>=', 2, 'Should reject mixed empty field syntaxes';
+        like $errors[0], qr/line 1: .*Domain Name.*empty/, 'Should refer to line number of the empty field';
+        like $errors[1], qr/line 2: .*Referral URL.*omitted/, 'Should refer to line number of the omitted field';
     }
 };
 

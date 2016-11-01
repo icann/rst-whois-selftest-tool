@@ -26,6 +26,7 @@ Version history
 * v1.1.0 - Updated public release (2016-01-08)
 * v1.2.0 - Updated public release (2016-02-02)
 * v1.3.0 - Updated public release (2016-02-26)
+* v1.4.0 - Updated public release (2016-11-01)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
 
@@ -36,6 +37,8 @@ The v1.3.0 release includes two updates of the PDT Whois TP that will be include
 * If the Domain Status is "ok" then the fragment in the URL in the Domain Status field may be "ok" or "OK".
 * If a field is empty (key is there, but no value) there may be one space character (U+0020) after the colon, i.e. trailing space is permitted.
 
+The v1.4.0 release updates Whois Selftest Tool to match the new format requirements specified in ["Registry Registration Data Directory Services Consistent Labeling and Display Policy"](https://www.icann.org/rdds-labeling-display). That specification is optional until 2017-08-01, and registries still using the current format should stick to v1.3.0 of Whois Selftest Tool.
+
 Specification compatibility matrix
 ----------------------------------
 Refer to this compatibility matrix when deciding which version of Whois Selftest
@@ -45,22 +48,38 @@ Tool to use.
   <tr>
     <th>Whois Selftest Tool version</th>
     <th>PDT Document Release</th>
+    <th>PDT Whois Test Plan version</th>
+    <th>PDT Whois CLI Test Case document version</th>
   </tr>
   <tr>
     <td>v1.0.0</td>
     <td>2.8</td>
+    <td></td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.1.0</td>
     <td>2.9</td>
+    <td></td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.2.0</td>
     <td>2.10</td>
+    <td></td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.3.0</td>
     <td>2.10 plus two updates described above</td>
+    <td>J</td>
+    <td>H</td>
+  </tr>
+  <tr>
+    <td>v1.4.0</td>
+    <td>2.11</td>
+    <td>K</td>
+    <td>I</td>
   </tr>
 </table>
 

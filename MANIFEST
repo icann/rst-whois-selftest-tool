@@ -24,6 +24,8 @@ t/08-util.t
 t/09-grammar.t
 t/10-grammar-optional.t
 t/11-grammar-name-server-section.t
+t/12-grammar-abuse-contact-section.t
+t/13-validator-warnings.t
 t/boilerplate.t
 t/iana-epp-rep-id.txt
 t/manifest.t

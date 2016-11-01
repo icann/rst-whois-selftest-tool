@@ -1,0 +1,58 @@
+---
+abstract: 'Validates Whois output'
+author:
+  - 'Mattias PÃ¤ivÃ¤rinta <mattias.paivarinta@iis.se>'
+build_requires:
+  Test::Differences: 0
+  Test::MockObject: 0
+  Test::More: 0
+configure_requires:
+  Module::Build: 0.38
+dynamic_config: 1
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110440'
+license: unknown
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Whois-Selftest-Tool
+provides:
+  PDT::TS::Whois:
+    file: lib/PDT/TS/Whois.pm
+    version: v1.4.0
+  PDT::TS::Whois::Grammar:
+    file: lib/PDT/TS/Whois/Grammar.pm
+    version: 0
+  PDT::TS::Whois::Lexer:
+    file: lib/PDT/TS/Whois/Lexer.pm
+    version: 0
+  PDT::TS::Whois::Types:
+    file: lib/PDT/TS/Whois/Types.pm
+    version: 0
+  PDT::TS::Whois::UnicodeData:
+    file: lib/PDT/TS/Whois/UnicodeData.pm
+    version: 0
+  PDT::TS::Whois::UnicodeIDNA630:
+    file: lib/PDT/TS/Whois/UnicodeIDNA630.pm
+    version: 0
+  PDT::TS::Whois::Util:
+    file: lib/PDT/TS/Whois/Util.pm
+    version: 0
+  PDT::TS::Whois::Validator:
+    file: lib/PDT/TS/Whois/Validator.pm
+    version: 0
+requires:
+  DateTime: 0
+  File::Slurp: 0
+  File::Which: 0
+  Net::IDN::Encode: 0
+  Net::IP: 0
+  Readonly: 0
+  Regexp::IPv6: 0.03
+  Test::Differences: 0
+  Test::MockObject: 0
+  Text::CSV: 0
+  Text::CSV_XS: 0
+  URI: 0
+  YAML::Syck: 0
+  perl: 5.014
+version: v1.4.0

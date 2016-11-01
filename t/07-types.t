@@ -3,7 +3,7 @@ use warnings;
 use 5.014;
 use utf8;
 
-use Test::More tests => 21;
+use Test::More tests => 26;
 use Test::Differences;
 
 # This is needed to get rid of wide character print warnings
@@ -37,7 +37,13 @@ sub reject_ok {
         plan tests => 1;
 
         my @errors = $types->validate_type( $type_name, $input );
-        like $errors[0], $error_regex, 'Type '.$type_name.' should reject "'.(defined $input ? $input : '<undef>').'" with complaint about type mismatch';
+
+        if ( scalar @errors == 0 ) {
+            fail 'Type ' . $type_name . ' should reject "' . ( defined $input ? $input : '<undef>' ) . '"';
+        }
+        else {
+            like $errors[0], $error_regex, 'Type ' . $type_name . ' should reject "' . ( defined $input ? $input : '<undef>' ) . '" with complaint about type mismatch';
+        }
     };
 }
 
@@ -89,14 +95,71 @@ subtest 'hostname' => sub {
 };
 
 subtest 'time stamp' => sub {
-    plan tests => 5;
+    plan tests => 37;
 
     reject_ok 'undef' => 'time stamp';
     reject_ok 'empty' => 'time stamp', '';
 
+    # Time zone Z
+    accept_ok '1937-01-01T12:00:27.87Z'      => 'time stamp', '1937-01-01T12:00:27.87Z';
+    reject_ok '1937-01-01T12:00:27.87+00:00' => 'time stamp', '1937-01-01T12:00:27.87+00:00';
+
+    # Upper case Z
     accept_ok '1985-04-12T23:20:50.52Z' => 'time stamp', '1985-04-12T23:20:50.52Z';
-    reject_ok '1999-01-01 23:30:30' => 'time stamp', '1999-01-01 23:30:30';
-    reject_ok '1937-01-01T12:00:27.87+00:20' => 'time stamp', '1937-01-01T12:00:27.87+00:20';
+    reject_ok '1985-04-12T23:20:50.52z' => 'time stamp', '1985-04-12T23:20:50.52z';
+
+    # Upper case T
+    accept_ok '1999-01-01T23:30:30Z' => 'time stamp', '1999-01-01T23:30:30Z';
+    reject_ok '1999-01-01t23:30:30Z' => 'time stamp', '1999-01-01t23:30:30Z';
+    reject_ok '1999-01-01 23:30:30Z' => 'time stamp', '1999-01-01 23:30:30Z';
+
+    # Months of year
+    accept_ok '2016-12-01T00:00:00Z' => 'time stamp', '2016-12-01T00:00:00Z';
+    reject_ok '2016-00-01T00:00:00Z' => 'time stamp', '2016-00-01T00:00:00Z';
+    reject_ok '2016-13-01T00:00:00Z' => 'time stamp', '2016-13-01T00:00:00Z';
+
+    # Days of month
+    accept_ok '2015-01-31T00:00:00Z' => 'time stamp', '2015-01-31T00:00:00Z';
+    reject_ok '2015-01-32T00:00:00Z' => 'time stamp', '2015-01-32T00:00:00Z';
+
+    accept_ok '2015-02-28T00:00:00Z' => 'time stamp', '2015-02-28T00:00:00Z';
+    reject_ok '2015-02-29T00:00:00Z' => 'time stamp', '2015-02-29T00:00:00Z';
+
+    accept_ok '2015-03-31T00:00:00Z' => 'time stamp', '2015-03-31T00:00:00Z';
+    reject_ok '2015-03-32T00:00:00Z' => 'time stamp', '2015-03-32T00:00:00Z';
+
+    accept_ok '2015-04-30T00:00:00Z' => 'time stamp', '2015-04-30T00:00:00Z';
+    reject_ok '2015-04-31T00:00:00Z' => 'time stamp', '2015-04-31T00:00:00Z';
+
+    # Leap days
+    accept_ok '2016-02-29T00:00:00Z' => 'time stamp', '2016-02-29T00:00:00Z';
+    reject_ok '2015-02-29T00:00:00Z' => 'time stamp', '2015-02-29T00:00:00Z';
+    reject_ok '2000-02-29T00:00:00Z' => 'time stamp', '2000-02-29T00:00:00Z';
+
+    # Hours of day
+    accept_ok '2015-01-01T23:00:00Z' => 'time stamp', '2016-01-01T23:00:00Z';
+    reject_ok '2015-01-01T24:00:00Z' => 'time stamp', '2016-01-01T24:00:00Z';
+
+    # Minutes of hour
+    accept_ok '2015-01-01T00:59:00Z' => 'time stamp', '2016-01-01T00:59:00Z';
+    reject_ok '2015-01-01T00:60:00Z' => 'time stamp', '2016-01-01T00:60:00Z';
+
+    # Seconds of minute
+    accept_ok '2016-01-01T00:00:59Z' => 'time stamp', '2016-01-01T00:00:59Z';
+    reject_ok '2016-01-01T00:00:60Z' => 'time stamp', '2016-01-01T00:00:60Z';
+
+    # Allow positive leap seconds during first and second preference months
+    accept_ok '2016-03-31T23:59:60Z' => 'time stamp', '2016-03-31T23:59:60Z';
+    reject_ok '2016-03-31T23:59:61Z' => 'time stamp', '2016-03-31T23:59:61Z';
+
+    accept_ok '2016-06-30T23:59:60Z' => 'time stamp', '2016-06-30T23:59:60Z';
+    reject_ok '2016-06-30T23:59:61Z' => 'time stamp', '2016-06-30T23:59:61Z';
+
+    accept_ok '2016-09-30T23:59:60Z' => 'time stamp', '2016-09-30T23:59:60Z';
+    reject_ok '2016-09-30T23:59:61Z' => 'time stamp', '2016-09-30T23:59:61Z';
+
+    accept_ok '2016-12-31T23:59:60Z' => 'time stamp', '2016-12-31T23:59:60Z';
+    reject_ok '2016-12-31T23:59:61Z' => 'time stamp', '2016-12-31T23:59:61Z';
 };
 
 subtest 'u-label' => sub {
@@ -132,13 +195,16 @@ subtest 'token' => sub {
 };
 
 subtest 'domain status' => sub {
-    plan tests => 4;
+    plan tests => 7;
 
     reject_ok 'undef' => 'domain status';
     reject_ok 'empty' => 'domain status', '';
 
-    accept_ok 'ok https://icann.org/epp#ok' => 'domain status', 'ok https://icann.org/epp#ok';
-    reject_ok 'bad http://noticann.org/epp#bad' => 'domain status', 'bad http://noticann.org/epp#bad';
+    accept_ok 'ok https://icann.org/epp#ok'             => 'domain status', 'ok https://icann.org/epp#ok';
+    accept_ok 'explicit exception for upper case OK'    => 'domain status', 'ok https://icann.org/epp#OK';
+    accept_ok 'inactive https://icann.org/epp#inactive' => 'domain status', 'inactive https://icann.org/epp#inactive';
+    reject_ok 'inactive https://icann.org/epp#INACTIVE' => 'domain status', 'inactive https://icann.org/epp#INACTIVE';
+    reject_ok 'bad http://noticann.org/epp#bad'         => 'domain status', 'bad http://noticann.org/epp#bad';
 };
 
 subtest 'postal line' => sub {
@@ -293,5 +359,173 @@ subtest 'domain status code' => sub {
     }
     for my $value ( @not_ok ) {
         reject_ok "Value $value", 'domain status code', $value;
+    }
+};
+
+subtest 'domain name object additional field key errors' => sub {
+    my @ok = (
+        'Internationalized Domain Name',
+        'Registry Billing ID',
+        'Billing Name',
+        'Billing Organization',
+        'Billing Street',
+        'Billing City',
+        'Billing State/Province',
+        'Billing Postal Code',
+        'Billing Country',
+        'Billing Phone',
+        'Billing Phone Ext',
+        'Billing Fax',
+        'Billing Fax Ext',
+        'Billing Email',
+        'Billing ID',
+    );
+    my @not_ok = (
+        'Registry Domain ID',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Registration Expiration Date',
+        'Registrar',
+        'Registrar IANA ID',
+        'Reseller',
+        'Registry Registrant ID',
+        'Registry Admin ID',
+        'Registry Tech ID',
+        'Domain ID',
+        'WHOIS Server',
+        'Referral URL',
+        'Sponsoring Registrar',
+        'Sponsoring Registrar IANA ID',
+        'Registrant ID',
+        'Admin ID',
+        'Tech ID',
+    );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'domain name object additional field key';
+    reject_ok 'empty' => 'domain name object additional field key', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'domain name object additional field key', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'domain name object additional field key', $value;
+    }
+};
+
+subtest 'domain name object additional field key rejections' => sub {
+    my @acceptable = (
+        'Internationalized Domain Name',
+        'Billing Name',
+        'Billing Organization',
+        'Billing Street',
+        'Billing City',
+        'Billing State/Province',
+        'Billing Postal Code',
+        'Billing Country',
+        'Billing Phone',
+        'Billing Phone Ext',
+        'Billing Fax',
+        'Billing Fax Ext',
+        'Billing Email',
+        'Registry Domain ID',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Registration Expiration Date',
+        'Registrar',
+        'Registrar IANA ID',
+        'Reseller',
+        'Registry Registrant ID',
+        'Registry Admin ID',
+        'Registry Tech ID',
+        'Registry Billing ID',
+        'Domain ID',
+        'WHOIS Server',
+        'Referral URL',
+        'Sponsoring Registrar',
+        'Sponsoring Registrar IANA ID',
+        'Registrant ID',
+        'Admin ID',
+        'Tech ID',
+        'Billing ID',
+    );
+    my @rejectable = (
+        'URL of the ICANN Whois Inaccuracy Complaint Form',
+        'Registrar Abuse Contact Email',
+        'Registrar Abuse Contact Phone',
+    );
+
+    plan tests => scalar @acceptable + scalar @rejectable;
+
+    for my $field_key ( @acceptable ) {
+        ok $types->is_acceptable_key( 'domain name object additional field key', $field_key ), "Field key should be acceptable: $field_key";
+    }
+    for my $field_key ( @rejectable ) {
+        ok !$types->is_acceptable_key( 'domain name object additional field key', $field_key ), "Field key should be rejectable: $field_key";
+    }
+};
+
+subtest 'registrar object additional field key' => sub {
+    my @ok = (
+        'Phone Ext',
+        'Fax Ext',
+    );
+    my @not_ok = (
+        'Registrar',
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'Registrar Name',
+        'WHOIS Server',
+        'Referral URL',
+    );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'registrar object additional field key';
+    reject_ok 'empty' => 'registrar object additional field key', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'registrar object additional field key', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'registrar object additional field key', $value;
+    }
+};
+
+subtest 'name server object additional field key' => sub {
+    my @ok = (
+        'Nisse',
+    );
+    my @not_ok = (
+        'Registrar WHOIS Server',
+        'Registrar URL',
+        'WHOIS Server',
+        'Referral URL',
+    );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'registrar object additional field key';
+    reject_ok 'empty' => 'registrar object additional field key', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'registrar object additional field key', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'registrar object additional field key', $value;
+    }
+};
+
+subtest 'inaccuracy form url' => sub {
+    my @ok = ( 'https://www.icann.org/wicf/', );
+    my @not_ok = ( 'http://www.icann.org/wicf/', 'https://icann.org/wicf/', 'https://www.icann.org/wicf', 'HTTPS://WWW.ICANN.ORG/wicf/' );
+    plan tests => scalar @ok + scalar @not_ok + 2;
+
+    reject_ok 'undef' => 'inaccuracy form url';
+    reject_ok 'empty' => 'inaccuracy form url', '';
+
+    for my $value ( @ok ) {
+        accept_ok "Value $value", 'inaccuracy form url', $value;
+    }
+    for my $value ( @not_ok ) {
+        reject_ok "Value $value", 'inaccuracy form url', $value;
     }
 };

@@ -1,4 +1,5 @@
 package PDT::TS::Whois::Lexer;
+use utf8;
 use strict;
 use warnings;
 use 5.014;
@@ -30,7 +31,7 @@ current line number and to advance onto the next line.
         printf("%d: [%s] [%s]", $lexer->line_no(), $token, join(", ", @$errors));
 
         $lexer->next_line();
-    } while ($token ne 'EOF');
+    } while ( $token ne 'EOF' );
 
 =head1 CONSTRUCTORS
 
@@ -142,7 +143,7 @@ expression.
 =cut
 
 sub matches {
-    my $self    = shift;
+    my $self = shift;
     my $pattern = shift or croak 'Missing argument: $pattern';
 
     if ( !exists $self->{_lookahead_line} ) {
@@ -214,9 +215,6 @@ sub next_line {
     # Strip trailing space
     $line =~ s/( *)$//;
     my $trail_space = $1;
-    if ( length $trail_space > 0 ) {
-        push @errors, sprintf( "line %d: trailing space not allowed", $self->{_line_no} );
-    }
 
     # Match token type
     my $token;
@@ -250,6 +248,10 @@ sub next_line {
         my @translations = split '/', ( $2 || '' );
         my $value        = $3;
 
+        if ( !defined $value ) {
+            $trail_space =~ s/ $//;
+        }
+
         $token = 'field';
         $token_value = [ $key, \@translations, $value ];
     }
@@ -262,6 +264,10 @@ sub next_line {
     else {
         $token       = 'non-empty line';
         $token_value = $line;
+    }
+
+    if ( length $trail_space > 0 ) {
+        push @errors, sprintf( "line %d: trailing space not allowed", $self->{_line_no} );
     }
 
     $self->{_lookahead_line} = $line;

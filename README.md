@@ -23,6 +23,21 @@ reference of the Whois tests under PDT see the PDT Whois documents.
 Version history
 ===============
 * v1.0.0 - Initial public release (2015-12-03)
+* v1.1.0 - Updated public release (2016-01-08)
+* v1.2.0 - Updated public release (2016-02-02)
+* v1.3.0 - Updated public release (2016-02-26)
+* v1.4.0 - Updated public release (2016-11-01)
+
+The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
+
+The v1.2.0 release primarily matches the updates to the PDT Whois TP in the the version 2.10 document release. It also corrects found bugs.
+
+The v1.3.0 release includes two updates of the PDT Whois TP that will be included in the next document release:
+
+* If the Domain Status is "ok" then the fragment in the URL in the Domain Status field may be "ok" or "OK".
+* If a field is empty (key is there, but no value) there may be one space character (U+0020) after the colon, i.e. trailing space is permitted.
+
+The v1.4.0 release updates Whois Selftest Tool to match the new format requirements specified in ["Registry Registration Data Directory Services Consistent Labeling and Display Policy"](https://www.icann.org/rdds-labeling-display). That specification is optional until 2017-08-01, and registries still using the current format should stick to v1.3.0 of Whois Selftest Tool.
 
 Specification compatibility matrix
 ----------------------------------
@@ -30,14 +45,47 @@ Refer to this compatibility matrix when deciding which version of Whois Selftest
 Tool to use.
 
 <table>
-<tr><th>Whois Selftest Tool version</th><th>PDT Test Specifications</th></tr>
-<tr><td>v1.0.0</td><td>v.2.8</td></tr>
+  <tr>
+    <th>Whois Selftest Tool version</th>
+    <th>PDT Document Release</th>
+    <th>PDT Whois Test Plan version</th>
+    <th>PDT Whois CLI Test Case document version</th>
+  </tr>
+  <tr>
+    <td>v1.0.0</td>
+    <td>2.8</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>v1.1.0</td>
+    <td>2.9</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>v1.2.0</td>
+    <td>2.10</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>v1.3.0</td>
+    <td>2.10 plus two updates described above</td>
+    <td>J</td>
+    <td>H</td>
+  </tr>
+  <tr>
+    <td>v1.4.0</td>
+    <td>2.11</td>
+    <td>K</td>
+    <td>I</td>
+  </tr>
 </table>
 
 Roadmap
 =======
-The plan is to solve know issues and any bugs of importance before the
-stricter Whois testing is enforced at 2016-01-31. New versions will be released
+The plan is to solve know issues and any bugs of importance. New versions will be released
 when fixes are stable.
 
 References
@@ -84,29 +132,30 @@ other OSs.
 Installation
 ============
 Clone the project repository and choose version according to the specification
-compatibility matrix.
+compatibility matrix. In the normal case, choose the latest version.
 
-    $> git clone https://github.com/dotse/Whois-Selftest-Tool.git <installdir>
-    $> cd <installdir>
+    $> git clone https://github.com/dotse/Whois-Selftest-Tool.git <srcdir>
+    $> cd <srcdir>
     $> git checkout <version>
 
-`<installdir>` is assumed to be in the PATH in code examples throughout the
-rest of this document.
+Install Whois Selftest Tool scripts and libraries.
 
-Create a program directory `<programdir>` to install Whois Selftest Tool in,
-and copy the scripts and libraries there.
+    $> perl Build.PL
+    $> ./Build
+    $> ./Build test
+    $> ./Build install
 
-    $> cd <somewhere>
-    $> mkdir <programdir>
-    $> cp <installdir>/script/* <programdir>/
-    $> cp -r <installdir>/lib/PDT <programdir>/
+To check the installation run the scripts with `--help`. Before the whois-test
+script can be run, the EPP database must be fetched.
 
-Now the script is installed and can be run from `<programdir>`. To check the
-installation run the scripts with `--help`.
+    $> whois-fetch-epp-repo-ids --help
+    $> whois-fetch-epp-repo-ids
+    $> whois-test --help
 
-    $> cd <programdir>
-    $> ./whois-test --help
-    $> ./whois-fetch-epp-repo-ids --help
+After installing, you can find documentation for this module with the
+perldoc command.
+
+    perldoc PDT::TS::Whois
 
 Before use
 ==========
@@ -139,16 +188,8 @@ See the man pages for the respective commands for details on how to run them.
 
 Known issues
 ============
- * The Perl library that converts between IDN U-label and IDN A-label,
-   Net::IDN::encode, will magically make upper-case characters into its
-   equivalent lower-case characters.  The upper-case characters are not valid
-   in a U-label. This issue can make false positive validations of Whois
-   responses when the "Internationalized Domain Name" field is present in a
-   Domain Object response.
 
-* Perl 5.14 only supports Unicode 6.0.0. If an "Internationalized Domain Name"
-  field contains code points available in Unicode 6.3.0 but not in Unicode 6.0.0, and valid for IDNA,
-  then they will incorrectly be reported as invalid.
+* The description of the two types of replies on queries for nameserver objects is a bit unclear. For full understanding, please see the PDT Test Case WhoisCLI03 found in the PDT\_Whois\_TC\_CLI document listed in the references above.
 
 Reporting bugs
 --------------

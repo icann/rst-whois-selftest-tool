@@ -5,7 +5,7 @@ use Module::Build;
 
 my $builder = Module::Build->new(
     module_name         => 'Whois::Selftest::Tool',
-    dist_author         => q{Mattias Päivärinta <mattias.paivarinta@doxwork.com>},
+    dist_author         => q{Mattias Päivärinta <mattias.paivarinta@iis.se>},
     dist_version_from   => 'lib/PDT/TS/Whois.pm',
     build_requires => {
         'Test::More' => 0,

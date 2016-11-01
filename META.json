@@ -1,7 +1,7 @@
 {
    "abstract" : "Validates Whois output",
    "author" : [
-      "Mattias PÃ¤ivÃ¤rinta <mattias.paivarinta@doxwork.com>"
+      "Mattias PÃ¤ivÃ¤rinta <mattias.paivarinta@iis.se>"
    ],
    "dynamic_config" : 1,
    "generated_by" : "Module::Build version 0.38, CPAN::Meta::Converter version 2.110440",

@@ -179,24 +179,24 @@ sub _occurances {
         $line ||= 'field';
     }
 
-    my $min_occurs;
+    my $is_optional;
     my $max_occurs;
     for ( $quantifier ) {
         when ( /^required$|^required-strict$/ ) {
-            $min_occurs = 1;
-            $max_occurs = 1;
+            $is_optional = '';
+            $max_occurs  = 1;
         }
         when ( /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
-            $min_occurs = 0;
-            $max_occurs = 1;
+            $is_optional = 1;
+            $max_occurs  = 1;
         }
         when ( /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
-            $min_occurs = 0;
-            $max_occurs = $1;
+            $is_optional = 1;
+            $max_occurs  = $1;
         }
         when ( /^repeatable(?: max ([1-9][0-9]*))?$/ ) {
-            $min_occurs = 1;
-            $max_occurs = $1;
+            $is_optional = '';
+            $max_occurs  = $1;
         }
         default {
             croak "internal error: unhandled quantifier '$_'";
@@ -205,6 +205,7 @@ sub _occurances {
 
     my $first               = 1;
     my $element_count       = 0;
+    my $found_empty_fields  = '';
     my @pending_empty_error = ();
     my @errors;
     while ( !defined $max_occurs || $element_count < $max_occurs ) {
@@ -233,6 +234,7 @@ sub _occurances {
                 elsif ( $quantifier =~ /^optional-constrained$|^empty-constrained$/ ) {
                     push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_after - 1, key => $key );
                 }
+                $found_empty_fields = 1;
             }
             else {
                 push @errors, @pending_empty_error;
@@ -242,7 +244,7 @@ sub _occurances {
                     return;    # mismatch: field must not be present as a non-empty field
                 }
                 elsif ( $line_before == $line_after ) {
-                    last;      # successfully parsed zero lines, no need to do it again
+                    last;      # successfully parsed zero lines - once is enough
                 }
             }
         }
@@ -261,7 +263,7 @@ sub _occurances {
         $first = '';
     }
 
-    if ( $element_count >= $min_occurs ) {
+    if ( $element_count > 0 || $is_optional || $found_empty_fields ) {
         return \@errors;
     }
     else {
@@ -485,11 +487,18 @@ sub _line {
         ref $translations eq 'ARRAY' or confess;
 
         if ( $keytype ) {
-            if ( !_is_acceptable_key( $state, keytype => $keytype, key => $key, )) {
+            if ( !_is_acceptable_key( $state, keytype => $keytype, key => $key, ) ) {
                 return;
             }
 
-            push @$errors, _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
+            my @keytype_errors = _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
+
+            if ( @keytype_errors ) {
+                push @$errors, @keytype_errors;
+            }
+            elsif ( !defined $type && $subtype eq 'field' ) {
+                push @$errors, ( sprintf( 'line %s: found an additional field: "%s"', $state->{lexer}->line_no, $key ) );
+            }
         }
 
         for my $translation ( @$translations ) {
@@ -499,6 +508,7 @@ sub _line {
         if ( $type && $subtype eq 'field' ) {
             push @$errors, _validate_type( $state, type_name => $type, value => $value, prefix => "invalid value for field '$key', " );
         }
+
     }
     elsif ( $token eq 'roid line' ) {
 

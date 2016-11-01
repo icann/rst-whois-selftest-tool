@@ -629,6 +629,20 @@ Phone Number: +1.3105551215
 Email: johngeek\@example-registrar.tld
 EOF
 
+my $registrar_details_empty_admin_contact_message = <<EOF;
+Registrar: Example Registrar, Inc.
+Street: 1234 Admiralty Way
+City: Marina del Rey
+Country: US
+Phone Number: +1.3105551212
+Email: registrar\@example.tld
+Registrar URL: http://www.example-registrar.tld
+Admin Contact:
+Phone Number:
+Fax Number:
+Email:
+EOF
+
 my %data = (
     'Admin contact section/empty',                     => $admin_empty_ok,
     'Admin contact section/minimal level 1',           => $admin_minimal_level_1_ok,
@@ -656,7 +670,7 @@ my %data = (
     'Technical contact section/repeated',              => $technical_repeated_ok,
 );
 
-plan tests => scalar keys %data;
+plan tests => (scalar keys %data) + 2;
 
 my $types = PDT::TS::Whois::Types->new;
 $types->load_roid_suffix('t/iana-epp-rep-id.txt');
@@ -675,5 +689,21 @@ for my $test_name ( sort keys %data ) {
     my $lexer = PDT::TS::Whois::Lexer->new($text);
 
     my @errors = validate(rule => $rule, lexer => $lexer, grammar => $grammar, types => $types);
+    @errors = grep { $_ !~ qr/^line \d+: found an additional field: "Additional field"$/ } @errors;
     eq_or_diff \@errors, [], $test_name;
+}
+
+{
+    my $test_name = 'Registrar details section/empty admin contact';
+    $test_name =~ qr{(.*)/.*};
+    my $rule = $1;
+
+    my $text = $registrar_details_empty_admin_contact_message;
+    $text =~ s/(?<!\r)\n/\r\n/g;
+
+    my $lexer = PDT::TS::Whois::Lexer->new($text);
+
+    my @errors = validate(rule => $rule, lexer => $lexer, grammar => $grammar, types => $types);
+    ok scalar @errors > 0, $test_name . ": should report errors";
+    eq_or_diff $errors[0], "line 8: field 'Admin Contact' is required and must not be present as an empty field", $test_name . ': should complain about Admin Contact being an empty field';
 }

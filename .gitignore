@@ -11,8 +11,7 @@ cover_db
 pod2htm*.tmp
 PDT-TS-Whois-*
 *.bak
-Makefile.PL
-META.json
-META.yml
 *~
 .DS_Store
+MYMETA.json
+MYMETA.yml

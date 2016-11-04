@@ -88,10 +88,11 @@ sub validate {
     my $rule = $args{rule};
 
     my $state = {
-        lexer      => $args{lexer},
-        grammar    => $args{grammar},
-        types      => $args{types},
-        empty_kind => undef,
+        lexer        => $args{lexer},
+        grammar      => $args{grammar},
+        types        => $args{types},
+        empty_kind   => undef,
+        empty_fields => [],
     };
 
     # Validate rule
@@ -232,7 +233,14 @@ sub _occurances {
                     push @errors, sprintf( "line %d: field '%s' is %s and must not be present as an empty field", $line_after - 1, $key, $quantifier );
                 }
                 elsif ( $quantifier =~ /^optional-constrained$|^empty-constrained$/ ) {
-                    push @errors, _set_empty_kind( $state, kind => 'empty field', line_no => $line_after - 1, key => $key );
+                    push @errors,
+                      _set_empty_kind(
+                        $state,
+                        kind       => 'empty field',
+                        quantifier => $quantifier,
+                        line_no    => $line_after - 1,
+                        key        => $key
+                      );
                 }
                 $found_empty_fields = 1;
             }
@@ -254,7 +262,14 @@ sub _occurances {
                     return;    # mismatch: field must not be omitted
                 }
                 elsif ( $quantifier =~ /^optional-constrained$|^omitted-constrained$/ ) {
-                    push @errors, _set_empty_kind( $state, kind => 'omitted field', line_no => $state->{lexer}->line_no, key => $key );
+                    push @errors,
+                      _set_empty_kind(
+                        $state,
+                        kind       => 'omitted field',
+                        quantifier => $quantifier,
+                        line_no    => $state->{lexer}->line_no,
+                        key        => $key
+                      );
                 }
             }
             last;
@@ -535,20 +550,161 @@ sub _line {
     return $subtype, $errors;
 }
 
+=head2 B<_set_empty_kind( $state, kind, quantifier, key, line_no )>
+
+Validates the uniformity of an empty field in the context of a sequence of empty fields.
+
+    my @errors = _set_empty_kind(
+        $state,
+        kind       => 'omitted field',
+        quantifier => 'optional-constrained',
+        key        => 'Fax Ext',
+        line_no    => 20,
+    );
+
+The B<kind> is compared to those of previously validated fields. As long as all
+fields have the same empty kind no validation errors are returned. Error
+reporting is turned on as soon as a field with deviating empty kind is reported.
+At this point validation errors are reported retroactively for all previous
+empty fields, including the deviating field. After this point a validation error
+is reported for every validated field.
+
+=head3 Arguments
+
+=over
+
+=item B<$state>
+
+=item B<kind>
+
+C<'empty field'> or C<'omitted field'>. The field's manifestation in the parsed
+input.
+
+=item B<quantifier>
+
+C<'optional-constrained'>, C<'empty-constrained'> or C<'omitted-constrained'>.
+The field's manifestation in the grammar.
+
+=item B<key>
+
+A string. The field key.
+
+=item B<line_no>
+
+A number. For an empty field, the line number where it is present. For an
+omitted field, the line number of the line after where it was omitted.
+
+=back
+
+Returns a list of error message strings.
+
+=cut
+
 sub _set_empty_kind {
     my ( $state, %args ) = @_;
     $state or croak 'Missing argument: $state';
-    my $kind    = $args{kind}    or croak 'Missing argument: kind';
-    my $key     = $args{key}     or croak 'Missing argument: key';
-    my $line_no = $args{line_no} or croak 'Missing argument: line_no';
+    my $kind       = $args{kind}       or croak 'Missing argument: kind';
+    my $quantifier = $args{quantifier} or croak 'Missing argument: quantifier';
+    my $key        = $args{key}        or croak 'Missing argument: key';
+    my $line_no    = $args{line_no}    or croak 'Missing argument: line_no';
 
     $state->{empty_kind} ||= $kind;
     if ( $state->{empty_kind} eq $kind ) {
+        push @{ $state->{empty_fields} }, [ $line_no, $key, $quantifier ];
         return ();
     }
     else {
-        return ( sprintf( "line %d: optional field '%s' (%s): either all empty optional fields must be present or no empty optional field may be present", $line_no, $key, $kind ) );
+        my @errors;
+        for my $old_field ( @{ $state->{empty_fields} } ) {
+            my ( $old_line_no, $old_key, $old_quantifier ) = @{$old_field};
+            push @errors,
+              _get_empty_kind_error_message(
+                line_no    => $old_line_no,
+                key        => $old_key,
+                quantifier => $old_quantifier,
+                kind       => $state->{empty_kind},
+              );
+        }
+
+        $state->{empty_fields} = [];
+        $state->{empty_kind}   = 'mixed';
+        push @errors,
+          _get_empty_kind_error_message(
+            line_no    => $line_no,
+            key        => $key,
+            quantifier => $quantifier,
+            kind       => $kind,
+          );
+        return @errors;
     }
+}
+
+=head2 B<_get_empty_kind_error_message( $state, key, line_no, type, quantifier, kind )>
+
+Construct an error message regarding an empty-kind violation.
+
+    my $message = _get_empty_kind_error_message(
+        $state,
+        kind       => 'omitted field',
+        quantifier => 'optional-constrained',
+        key        => 'Fax Ext',
+        line_no    => 20,
+    );
+
+=head3 Arguments
+
+=over
+
+=item B<kind>
+
+C<'empty field'> or C<'omitted field'>. The field's manifestation in the parsed
+input.
+
+=item B<quantifier>
+
+C<'optional-constrained'>, C<'empty-constrained'> or C<'omitted-constrained'>.
+The field's manifestation in the grammar.
+
+=item B<key>
+
+A string. The field key.
+
+=item B<line_no>
+
+A number. For an empty field, the line number where it is present. For an
+omitted field, the line number of the line after where it was omitted.
+
+=back
+
+Returns a string containing the error message.
+
+=cut
+
+sub _get_empty_kind_error_message {
+    my %args       = @_;
+    my $kind       = $args{kind} or croak 'Missing argument: kind';
+    my $quantifier = $args{quantifier} or croak 'Missing argument: quantifier';
+    my $key        = $args{key} or croak 'Missing argument: key';
+    my $line_no    = $args{line_no} or croak 'Missing argument: line_no';
+
+    my $explanation;
+    if ( $kind eq 'empty field' && $quantifier eq 'optional-constrained' ) {
+        $explanation = "if one such empty field is present then empty fields of type optional-constrained must be present and must not be combined with field of type omitted-constrained. [see Whois TP, ver K, sec 5.7.2 and 5.7.4 ]";
+    }
+    elsif ( $kind eq 'empty field' && $quantifier eq 'empty-constrained') {
+        $explanation = "this must not be combined with an omitted field of type optional-constrained or with a field of type omitted-constrained. [see Whois TP, ver K, sec 5.7.2, 5.7.3 and 5.7.4 ]";
+    }
+    elsif ( $kind eq 'omitted field' && $quantifier eq 'optional-constrained' ) {
+        $explanation = "if one such field is omitted then no empty fields of type optional-constrained may be present and must not be combined with field of type empty-constrained. [see Whois TP, ver K, sec 5.7.2 and 5.7.3 ]";
+    }
+    elsif ( $kind eq 'omitted field' && $quantifier eq 'omitted-constrained' ) {
+        $explanation = "this must not be combined with an empty field of type optional-constrained or with a field of type empty-constrained. [see Whois TP, ver K, sec 5.7.2, 5.7.3 and 5.7.4 ]";
+    }
+    else {
+        croak sprintf( "missing explanation for empty kind '%s' and quantifier '%s'", $kind, $quantifier );
+    }
+
+    return sprintf( "line %d: field of type %s '%s' (%s): %s", $line_no, $quantifier, $key, $kind, $explanation );
 }
 
 sub _is_acceptable_key {

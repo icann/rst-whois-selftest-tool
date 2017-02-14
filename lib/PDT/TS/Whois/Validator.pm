@@ -183,23 +183,23 @@ sub _occurances {
     my $is_optional;
     my $max_occurs;
     for ( $quantifier ) {
-        when ( /^required$|^required-strict$/ ) {
+        if ( $_ =~ /^required$|^required-strict$/ ) {
             $is_optional = '';
             $max_occurs  = 1;
         }
-        when ( /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
+        elsif ( $_ =~ /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
             $is_optional = 1;
             $max_occurs  = 1;
         }
-        when ( /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
+        elsif ( $_ =~ /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
             $is_optional = 1;
             $max_occurs  = $1;
         }
-        when ( /^repeatable(?: max ([1-9][0-9]*))?$/ ) {
+        elsif ( $_ =~ /^repeatable(?: max ([1-9][0-9]*))?$/ ) {
             $is_optional = '';
             $max_occurs  = $1;
         }
-        default {
+        else {
             croak "internal error: unhandled quantifier '$_'";
         }
     }

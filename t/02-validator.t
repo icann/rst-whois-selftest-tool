@@ -70,7 +70,7 @@ my $grammar = {
         { 'Domain Name' => { line => 'field', type => 'hostname', }, },
     ],
     'Field with keytype' => [
-        { 'Special field' => { line => 'field', keytype => 'valid key' }, quantifier => 'repeatable' },
+        { 'Special field' => { line => 'field', keytype => 'valid key', quantifier => 'repeatable', }, },
         { 'EOF' => { line => 'EOF', }, },
     ],
     'Repeated choice section' => [
@@ -525,7 +525,7 @@ subtest 'Omitted-constrained subrule' => sub {
 };
 
 subtest 'Keytype validation' => sub {
-    plan tests => 2;
+    plan tests => 1;
 
     {
         my $lexer = make_mock_lexer(
@@ -534,8 +534,7 @@ subtest 'Keytype validation' => sub {
             [ 'EOF', undef, [] ],
         );
         my @errors = validate( rule => 'Field with keytype', lexer => $lexer, grammar => $grammar, types => $types );
-        cmp_ok scalar(@errors), '>=', 1, 'Should reject field with invalid keytype';
-        like $errors[0], qr/line 2/, 'Should refer to line number of the invalid field';
+        ok scalar(grep qr/line 2/, @errors), 'Should refer to line number of the invalid field';
     }
 };
 

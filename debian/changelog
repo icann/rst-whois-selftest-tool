@@ -1,3 +1,12 @@
+libwhois-selftest-tool-perl (1.4.1~rc1-1) unstable; urgency=medium
+
+  * Release 1.4.1  Release Candidate 1
+
+  PDTT-489: Improved error messages
+  PDTT-489: Report previous *-constrained lines when a mix is detected
+
+ -- Jonathan Nisell <jonathan.nisell@iis.se>  Thu, 02 Feb 2017 14:23:20 +0100
+
 libwhois-selftest-tool-perl (1.4.0-1) unstable; urgency=low
 
   [CHANGED REQUIREMENTS]

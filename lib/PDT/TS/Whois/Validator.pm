@@ -182,26 +182,24 @@ sub _occurances {
 
     my $is_optional;
     my $max_occurs;
-    for ( $quantifier ) {
-        if ( $_ =~ /^required$|^required-strict$/ ) {
-            $is_optional = '';
-            $max_occurs  = 1;
-        }
-        elsif ( $_ =~ /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
-            $is_optional = 1;
-            $max_occurs  = 1;
-        }
-        elsif ( $_ =~ /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
-            $is_optional = 1;
-            $max_occurs  = $1;
-        }
-        elsif ( $_ =~ /^repeatable(?: max ([1-9][0-9]*))?$/ ) {
-            $is_optional = '';
-            $max_occurs  = $1;
-        }
-        else {
-            croak "internal error: unhandled quantifier '$_'";
-        }
+    if ( $quantifier =~ /^required$|^required-strict$/ ) {
+        $is_optional = '';
+        $max_occurs  = 1;
+    }
+    elsif ( $quantifier =~ /^optional-free$|^optional-not-empty$|^optional-constrained$|^empty-constrained$|^omitted-constrained$/ ) {
+        $is_optional = 1;
+        $max_occurs  = 1;
+    }
+    elsif ( $quantifier =~ /^optional-repeatable(?: max ([1-9][0-9]*))?$/ ) {
+        $is_optional = 1;
+        $max_occurs  = $1;
+    }
+    elsif ( $quantifier =~ /^repeatable(?: max ([1-9][0-9]*))?$/ ) {
+        $is_optional = '';
+        $max_occurs  = $1;
+    }
+    else {
+        croak "internal error: unhandled quantifier '$quantifier'";
     }
 
     my $first               = 1;

@@ -22,12 +22,14 @@ reference of the Whois tests under PDT see the PDT Whois documents.
 
 Version history
 ===============
+
 * v1.0.0 - Initial public release (2015-12-03)
 * v1.1.0 - Updated public release (2016-01-08)
 * v1.2.0 - Updated public release (2016-02-02)
 * v1.3.0 - Updated public release (2016-02-26)
 * v1.4.0 - Updated public release (2016-11-01)
 * v1.4.1 - No public release
+* v1.3.1 - No public release
 * v1.4.2 - Updated public release (2016-03-23)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
@@ -46,7 +48,9 @@ The v1.4.1 release updates Whois Selftest Tool with two improvements:
 * Better error message when fields of type "optional-constrained", "empty-constrained" or "omitted-constrained" are not following the specification.
 * Improved error message when "Registrar Abuse Contact Phone" (or "... Email") is empty.
 
-The v1.4.2 corrects a bug and a Perl warning only seen in Perl 5.18 or higher. 
+The v1.3.1 release only updates the debian/changelog for IIS internal package building.
+
+The v1.4.2 release corrects a bug and a Perl warning only seen in Perl 5.18 or higher. 
 
 Specification compatibility matrix
 ----------------------------------
@@ -95,6 +99,12 @@ Tool to use.
     <td>2.11</td>
     <td>K</td>
     <td>I</td>
+  </tr>
+  <tr>
+    <td>v1.3.1</td>
+    <td>2.10 plus two updates described above</td>
+    <td>J</td>
+    <td>H</td>
   </tr>
   <tr>
     <td>v1.4.2</td>

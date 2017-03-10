@@ -22,11 +22,15 @@ reference of the Whois tests under PDT see the PDT Whois documents.
 
 Version history
 ===============
+
 * v1.0.0 - Initial public release (2015-12-03)
 * v1.1.0 - Updated public release (2016-01-08)
 * v1.2.0 - Updated public release (2016-02-02)
 * v1.3.0 - Updated public release (2016-02-26)
 * v1.4.0 - Updated public release (2016-11-01)
+* v1.4.1 - No public release
+* v1.3.1 - No public release
+* v1.4.2 - Updated public release (2016-03-23)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
 
@@ -38,6 +42,15 @@ The v1.3.0 release includes two updates of the PDT Whois TP that will be include
 * If a field is empty (key is there, but no value) there may be one space character (U+0020) after the colon, i.e. trailing space is permitted.
 
 The v1.4.0 release updates Whois Selftest Tool to match the new format requirements specified in ["Registry Registration Data Directory Services Consistent Labeling and Display Policy"](https://www.icann.org/rdds-labeling-display). That specification is optional until 2017-08-01, and registries still using the current format should stick to v1.3.0 of Whois Selftest Tool.
+
+The v1.4.1 release updates Whois Selftest Tool with two improvements:
+
+* Better error message when fields of type "optional-constrained", "empty-constrained" or "omitted-constrained" are not following the specification.
+* Improved error message when "Registrar Abuse Contact Phone" (or "... Email") is empty.
+
+The v1.3.1 release only updates the debian/changelog for IIS internal package building.
+
+The v1.4.2 release corrects a bug and a Perl warning only seen in Perl 5.18 or higher. 
 
 Specification compatibility matrix
 ----------------------------------
@@ -77,6 +90,24 @@ Tool to use.
   </tr>
   <tr>
     <td>v1.4.0</td>
+    <td>2.11</td>
+    <td>K</td>
+    <td>I</td>
+  </tr>
+  <tr>
+    <td>v1.4.1</td>
+    <td>2.11</td>
+    <td>K</td>
+    <td>I</td>
+  </tr>
+  <tr>
+    <td>v1.3.1</td>
+    <td>2.10 plus two updates described above</td>
+    <td>J</td>
+    <td>H</td>
+  </tr>
+  <tr>
+    <td>v1.4.2</td>
     <td>2.11</td>
     <td>K</td>
     <td>I</td>

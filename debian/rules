@@ -4,7 +4,7 @@ override_dh_auto_configure:
 	rm -f Makefile.PL && dh_auto_configure
 
 override_dh_auto_install:
-	dh_auto_install && dh_auto_install -- --install_base=/opt/whois-selftest-tool
+	dh_auto_install && dh_auto_install -- --install_base=/opt/pdt-ts/whois-selftest-tool
 
 %:
 	dh $@

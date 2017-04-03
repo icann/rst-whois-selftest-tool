@@ -40,3 +40,24 @@ Depends: ${misc:Depends}, ${perl:Depends},
  wget
 Description: Validates Whois output
  Validates Whois output strings according to the ICANN specification.
+
+Package: libwhois-selftest-tool-perl-legacy
+Architecture: all
+Depends: ${misc:Depends}, ${perl:Depends},
+ perl,
+ libdatetime-perl,
+ libfile-slurp-perl,
+ libfile-which-perl,
+ libnet-idn-encode-perl,
+ libnet-ip-perl,
+ libreadonly-perl,
+ libregexp-ipv6-perl,
+ libtest-differences-perl,
+ libtest-mockobject-perl,
+ libtext-csv-perl,
+ libtext-csv-xs-perl,
+ liburi-perl,
+ libyaml-syck-perl,
+ wget
+Description: Validates Whois output
+ Validates Whois output strings according to the ICANN specification.

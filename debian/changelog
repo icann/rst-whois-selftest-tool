@@ -1,3 +1,16 @@
+libwhois-selftest-tool-perl (1.4.2-1) unstable; urgency=medium
+
+  * Release 1.4.2 
+  
+  456a31a Updated README to prepare for release v1.4.2 and v1.3.1.
+  22410e8 Updated README to prepare for release v1.4.2.
+  a292bad Remove remainder of for-when pattern
+  f454c3a Release 1.4.1 Release candidate 1
+  b1f0cd6 PDTT-539: Fix intermittently failing test case
+  a78f689 PDTT-539: Fix warnings
+
+ -- Thomas Rutkowski <thomasr@debuild.dev.iis.se>  Tue, 21 Mar 2017 13:33:19 +0100
+
 libwhois-selftest-tool-perl (1.4.1~rc1-1) unstable; urgency=medium
 
   * Release 1.4.1  Release Candidate 1

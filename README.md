@@ -227,7 +227,7 @@ script can be run, the EPP database must be fetched.
     $> whois-test --help
 
 After installing, you can find documentation for this module with the
-perldoc command. (No, it is not a typo. The directory is still "PDT".)
+perldoc command.
 
     perldoc PDT::TS::Whois
 

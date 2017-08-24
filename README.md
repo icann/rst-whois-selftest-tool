@@ -1,24 +1,25 @@
 Purpose
 =======
 The purpose of the Whois Selftest Tool is to help gTLD applicants prepare for
-[Pre-Delegation Testing]( http://newgtlds.icann.org/en/applicants/pdt) (PDT) by
-providing pre-PDT Whois output validation.
+[Registry System Testing]( https://www.icann.org/resources/registry-system-testing ) 
+(RST) by providing pre-RST Whois output validation. (PDT is now part of RST.)
 
 Scope
 =====
 While Whois Selftest Tool _does_ validate Whois output and it _does_ strive to
-reflect the state of PDT Whois output validation, it _is not_ authoritative on
-the outcome of PDT and it _is_ subject to change.
+reflect the state of RST Whois output validation, it _is not_ authoritative on
+the outcome of RST and it _is_ subject to change.
 
 Disclaimer
 ----------
-The Whois Selftest Tool and the actual Whois testing under PDT are not equal.
+The Whois Selftest Tool and the actual Whois testing under RST are not equal.
 We strive to make the two as equal as possible, but here is no guarantee that 
 successfully running the Whois Selftest Tool means
-that the same Whois system will pass the Whois testing under PDT. For example,
+that the same Whois system will pass the Whois testing under RST. For example,
 the parts of Whois tests under Whois that include DNS lookups and TCP
 connections are not included in the Whois Selftest Tool. For a complete
-reference of the Whois tests under PDT see the PDT Whois documents.
+reference of the Whois tests under RST see the RST Whois document listed under
+the references below.
 
 Version history
 ===============
@@ -30,27 +31,39 @@ Version history
 * v1.4.0 - Updated public release (2016-11-01)
 * v1.4.1 - No public release
 * v1.3.1 - No public release
-* v1.4.2 - Updated public release (2016-03-23)
+* v1.4.2 - Updated public release (2017-03-23, on Github 2017-08-24)
 
-The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs in the version 2.9 document release. It also handles the issue with IDN in the v1.0.0 release and corrects found bugs.
+The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs 
+in the version 2.9 document release. It also handles the issue with IDN in the 
+v1.0.0 release and corrects found bugs.
 
-The v1.2.0 release primarily matches the updates to the PDT Whois TP in the the version 2.10 document release. It also corrects found bugs.
+The v1.2.0 release primarily matches the updates to the PDT Whois TP in the the 
+version 2.10 document release. It also corrects found bugs.
 
-The v1.3.0 release includes two updates of the PDT Whois TP that will be included in the next document release:
+The v1.3.0 release includes two updates of the PDT Whois TP that will be included 
+in the next document release:
 
-* If the Domain Status is "ok" then the fragment in the URL in the Domain Status field may be "ok" or "OK".
-* If a field is empty (key is there, but no value) there may be one space character (U+0020) after the colon, i.e. trailing space is permitted.
+* If the Domain Status is "ok" then the fragment in the URL in the Domain Status 
+field may be "ok" or "OK".
+* If a field is empty (key is there, but no value) there may be one space character 
+(U+0020) after the colon, i.e. trailing space is permitted.
 
-The v1.4.0 release updates Whois Selftest Tool to match the new format requirements specified in ["Registry Registration Data Directory Services Consistent Labeling and Display Policy"](https://www.icann.org/rdds-labeling-display). That specification is optional until 2017-08-01, and registries still using the current format should stick to v1.3.0 of Whois Selftest Tool.
+The v1.4.0 release updates Whois Selftest Tool to match the new format requirements 
+specified in ["Registry Registration Data Directory Services Consistent Labeling and Display Policy"](https://www.icann.org/rdds-labeling-display). 
+That specification is optional until 2017-08-01, and registries still using the 
+current format should stick to v1.3.0 of Whois Selftest Tool.
 
 The v1.4.1 release updates Whois Selftest Tool with two improvements:
 
-* Better error message when fields of type "optional-constrained", "empty-constrained" or "omitted-constrained" are not following the specification.
+* Better error message when fields of type "optional-constrained", "empty-constrained" 
+or "omitted-constrained" are not following the specification.
 * Improved error message when "Registrar Abuse Contact Phone" (or "... Email") is empty.
 
 The v1.3.1 release only updates the debian/changelog for IIS internal package building.
 
-The v1.4.2 release corrects a bug and a Perl warning only seen in Perl 5.18 or higher. 
+The v1.4.2 release corrects a bug and a Perl warning only seen in Perl 5.18 or higher.
+
+The v1.4.2 release now refer to the RST documents.
 
 Specification compatibility matrix
 ----------------------------------
@@ -63,10 +76,12 @@ Tool to use.
     <th>PDT Document Release</th>
     <th>PDT Whois Test Plan version</th>
     <th>PDT Whois CLI Test Case document version</th>
+    <th>RST Whois Test Area Specification version</th>
   </tr>
   <tr>
     <td>v1.0.0</td>
     <td>2.8</td>
+    <td></td>
     <td></td>
     <td></td>
   </tr>
@@ -75,10 +90,12 @@ Tool to use.
     <td>2.9</td>
     <td></td>
     <td></td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.2.0</td>
     <td>2.10</td>
+    <td></td>
     <td></td>
     <td></td>
   </tr>
@@ -87,30 +104,42 @@ Tool to use.
     <td>2.10 plus two updates described above</td>
     <td>J</td>
     <td>H</td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.4.0</td>
     <td>2.11</td>
     <td>K</td>
     <td>I</td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.4.1</td>
     <td>2.11</td>
     <td>K</td>
     <td>I</td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.3.1</td>
     <td>2.10 plus two updates described above</td>
     <td>J</td>
     <td>H</td>
+    <td></td>
   </tr>
   <tr>
     <td>v1.4.2</td>
     <td>2.11</td>
     <td>K</td>
     <td>I</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>v1.4.2</td>
+    <td>3.0</td>
+    <td>-</td>
+    <td>-</td>
+    <td>B</td>
   </tr>
 </table>
 
@@ -119,18 +148,32 @@ Roadmap
 The plan is to solve know issues and any bugs of importance. New versions will be released
 when fixes are stable.
 
-References
-==========
-The [Pre-Delegation Testing]( http://newgtlds.icann.org/en/applicants/pdt)
-microsite hosts the following documents relevant to the Whois Selftest Tool:
+PDT References
+==============
+The old [Pre-Delegation Testing]( http://newgtlds.icann.org/en/applicants/pdt)
+microsite hosts the old PDT documents relevant to the Whois Selftest Tool. Find
+the _PDT Test Specifications_ zip file.
 
-* The PDT\_Whois\_TC\_CLI and PDT\_Whois\_TC\_Web documents, within the PDT Test
-  Specifications zip, specifies the test cases that the Whois Selftest Tool
-  partially implements.
-* The PDT\_Whois\_TP document, within the PDT Test Specifications zip, specifies
-  the format specification that the Whois Selftest Tool implements.
+* The _PDT Whois CLI Test Cases_ document, within the zip file, specifies the 
+  test cases that the Whois Selftest Tool partially implements.
+* The _PDT Whois Test Plan_ document, within the zip file, specifies the format 
+  specification that the Whois Selftest Tool implements.
 
-In the PDT\_Whois\_TP you can find references to other useful documents.
+In _PDT Whois Test Plan_ you can find references to other useful documents.
+
+For the most current information, go to the the RST site instead.
+
+RST References
+==============
+The [Registry System Testing]( https://www.icann.org/resources/registry-system-testing )
+site at ICANN hosts the RST documents relevant to the Whois Selftest Tool. Find
+the _RST Test Specifications_ zip file.
+
+* The _RST Whois Test Area Specification_, wihtin the zip file, specifies the
+  test cases the the Whois Selftest Tool partially implements. It also
+  contains the format specification that the Whois Selftest Tool implements.
+
+In _RST Whois Test Area Specification_ you can find references to other useful documents.
 
 Licensing
 =========
@@ -184,7 +227,7 @@ script can be run, the EPP database must be fetched.
     $> whois-test --help
 
 After installing, you can find documentation for this module with the
-perldoc command.
+perldoc command. (No, it is not a typo. The directory is still "PDT".)
 
     perldoc PDT::TS::Whois
 
@@ -192,7 +235,7 @@ Before use
 ==========
 Before you use the tool, make sure that you have read the documents listed
 in the reference above. Some error messages may be difficult to understand
-without referring to the PDT\_Whois\_TP document.
+without referring to the _RST Whois Test Area Specification_ document.
 
 Usage
 =====
@@ -206,7 +249,7 @@ prepend the commands with `./` just as in the instructions above.
 with IANA and stores them in a text file inside the user's home directory.
 
 `whois-test` validates the Whois responses according to the format specification
-in the PDT\_Whois\_TP document.
+in the _RST Whois Test Area Specification_ document.
 
 The database of EPP Repository Identifiers is a prerequisite for running
 `whois-test` command, so `whois-fetch-epp-repo-ids` must be run at least once
@@ -220,7 +263,9 @@ See the man pages for the respective commands for details on how to run them.
 Known issues
 ============
 
-* The description of the two types of replies on queries for nameserver objects is a bit unclear. For full understanding, please see the PDT Test Case WhoisCLI03 found in the PDT\_Whois\_TC\_CLI document listed in the references above.
+* The description of the two types of replies on queries for nameserver objects 
+is a bit unclear. For full understanding, please see Test Case WhoisCLI03 found 
+in the _RST Whois Test Area Specification_ document listed in the references above.
 
 Reporting bugs
 --------------

@@ -4,13 +4,15 @@ use 5.014;
 
 use Test::More tests => 1;
 use Test::Differences;
-use PDT::TS::Whois::Lexer;
-use PDT::TS::Whois::Validator qw( validate );
 use PDT::TS::Whois::Grammar qw( $grammar );
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Redaction qw( add_redaction_types );
 use PDT::TS::Whois::Types;
+use PDT::TS::Whois::Validator qw( validate );
 
 my $types = PDT::TS::Whois::Types->new;
 $types->load_roid_suffix('t/iana-epp-rep-id.txt');
+add_redaction_types $types, {};
 $types->add_type( 'query domain name' => sub { return ( lc( shift ) ne lc( 'EXAMPLE.TLD' ) ) ? ( 'expected exact domain name' ) : () } );
 
 my $text = do { local $/; <DATA> };

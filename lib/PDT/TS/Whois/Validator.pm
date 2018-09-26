@@ -689,7 +689,7 @@ sub _get_empty_kind_error_message {
     if ( $kind eq 'empty field' && $quantifier eq 'optional-constrained' ) {
         $explanation = "if one such empty field is present then empty fields of type optional-constrained must be present and must not be combined with field of type omitted-constrained. [see Whois TP, ver K, sec 5.7.2 and 5.7.4 ]";
     }
-    elsif ( $kind eq 'empty field' && $quantifier eq 'empty-constrained') {
+    elsif ( $kind eq 'empty field' && $quantifier eq 'empty-constrained' ) {
         $explanation = "this must not be combined with an omitted field of type optional-constrained or with a field of type omitted-constrained. [see Whois TP, ver K, sec 5.7.2, 5.7.3 and 5.7.4 ]";
     }
     elsif ( $kind eq 'omitted field' && $quantifier eq 'optional-constrained' ) {

@@ -2,6 +2,7 @@ Build.PL
 lib/PDT/TS/Whois.pm
 lib/PDT/TS/Whois/Grammar.pm
 lib/PDT/TS/Whois/Lexer.pm
+lib/PDT/TS/Whois/Redaction.pm
 lib/PDT/TS/Whois/Types.pm
 lib/PDT/TS/Whois/UnicodeData.pm
 lib/PDT/TS/Whois/UnicodeIDNA630.pm
@@ -29,6 +30,7 @@ t/10-grammar-optional.t
 t/11-grammar-name-server-section.t
 t/12-grammar-abuse-contact-section.t
 t/13-validator-warnings.t
+t/14-redaction.t
 t/boilerplate.t
 t/iana-epp-rep-id.txt
 t/manifest.t

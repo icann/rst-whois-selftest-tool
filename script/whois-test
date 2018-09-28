@@ -277,6 +277,7 @@ use PDT::TS::Whois::Lexer;
 use PDT::TS::Whois::Validator qw( validate );
 use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Types;
+use PDT::TS::Whois::Redaction qw( add_redaction_types );
 use PDT::TS::Whois::Util qw( extract_roid scrub_u_label );
 
 binmode STDIN, ':encoding(UTF-8)';
@@ -467,6 +468,8 @@ sub main {
             }
         );
     }
+
+    add_redaction_types $glob_types, {};
 
     ##################################################################
     # Validate input

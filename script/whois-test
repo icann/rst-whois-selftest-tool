@@ -58,6 +58,11 @@ Validate B<Name Server Object reply> for the I<HOST> name server object.
 Validate B<Name Server Object reply> for the name server objects with the I<IP>
 IPv4 or IPv6 address.
 
+=item B<--redaction-db>=I<FILE>
+
+A L</redaction string database> to import additional allowed redaction strings
+from.
+
 =item B<FILE>
 
 The reply input file to read. If C<-> is specified, the reply is read from
@@ -187,14 +192,44 @@ The data home directory. (default: $HOME/.local/share)
 
 =head1 FILES
 
-=over 4
-
-=item F<epp-repo-ids.txt>
+=head2 F<epp-repo-ids.txt>
 
 The database of EPP repository IDs stored in a text format.  Located in the
 F<$XDG_DATA_HOME/Whois-Selftest-Tool> directory.
 
-=back
+=head2 Redaction string database
+
+This is a CSV sub-format with a few extra features.
+It is used for storing additional allowed redaction strings.
+
+Lines starting with a hash sign are ignored (useful for adding comments.)
+Empty lines are also ignored (useful for grouping.)
+
+Every line that isn't ignored is a redaction string line.
+Redaction string lines consist of two positional fields.
+
+The first field specifies the redaction type.
+There are two accepted values for redaction type: C<privacy> and C<contact>.
+
+The second field specifies the redaction string itself.
+These additional redaction strings are case-sensitive,
+unlike the explicitly allowed redaction strings of each type which are
+case-insensitive.
+
+Extra fields are forbidden.
+
+Leading and trailing space in field values is ignored.
+Field values can be quoted using quotation marks
+(useful for redaction strings containing commas.)
+Double quotation marks inside a quoted string are interpreted as single
+quotation marks.
+
+An example redaction string database:
+
+    # A comment line followed by an empty line
+
+    privacy,PRIVATE!
+    contact,"Information hidden, please contact ""your local RDDS"""
 
 =head1 AUTHOR
 
@@ -277,7 +312,7 @@ use PDT::TS::Whois::Lexer;
 use PDT::TS::Whois::Validator qw( validate );
 use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Types;
-use PDT::TS::Whois::Redaction qw( add_redaction_types );
+use PDT::TS::Whois::Redaction qw( parse_redaction_db add_redaction_types );
 use PDT::TS::Whois::Util qw( extract_roid scrub_u_label );
 
 binmode STDIN, ':encoding(UTF-8)';
@@ -296,6 +331,7 @@ my $opt_nameserver;
 my $opt_nameserver_ip;
 my $opt_epp_repo_id;
 my $opt_stdin;
+my $opt_redaction_db;
 
 sub scrub_hostname {
     my $value = shift;
@@ -339,6 +375,12 @@ sub scrub_roid_suffix {
     return $value;
 }
 
+sub scrub_readable_file {
+    my $value = shift;
+    ( -f -r $value ) or return ();
+    return $value;
+}
+
 sub main {
 
     ##################################################################
@@ -362,6 +404,7 @@ sub main {
         "nameserver|n=s"    => sub { $opt_nameserver = scrub_hostname( $_[1] ) or die "nameserver argument must be valid hostname" },
         "nameserver-ip|i=s" => sub { $opt_nameserver_ip = scrub_ip_address( $_[1] ) or die "nameserver-ip argument must be valid nameserver IP" },
         "epp-repo-id|e=s"   => sub { $opt_epp_repo_id = scrub_roid_suffix( $_[1] ) or die "epp-repo-id must be valid ROID suffix" },
+        "redaction-db=s"    => sub { $opt_redaction_db = scrub_readable_file( $_[1] ) or die "redaction-db must be readable file" },
         ""                  => \$opt_stdin,
     ) or pod2usage( 2 );
     pod2usage( 1 ) if $opt_help;
@@ -469,7 +512,16 @@ sub main {
         );
     }
 
-    add_redaction_types $glob_types, {};
+    my %additional_redaction_strings;
+    if ( $opt_redaction_db ) {
+        my @db_lines = read_file $opt_redaction_db;
+        if ( @db_lines and !defined $db_lines[0] ) {
+            croak "Can't read file '$opt_redaction_db': $OS_ERROR";
+        }
+
+        %additional_redaction_strings = parse_redaction_db \@db_lines;
+    }
+    add_redaction_types $glob_types, \%additional_redaction_strings;
 
     ##################################################################
     # Validate input

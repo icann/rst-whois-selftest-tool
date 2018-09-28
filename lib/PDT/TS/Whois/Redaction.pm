@@ -3,13 +3,18 @@ use strict;
 use warnings;
 use utf8;
 
+use Carp;
+use File::Slurp;
 use Readonly;
+use Text::CSV;
 
 =head1 EXPORTS
 
 =over 4
 
 =item L<add_redaction_types>
+
+=item L<parse_redaction_db>
 
 =item L<scrub>
 
@@ -19,7 +24,7 @@ use Readonly;
 
 require Exporter;
 our @ISA       = 'Exporter';
-our @EXPORT_OK = qw( &scrub &add_redaction_types );
+our @EXPORT_OK = qw( &scrub &add_redaction_types &parse_redaction_db );
 
 Readonly my $DEFAULT_PRIVACY_REDACT_STRING => 'REDACTED FOR PRIVACY';
 Readonly my $DEFAULT_CONTACT_REDACT_STRING => 'Please query the RDDS service of the Registrar of Record identified in this output for information on how to contact the Registrant, Admin, or Tech contact of the queried domain name.';
@@ -49,6 +54,68 @@ sub scrub {
     }
 
     return $value;
+}
+
+=head2 parse_redaction_db
+
+Parse a redaction database file.
+
+Takes a single argument: an arrayref of lines from a database file.
+
+Returns a hash with the two keys "privacy" and "contact".
+Each one maps to a set of redaction strings (implemented as hashes mapping
+redaction strings to the value 1).
+
+Dies if the input is invalid or if there is a problem with Text::CSV.
+
+=cut
+
+sub parse_redaction_db {
+    my @db_lines = @{ ( shift ) };
+
+    my $csv = Text::CSV->new( { binary => 1 } )
+      or croak "Can't use CSV: " . Text::CSV->error_diag();
+    $csv->allow_whitespace( 1 );
+
+    my %redaction_strings = (
+        privacy => {},
+        contact => {},
+    );
+
+    my $line_count = 0;
+    for my $line ( @db_lines ) {
+        $line_count++;
+        chomp $line;
+
+        # Ignore empty lines and comment lines
+        if ( $line =~ /^(?:#|$)/ ) {
+            next;
+        }
+
+        $csv->parse( $line ) or die Text::CSV->error_diag();
+        my ( $type, $string, @extra_fields ) = $csv->fields();
+
+        my $scrubbed_string = scrub( $string );
+        if ( $scrubbed_string ne $string ) {
+            die "Illegal whitepace in redaction string on line $line_count\n";
+        }
+
+        if ( lc $type eq 'privacy' ) {
+            $redaction_strings{privacy}{$scrubbed_string} = 1;
+        }
+        elsif ( lc $type eq 'contact' ) {
+            $redaction_strings{contact}{$scrubbed_string} = 1;
+        }
+        else {
+            die "Unknown string type on line $line_count";
+        }
+
+        if ( @extra_fields ) {
+            die "Extra fields on line $line_count";
+        }
+    }
+
+    return %redaction_strings;
 }
 
 =head2 add_redaction_types

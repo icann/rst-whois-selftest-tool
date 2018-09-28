@@ -5,6 +5,7 @@ use utf8;
 
 use Test::More;
 use Test::Differences;
+use Test::Exception;
 use Readonly;
 
 # This is needed to get rid of wide character print warnings
@@ -13,7 +14,7 @@ binmode STDERR, ':utf8';
 
 BEGIN {
     use_ok 'PDT::TS::Whois::Types';
-    use_ok 'PDT::TS::Whois::Redaction', qw( add_redaction_types );
+    use_ok 'PDT::TS::Whois::Redaction', qw( add_redaction_types parse_redaction_db );
 }
 
 Readonly my %DEFAULT_PRIVACY => (
@@ -209,5 +210,44 @@ subtest 'Email web or redacted' => sub {
     accept_ok $types, 'Contact redacted' => 'email web or redacted', $DEFAULT_CONTACT{"Mixed case"};
     reject_ok $types, 'Privacy redacted' => 'email web or redacted', $DEFAULT_PRIVACY{"Upper case"}, qr/(?=.*Email address)(?=.*HTTP URL)(?=.*Email redact string)/;
 };
+
+{
+    my %strings = parse_redaction_db [];
+    eq_or_diff \%strings, { privacy => {}, contact => {} }, 'Empty database';
+}
+{
+    my %strings = parse_redaction_db [ 'contact,first', 'contact,second' ];
+    eq_or_diff \%strings, { privacy => {}, contact => { first => 1, second => 1 } }, 'Database with contact entries';
+}
+{
+    my %strings = parse_redaction_db [ 'privacy,first', 'privacy,second' ];
+    eq_or_diff \%strings, { contact => {}, privacy => { first => 1, second => 1 } }, 'Database with privacy entries';
+}
+{
+    dies_ok {
+        parse_redaction_db ['unrecognized,first'];
+    }
+    'Database with unrecognized entries';
+}
+{
+    my %strings = parse_redaction_db ['  privacy  ,  a b c  '];
+    eq_or_diff \%strings, { privacy => { 'a b c' => 1 }, contact => {} }, 'Database with leading and trailing whitespace';
+}
+{
+    my %strings = parse_redaction_db [''];
+    eq_or_diff \%strings, { contact => {}, privacy => {} }, 'Database with empty lines';
+}
+{
+    my %strings = parse_redaction_db ['# Comment'];
+    eq_or_diff \%strings, { contact => {}, privacy => {} }, 'Database with comment lines';
+}
+{
+    my %strings = parse_redaction_db ['"privacy","PRIVATE!"'];
+    eq_or_diff \%strings, { contact => {}, privacy => { "PRIVATE!" => 1 } }, 'Database with quoted fields';
+}
+{
+    my %strings = parse_redaction_db [ 'privacy,"with ""quotes"" inside"', 'privacy,"""quoted"""' ];
+    eq_or_diff \%strings, { contact => {}, privacy => { 'with "quotes" inside' => 1, '"quoted"' => 1 } }, 'Database with quoted quotes';
+}
 
 done_testing;

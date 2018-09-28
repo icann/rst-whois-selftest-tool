@@ -23,6 +23,7 @@ WriteMakefile
                    'Readonly' => 0,
                    'Test::More' => 0,
                    'Test::Differences' => 0,
+                   'Test::Exception' => 0,
                    'Text::CSV_XS' => 0,
                    'Net::IDN::Encode' => 0,
                    'File::Slurp' => 0

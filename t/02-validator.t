@@ -7,7 +7,7 @@ use Test::Differences;
 use Test::MockObject;
 
 require_ok('PDT::TS::Whois::Validator');
-use PDT::TS::Whois::Remark qw( remark_string );
+use PDT::TS::Whois::Remark qw( new_remark remark_string $ERROR_SEVERITY );
 use PDT::TS::Whois::Validator qw( validate validate2 );
 
 my $grammar = {
@@ -132,7 +132,7 @@ sub make_mock_lexer {
     my @tokens = @_;
     my $line_no = 1;
     my $lexer = Test::MockObject->new();
-    $lexer->mock('peek_line', sub {
+    $lexer->mock('peek_line2', sub {
             if (exists $tokens[$line_no - 1]) {
                 return @{ $tokens[$line_no - 1] };
             }
@@ -367,8 +367,8 @@ subtest 'Error propagation' => sub {
     plan tests => 1;
 
     my $lexer = make_mock_lexer (
-        ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], ['line 1: BOOM!']],
-        ['EOF', undef, []],
+        [ 'field', [ 'Domain Name', [], 'DOMAIN.EXAMPLE' ], [ new_remark $ERROR_SEVERITY, 1, 'BOOM!' ] ],
+        [ 'EOF', undef, [] ],
     );
     my @remarks = validate2( rule => 'Required field', lexer => $lexer, grammar => $grammar, types => $types );
     my @strings = map { remark_string( $_ ) } @remarks;

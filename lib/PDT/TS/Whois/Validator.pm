@@ -142,8 +142,8 @@ sub validate2 {
     }
 
     # Check status of parsed input
-    my ( $token, $token_value ) = $state->{lexer}->peek_line();
-    defined $token or confess 'unexpected return value from peek_line()';
+    my ( $token, $token_value ) = $state->{lexer}->peek_line2();
+    defined $token or confess 'unexpected return value from peek_line2()';
 
     # Pick up fatal validation errors
     unless ( defined $result && $token eq 'EOF' ) {
@@ -155,18 +155,6 @@ sub validate2 {
     }
 
     return @errors;
-}
-
-sub _parse_error_remark {
-    my ( $string ) = @_;
-
-    ( ref $string eq '' ) or confess 'Argument must be a scalar: $string';
-
-    $string =~ /^line (\d+): (.*)/;
-
-    ( defined $1 && defined $2 ) or confess 'Invalid argument format: $string';
-
-    return new_remark( $ERROR_SEVERITY, $1, $2 );
 }
 
 sub _describe_line {
@@ -397,11 +385,11 @@ sub _rule {
                     push @errors, @{$result};
                 }
                 else {
-                    my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line();
+                    my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line2();
                     defined $token or croak 'unexpected return value';
                     ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
 
-                    push @errors, map { _parse_error_remark( $_ ) } @{$token_errors};
+                    push @errors, @{$token_errors};
 
                     my $description = _describe_line( $token, $token_value );
                     push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, "$description not allowed here" );
@@ -486,7 +474,7 @@ sub _line {
     my $subtype;
 
     if ( defined $type ) {
-        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
+        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line2();
 
         if ( !defined $token || $token ne 'field' ) {
             return;
@@ -512,11 +500,9 @@ sub _line {
             }
             $subtype = 'empty field';
         }
-
-        $errors = [ map { _parse_error_remark( $_ ) } @{$errors} ];
     }
     else {
-        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
+        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line2();
 
         if ( !defined $token ) {
             return;
@@ -535,8 +521,6 @@ sub _line {
         }
 
         ref $errors eq 'ARRAY' or confess;
-
-        $errors = [ map { _parse_error_remark( $_ ) } @{$errors} ];
     }
 
     if ( $line eq 'any line' || $line eq 'non-empty line' ) {

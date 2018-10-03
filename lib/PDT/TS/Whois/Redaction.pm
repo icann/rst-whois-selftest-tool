@@ -95,6 +95,10 @@ sub parse_redaction_db {
         $csv->parse( $line ) or die Text::CSV->error_diag();
         my ( $type, $string, @extra_fields ) = $csv->fields();
 
+        if ( !defined $string ) {
+            die "Invalid record on line $line_count\n";
+        }
+
         my $scrubbed_string = scrub( $string );
         if ( $scrubbed_string ne $string ) {
             die "Illegal whitepace in redaction string on line $line_count\n";

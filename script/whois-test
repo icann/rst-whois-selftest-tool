@@ -62,6 +62,7 @@ IPv4 or IPv6 address.
 
 A L</redaction string database> to import additional allowed redaction strings
 from.
+The database format is described in the full man page.
 
 =item B<FILE>
 
@@ -519,7 +520,10 @@ sub main {
             croak "Can't read file '$opt_redaction_db': $OS_ERROR";
         }
 
-        %additional_redaction_strings = parse_redaction_db \@db_lines;
+        %additional_redaction_strings = eval { parse_redaction_db \@db_lines };
+        if ( $EVAL_ERROR ) {
+            croak "Can't parse --redaction-db file '$opt_redaction_db': $EVAL_ERROR";
+        }
     }
     add_redaction_types $glob_types, \%additional_redaction_strings;
 

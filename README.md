@@ -1,8 +1,8 @@
 Purpose
 =======
-The purpose of the Whois Selftest Tool is to help gTLD applicants prepare for
-[Registry System Testing]( https://www.icann.org/resources/registry-system-testing ) 
-(RST) by providing pre-RST Whois output validation. (PDT is now part of RST.)
+The purpose of the Whois Selftest Tool is to help gTLD Registry Operators 
+prepare for [Registry System Testing] (RST) by providing pre-RST Whois 
+output validation. (PDT is now part of RST.)
 
 Scope
 =====
@@ -32,6 +32,7 @@ Version history
 * v1.4.1 - No public release
 * v1.3.1 - No public release
 * v1.4.2 - Updated public release (2017-03-23, on Github 2017-08-24)
+* v1.4.3 - Updated public release (2018-10-09)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs 
 in the version 2.9 document release. It also handles the issue with IDN in the 
@@ -49,9 +50,7 @@ field may be "ok" or "OK".
 (U+0020) after the colon, i.e. trailing space is permitted.
 
 The v1.4.0 release updates Whois Selftest Tool to match the new format requirements 
-specified in ["Registry Registration Data Directory Services Consistent Labeling and Display Policy"](https://www.icann.org/rdds-labeling-display). 
-That specification is optional until 2017-08-01, and registries still using the 
-current format should stick to v1.3.0 of Whois Selftest Tool.
+specified in "[Registry Registration Data Directory Services Consistent Labeling and Display Policy]".
 
 The v1.4.1 release updates Whois Selftest Tool with two improvements:
 
@@ -65,95 +64,43 @@ The v1.4.2 release corrects a bug and a Perl warning only seen in Perl 5.18 or h
 
 The v1.4.2 release now refer to the RST documents.
 
+The v1.4.3 release adapts the requirements to GDPR and 
+"[Temporary Specification for gTLD Registration Data]".
+
+
 Specification compatibility matrix
 ----------------------------------
 Refer to this compatibility matrix when deciding which version of Whois Selftest
-Tool to use.
+Tool (WSTT) to use. TP = Test Plan (PDT). TC = Test Case (PDT). 
+TA = Test Area (RST).
 
-<table>
-  <tr>
-    <th>Whois Selftest Tool version</th>
-    <th>PDT Document Release</th>
-    <th>PDT Whois Test Plan version</th>
-    <th>PDT Whois CLI Test Case document version</th>
-    <th>RST Whois Test Area Specification version</th>
-  </tr>
-  <tr>
-    <td>v1.0.0</td>
-    <td>2.8</td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.1.0</td>
-    <td>2.9</td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.2.0</td>
-    <td>2.10</td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.3.0</td>
-    <td>2.10 plus two updates described above</td>
-    <td>J</td>
-    <td>H</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.4.0</td>
-    <td>2.11</td>
-    <td>K</td>
-    <td>I</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.4.1</td>
-    <td>2.11</td>
-    <td>K</td>
-    <td>I</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.3.1</td>
-    <td>2.10 plus two updates described above</td>
-    <td>J</td>
-    <td>H</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.4.2</td>
-    <td>2.11</td>
-    <td>K</td>
-    <td>I</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>v1.4.2</td>
-    <td>3.0</td>
-    <td>-</td>
-    <td>-</td>
-    <td>B</td>
-  </tr>
-</table>
+WSTT ver |PDT Doc Release |[PDT Whois TP] ver |[PDT Whois CLI TC doc] ver |[RST Whois TA Spec] ver
+:--------|:---------------|:----------------|:------------------------|:--------------------
+v1.0.0   |2.8             |                 |                         |
+v1.1.0   |2.9             |                 |                         |
+v1.2.0   |2.10            |                 |                         |
+v1.3.0   |2.10 plus two updates described above|J  |H                 |-
+v1.4.0   |2.11            |K                |I                        |-
+v1.4.1   |2.11            |K                |I                        |-
+v1.3.1   |2.10 plus two updates described above|J  |H                 |-
+v1.4.2   |2.11            |K                |I                        |-
+v1.4.2   |3.0             |-                |-                        |B
+v1.4.3   |3.1             |-                |-                        |C
 
 Roadmap
 =======
-The plan is to solve know issues and any bugs of importance. New versions will be released
-when fixes are stable.
+The plan is to release new versions of the tool whenever the underlying
+requirements on Whois testing as specified in 
+_[RST Whois Test Area Specification]_ has been changed. The plan is also
+to solve known issues and bugs of importance. New versions will be released
+when such fixes are stable.
 
 PDT References
 ==============
-The old [Pre-Delegation Testing]( http://newgtlds.icann.org/en/applicants/pdt)
-microsite hosts the old PDT documents relevant to the Whois Selftest Tool. Find
-the _PDT Test Specifications_ zip file.
+The old [Pre-Delegation Testing] microsite hosts the old PDT documents relevant 
+to old versions of Whois Selftest Tool. 
 
+* Find the _PDT Test Specifications_ zip file.
 * The _PDT Whois CLI Test Cases_ document, within the zip file, specifies the 
   test cases that the Whois Selftest Tool partially implements.
 * The _PDT Whois Test Plan_ document, within the zip file, specifies the format 
@@ -165,11 +112,11 @@ For the most current information, go to the the RST site instead.
 
 RST References
 ==============
-The [Registry System Testing]( https://www.icann.org/resources/registry-system-testing )
-site at ICANN hosts the RST documents relevant to the Whois Selftest Tool. Find
-the _RST Test Specifications_ zip file.
+The [Registry System Testing]
+site at ICANN hosts the RST documents relevant to the Whois Selftest Tool. 
 
-* The _RST Whois Test Area Specification_, wihtin the zip file, specifies the
+* Find the _RST Test Specifications_ zip file.
+* The _**RST Whois Test Area Specification**_, within the zip file, specifies the
   test cases the the Whois Selftest Tool partially implements. It also
   contains the format specification that the Whois Selftest Tool implements.
 
@@ -177,7 +124,7 @@ In _RST Whois Test Area Specification_ you can find references to other useful d
 
 Licensing
 =========
-Whois Selftest Tool is distributed under the terms of [this license]( LICENSE).
+Whois Selftest Tool is distributed under the terms of [this license].
 
 Dependencies
 ============
@@ -197,6 +144,7 @@ Dependencies
    * Text::CSV\_XS
    * URI
    * YAML::Syck
+   * Test::Exception
  * wget
 
 The Whois Selftest Tool has been developed on Unbuntu Linux, but we have tried to
@@ -235,7 +183,7 @@ Before use
 ==========
 Before you use the tool, make sure that you have read the documents listed
 in the reference above. Some error messages may be difficult to understand
-without referring to the _RST Whois Test Area Specification_ document.
+without referring to the _[RST Whois Test Area Specification]_ document.
 
 Usage
 =====
@@ -249,7 +197,7 @@ prepend the commands with `./` just as in the instructions above.
 with IANA and stores them in a text file inside the user's home directory.
 
 `whois-test` validates the Whois responses according to the format specification
-in the _RST Whois Test Area Specification_ document.
+in the _[RST Whois Test Area Specification]_ document.
 
 The database of EPP Repository Identifiers is a prerequisite for running
 `whois-test` command, so `whois-fetch-epp-repo-ids` must be run at least once
@@ -257,19 +205,36 @@ before `whois-test` is used for the first time.  After that, run
 `whois-fetch-epp-repo-ids` again to update the database every time 
 the Whois Selfttest Tool is to be used.
 
+The tool accepts the default "redact strings" as specified in the 
+_[RST Whois Test Area Specification]_ document. If an additional redact string
+is used, and be accepted by the tool, it has to be added to the redaction string 
+database. Use `--redaction-db` to point at the selected database. Run
+`whois-test --man` to get full documentation.
+
 See the man pages for the respective commands for details on how to run them.
-(You can use the `--man` option to view the man pages)
+Use the `--man` option to view the man pages.
 
 Known issues
 ============
 
 * The description of the two types of replies on queries for nameserver objects 
 is a bit unclear. For full understanding, please see Test Case WhoisCLI03 found 
-in the _RST Whois Test Area Specification_ document listed in the references above.
+in the _[RST Whois Test Area Specification]_ document.
 
 Reporting bugs
 --------------
 If you think you've found a bug, please search both the list of known issues and
-the [issue tracker](https://github.com/dotse/Whois-Selftest-Tool/issues) to see
-if this is a known bug.  If you cannot find it, please report it to the issue
-tracker.
+the [issue tracker] to see if this is a known bug.  If you cannot find it, 
+please report it to the issue tracker.
+
+
+[Pre-Delegation Testing]: http://newgtlds.icann.org/en/applicants/pdt
+[Registry System Testing]: https://www.icann.org/resources/registry-system-testing
+[Registry Registration Data Directory Services Consistent Labeling and Display Policy]: https://www.icann.org/rdds-labeling-display 
+[Temporary Specification for gTLD Registration Data]: https://www.icann.org/resources/pages/gtld-registration-data-specs-en
+[RST Whois Test Area Specification]: #rst-references
+[issue tracker]: https://github.com/dotse/Whois-Selftest-Tool/issues
+[this license]: LICENSE
+[PDT Whois TP]: #pdt-references
+[PDT Whois CLI TC doc]: #pdt-references
+[RST Whois TA Spec]: #rst-references

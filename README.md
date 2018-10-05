@@ -71,10 +71,10 @@ The v1.4.3 release adapts the requirements to GDPR and
 Specification compatibility matrix
 ----------------------------------
 Refer to this compatibility matrix when deciding which version of Whois Selftest
-Tool (WSTT) to use. TP = Test Plan (PDT). TC = Test Case (PDT). 
-TA = Test Area (RST).
+Tool to use. Use the latest version of Whois Selftest Tool to match the latest
+version of the _[RST Whois Test Area Specification]_ document.
 
-WSTT ver |PDT Doc Release |[PDT Whois TP] ver |[PDT Whois CLI TC doc] ver |[RST Whois TA Spec] ver
+Whois Selftest Tool |PDT/RST Document Release |[PDT Whois Test Plan] |[PDT Whois CLI Test Cases] |[RST Whois Test Area]
 :--------|:---------------|:----------------|:------------------------|:--------------------
 v1.0.0   |2.8             |                 |                         |
 v1.1.0   |2.9             |                 |                         |
@@ -108,7 +108,8 @@ to old versions of Whois Selftest Tool.
 
 In _PDT Whois Test Plan_ you can find references to other useful documents.
 
-For the most current information, go to the the RST site instead.
+For the most current information, go to the the [Registry System Testing] (RST) 
+site instead.
 
 RST References
 ==============
@@ -124,7 +125,7 @@ In _RST Whois Test Area Specification_ you can find references to other useful d
 
 Licensing
 =========
-Whois Selftest Tool is distributed under the terms of [this license].
+Whois Selftest Tool is distributed under the terms of [This License].
 
 Dependencies
 ============
@@ -139,12 +140,12 @@ Dependencies
    * Readonly
    * Regexp::IPv6
    * Test::Differences
+   * Test::Exception
    * Test::MockObject
    * Text::CSV
    * Text::CSV\_XS
    * URI
    * YAML::Syck
-   * Test::Exception
  * wget
 
 The Whois Selftest Tool has been developed on Unbuntu Linux, but we have tried to
@@ -224,17 +225,18 @@ in the _[RST Whois Test Area Specification]_ document.
 Reporting bugs
 --------------
 If you think you've found a bug, please search both the list of known issues and
-the [issue tracker] to see if this is a known bug.  If you cannot find it, 
+the [Issue Tracker] to see if this is a known bug.  If you cannot find it, 
 please report it to the issue tracker.
 
 
+[Issue Tracker]: https://github.com/dotse/Whois-Selftest-Tool/issues
+[PDT Whois CLI Test Cases]: #pdt-references
+[PDT Whois Test Plan]: #pdt-references
 [Pre-Delegation Testing]: http://newgtlds.icann.org/en/applicants/pdt
 [Registry System Testing]: https://www.icann.org/resources/registry-system-testing
 [Registry Registration Data Directory Services Consistent Labeling and Display Policy]: https://www.icann.org/rdds-labeling-display 
-[Temporary Specification for gTLD Registration Data]: https://www.icann.org/resources/pages/gtld-registration-data-specs-en
 [RST Whois Test Area Specification]: #rst-references
-[issue tracker]: https://github.com/dotse/Whois-Selftest-Tool/issues
-[this license]: LICENSE
-[PDT Whois TP]: #pdt-references
-[PDT Whois CLI TC doc]: #pdt-references
-[RST Whois TA Spec]: #rst-references
+[Temporary Specification for gTLD Registration Data]: https://www.icann.org/resources/pages/gtld-registration-data-specs-en
+[This License]: LICENSE
+[RST Whois Test Area]: #rst-references
+

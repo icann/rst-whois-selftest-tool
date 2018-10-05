@@ -7,8 +7,9 @@ use Test::Differences;
 use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Lexer;
 use PDT::TS::Whois::Redaction qw( add_redaction_types );
+use PDT::TS::Whois::Remark qw( remark_string );
 use PDT::TS::Whois::Types;
-use PDT::TS::Whois::Validator qw( validate );
+use PDT::TS::Whois::Validator qw( validate validate2 );
 
 my $nameserver_details_minimal_ok = <<EOF;
 Server Name: NS1.EXAMPLE.TLD
@@ -705,7 +706,8 @@ for my $test_name ( sort keys %data ) {
 
     my $lexer = PDT::TS::Whois::Lexer->new($text);
 
-    my @errors = validate(rule => $rule, lexer => $lexer, grammar => $grammar, types => $types);
-    ok scalar @errors > 0, $test_name . ": should report errors";
-    eq_or_diff $errors[0], "line 8: field 'Admin Contact' is required and must not be present as an empty field", $test_name . ': should complain about Admin Contact being an empty field';
+    my @remarks = validate2( rule => $rule, lexer => $lexer, grammar => $grammar, types => $types );
+    ok scalar @remarks > 0, $test_name . ": should report errors";
+    my @strings = map { remark_string( $_ ) } @remarks;
+    eq_or_diff $strings[0], "line 8: error: field 'Admin Contact' is required and must not be present as an empty field", $test_name . ': should complain about Admin Contact being an empty field';
 }

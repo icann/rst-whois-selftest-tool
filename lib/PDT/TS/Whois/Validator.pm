@@ -6,10 +6,15 @@ use 5.014;
 
 use Carp;
 
+use PDT::TS::Whois::Remark qw( new_remark $ERROR_SEVERITY );
+
 require Exporter;
 
 our @ISA       = 'Exporter';
-our @EXPORT_OK = qw( validate );
+our @EXPORT_OK = qw(
+  validate
+  validate2
+);
 
 =head1 NAME
 
@@ -26,26 +31,56 @@ This module exports a single function called L<validate>.
 
 =head2 validate
 
+I<Deprecated>, use L<validate2> instead.
+
+L<validate> is identical to L<validate2>, except it returns strings like
+C<"line 1: error: Boom!"> instead of L<PDT::TS::Whois::Remark> hashrefs.
+
+=cut
+
+sub validate {
+    my %args = @_;
+
+    croak "lexer: missing argument"       unless defined $args{lexer};
+    croak "grammar: missing argument"     unless defined $args{grammar};
+    croak "types: missing argument"       unless defined $args{types};
+    croak "rule: missing argument"        unless defined $args{rule};
+    croak "key translation: missing type" unless $args{types}->has_type( 'key translation' );
+    croak "time stamp: missing type"      unless $args{types}->has_type( 'time stamp' );
+    croak "roid: missing type"            unless $args{types}->has_type( 'roid' );
+    croak "hostname: missing type"        unless $args{types}->has_type( 'hostname' );
+
+    my @remarks = validate2(
+        lexer   => $args{lexer},
+        grammar => $args{grammar},
+        types   => $args{types},
+        rule    => $args{rule},
+    );
+    return map { sprintf "line %d: %s", $_->{lineno}, $_->{message} } @remarks;
+}
+
+=head2 validate2
+
 Reads line tokens from a lexer, matching them against grammar rules.  When a
 line token is matched with a grammar rule, its token value is matched against a
 type derived from the matched grammar rule.  The result of a validation is the
 combined grammar and type mismatches and validation errors reported by the
 lexer.
 
-    use PDT::TS::Whois::Validator qw( validate );
+    use PDT::TS::Whois::Remark qw( remark_string $ERROR_SEVERITY );
+    use PDT::TS::Whois::Validator qw( validate2 );
 
-    my @errors = validate(
+    my @remarks = validate2(
         rule    => 'rule name',
         lexer   => $lexer,
         grammar => $grammar,
         types   => $types,
     );
-    if (@errors) {
-        for my $message (@errors) {
-            say "error: $message";
-        }
+
+    for my $remark ( @remarks ) {
+        say remark_string( $remark );
     }
-    else {
+    if ( !grep { $_->severity eq $ERROR_SEVERITY } @remarks ) {
         say "ok";
     }
 
@@ -73,7 +108,7 @@ be an object with the interface of PDT::TS::Whois::Types.
 
 =cut
 
-sub validate {
+sub validate2 {
     my %args = @_;
 
     croak "lexer: missing argument"       unless defined $args{lexer};
@@ -101,8 +136,9 @@ sub validate {
     # Pick up validation warnings
     my @errors;
     if ( defined $result ) {
-        ref $rule_errors eq 'ARRAY' or croak 'unexpected return value from _rule()';
-        @errors = @{$rule_errors};
+        ( ref $rule_errors eq 'ARRAY' ) or croak 'unexpected return value from _rule()';
+
+        @errors = map { _parse_error_remark( $_ ) } @{$rule_errors};
     }
 
     # Check status of parsed input
@@ -113,12 +149,24 @@ sub validate {
     unless ( defined $result && $token eq 'EOF' ) {
         if ( !@errors ) {
             my $description = _describe_line( $token, $token_value );
-            push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
+            push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, "$description not allowed here" );
         }
-        push @errors, sprintf 'line %d: validation aborted, no validation was perfomed beyond this line', $state->{lexer}->line_no();
+        push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, 'validation aborted, no validation was perfomed beyond this line' );
     }
 
     return @errors;
+}
+
+sub _parse_error_remark {
+    my ( $string ) = @_;
+
+    ( ref $string eq '' ) or confess 'Argument must be a scalar: $string';
+
+    $string =~ /^line (\d+): (.*)/;
+
+    ( defined $1 && defined $2 ) or confess 'Invalid argument format: $string';
+
+    return new_remark( $ERROR_SEVERITY, $1, $2 );
 }
 
 sub _describe_line {

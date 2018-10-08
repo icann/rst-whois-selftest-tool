@@ -175,8 +175,8 @@ Readonly my %NAME_SERVER_ADDITIONAL_FIELD_KEY_BLACKLIST => (
 Readonly my %REJECTED_KEYS => (
     'domain name object additional field key' => {
         'URL of the ICANN Whois Inaccuracy Complaint Form' => 1,
-        'Registrar Abuse Contact Email' => 1,
-        'Registrar Abuse Contact Phone' => 1,
+        'Registrar Abuse Contact Email'                    => 1,
+        'Registrar Abuse Contact Phone'                    => 1,
     },
 );
 

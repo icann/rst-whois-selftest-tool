@@ -280,17 +280,17 @@ OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =over 4
 
-=item B<Pre-Delegation Testing microsite>
+=item B<Registry System Testing (RST) resource site>
 
-http://newgtlds.icann.org/en/applicants/pdt
+https://www.icann.org/resources/registry-system-testing
 
-=item B<PDT Test Specifications zip>
+=item B<RST Test Specifications zip>
 
-Present at the B<Pre-Delegation Testing microsite>.
+Present at the B<RST resource site>
 
-=item F<PDT_Whois_TP.pdf>
+=item F<Test Area Whois.pdf>
 
-Present in the B<PDT Test Specifications zip>.
+Present in the B<RST Test Specifications zip>
 
 =back
 

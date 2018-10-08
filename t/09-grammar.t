@@ -4,10 +4,11 @@ use 5.014;
 
 use Test::More;
 use Test::Differences;
-use PDT::TS::Whois::Lexer;
-use PDT::TS::Whois::Validator qw( validate );
 use PDT::TS::Whois::Grammar qw( $grammar );
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Redaction qw( add_redaction_types );
 use PDT::TS::Whois::Types;
+use PDT::TS::Whois::Validator qw( validate );
 
 my $nameserver_details_minimal_ok = <<EOF;
 Server Name: NS1.EXAMPLE.TLD
@@ -674,6 +675,7 @@ plan tests => (scalar keys %data) + 2;
 
 my $types = PDT::TS::Whois::Types->new;
 $types->load_roid_suffix('t/iana-epp-rep-id.txt');
+add_redaction_types $types, {};
 $types->add_type( 'query domain name' => sub { return ( lc( shift ) ne lc( 'EXAMPLE.TLD' ) ) ? ( 'expected exact domain name' ) : () } );
 $types->add_type( 'query name server' => sub { return ( lc( shift ) ne lc( 'NS1.EXAMPLE.TLD' ) ) ? ( 'expected exact name server' ) : () } );
 $types->add_type( 'query name server ip' => sub { return ( $_[0] !~ /^192\.0\.[0-9]+\.123$/ && $_[0] ne '2001:0DB8::1' ) ? ( 'expected name server ip' ) : () } );

@@ -4,10 +4,11 @@ use 5.014;
 
 use Test::More;
 use Test::Differences;
-use PDT::TS::Whois::Lexer;
-use PDT::TS::Whois::Validator qw( validate );
 use PDT::TS::Whois::Grammar qw( $grammar );
+use PDT::TS::Whois::Lexer;
+use PDT::TS::Whois::Remark qw( remark_string );
 use PDT::TS::Whois::Types;
+use PDT::TS::Whois::Validator qw( validate2 );
 
 plan tests => 1;
 
@@ -29,8 +30,9 @@ EOF
 $text =~ s/(?<!\r)\n/\r\n/g;
 my $lexer = PDT::TS::Whois::Lexer->new($text);
 
-my @errors = validate(rule => 'Name server details section', lexer => $lexer, grammar => $grammar, types => $types);
-eq_or_diff \@errors, [
-'line 5: found an additional field: "Additional field 1"',
-'line 6: found an additional field: "Additional field 2"',
+my @remarks = validate2( rule => 'Name server details section', lexer => $lexer, grammar => $grammar, types => $types );
+my @strings = map { remark_string( $_ ) } @remarks;
+eq_or_diff \@strings, [
+    'line 5: info: found an additional field: "Additional field 1"',
+    'line 6: info: found an additional field: "Additional field 2"',
 ], 'Should report presence of additional fields';

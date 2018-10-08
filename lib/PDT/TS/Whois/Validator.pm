@@ -6,7 +6,7 @@ use 5.014;
 
 use Carp;
 
-use PDT::TS::Whois::Remark qw( new_remark $ERROR_SEVERITY );
+use PDT::TS::Whois::Remark qw( new_remark $ERROR_SEVERITY $INFO_SEVERITY );
 
 require Exporter;
 
@@ -138,7 +138,7 @@ sub validate2 {
     if ( defined $result ) {
         ( ref $rule_errors eq 'ARRAY' ) or croak 'unexpected return value from _rule()';
 
-        @errors = map { _parse_error_remark( $_ ) } @{$rule_errors};
+        @errors = @{$rule_errors};
     }
 
     # Check status of parsed input
@@ -270,13 +270,13 @@ sub _occurances {
             my $line_after = $state->{lexer}->line_no;
             push @errors, @$parsed_errors;
             if ( $parsed eq 'empty field' ) {
-                push @pending_empty_error, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
+                push @pending_empty_error, new_remark( $ERROR_SEVERITY, $line_after - 1, "empty field in repetition '$key'" );
                 if ( !$first ) {
                     push @errors, @pending_empty_error;
                     @pending_empty_error = ();
                 }
                 elsif ( $quantifier =~ /^required$|^repeatable|^optional-repeatable|^omitted-constrained$|^optional-not-empty$/ ) {
-                    push @errors, sprintf( "line %d: field '%s' is %s and must not be present as an empty field", $line_after - 1, $key, $quantifier );
+                    push @errors, new_remark( $ERROR_SEVERITY, $line_after - 1, "field '$key' is $quantifier and must not be present as an empty field" );
                 }
                 elsif ( $quantifier =~ /^optional-constrained$|^empty-constrained$/ ) {
                     push @errors,
@@ -401,10 +401,10 @@ sub _rule {
                     defined $token or croak 'unexpected return value';
                     ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
 
-                    push @errors, @{$token_errors};
+                    push @errors, map { _parse_error_remark( $_ ) } @{$token_errors};
 
                     my $description = _describe_line( $token, $token_value );
-                    push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
+                    push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, "$description not allowed here" );
                     return ( undef, \@errors );
                 }
             }
@@ -512,6 +512,8 @@ sub _line {
             }
             $subtype = 'empty field';
         }
+
+        $errors = [ map { _parse_error_remark( $_ ) } @{$errors} ];
     }
     else {
         ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
@@ -533,6 +535,8 @@ sub _line {
         }
 
         ref $errors eq 'ARRAY' or confess;
+
+        $errors = [ map { _parse_error_remark( $_ ) } @{$errors} ];
     }
 
     if ( $line eq 'any line' || $line eq 'non-empty line' ) {
@@ -558,7 +562,7 @@ sub _line {
                 push @$errors, @keytype_errors;
             }
             elsif ( !defined $type && $subtype eq 'field' ) {
-                push @$errors, ( sprintf( 'line %s: found an additional field: "%s"', $state->{lexer}->line_no, $key ) );
+                push @$errors, new_remark( $INFO_SEVERITY, $state->{lexer}->line_no, qq{found an additional field: "$key"} );
             }
         }
 
@@ -750,7 +754,7 @@ sub _get_empty_kind_error_message {
         croak sprintf( "missing explanation for empty kind '%s' and quantifier '%s'", $kind, $quantifier );
     }
 
-    return sprintf( "line %d: field of type %s '%s' (%s): %s", $line_no, $quantifier, $key, $kind, $explanation );
+    return new_remark( $ERROR_SEVERITY, $line_no, "field of type $quantifier '$key' ($kind): $explanation" );
 }
 
 sub _is_acceptable_key {
@@ -771,7 +775,7 @@ sub _validate_type {
 
     my @errors;
     for my $error ( $state->{types}->validate_type( $type_name, $value ) ) {
-        push @errors, sprintf( "line %s: %s%s", $state->{lexer}->line_no, $prefix, $error );
+        push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, $prefix . $error );
     }
     return @errors;
 }

@@ -7,7 +7,7 @@ use Test::Differences;
 use PDT::TS::Whois::Grammar qw( $grammar );
 use PDT::TS::Whois::Lexer;
 use PDT::TS::Whois::Redaction qw( add_redaction_types );
-use PDT::TS::Whois::Remark qw( remark_string );
+use PDT::TS::Whois::Remark qw( remark_string $INFO_SEVERITY );
 use PDT::TS::Whois::Types;
 use PDT::TS::Whois::Validator qw( validate validate2 );
 
@@ -691,9 +691,9 @@ for my $test_name ( sort keys %data ) {
 
     my $lexer = PDT::TS::Whois::Lexer->new($text);
 
-    my @errors = validate(rule => $rule, lexer => $lexer, grammar => $grammar, types => $types);
-    @errors = grep { $_ !~ qr/^line \d+: found an additional field: "Additional field"$/ } @errors;
-    eq_or_diff \@errors, [], $test_name;
+    my @remarks = validate2( rule => $rule, lexer => $lexer, grammar => $grammar, types => $types );
+    @remarks = grep { $_->{severity} ne $INFO_SEVERITY } @remarks;
+    eq_or_diff \@remarks, [], $test_name;
 }
 
 {
@@ -707,7 +707,7 @@ for my $test_name ( sort keys %data ) {
     my $lexer = PDT::TS::Whois::Lexer->new($text);
 
     my @remarks = validate2( rule => $rule, lexer => $lexer, grammar => $grammar, types => $types );
-    ok scalar @remarks > 0, $test_name . ": should report errors";
+    ok scalar @remarks > 0, $test_name . ": should report remarks";
     my @strings = map { remark_string( $_ ) } @remarks;
     eq_or_diff $strings[0], "line 8: error: field 'Admin Contact' is required and must not be present as an empty field", $test_name . ': should complain about Admin Contact being an empty field';
 }

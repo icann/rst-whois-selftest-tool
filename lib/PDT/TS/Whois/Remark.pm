@@ -10,6 +10,7 @@ use Readonly;
 
 our @EXPORT_OK = qw(
   $ERROR_SEVERITY
+  $INFO_SEVERITY
   is_remark
   is_severity
   new_remark
@@ -17,6 +18,7 @@ our @EXPORT_OK = qw(
 );
 
 Readonly our $ERROR_SEVERITY => 'error';
+Readonly our $INFO_SEVERITY  => 'info';
 
 =head2 new_remark
 
@@ -57,7 +59,8 @@ sub is_severity {
     my ( $value ) = @_;
 
     return defined $value
-      && ( $value eq $ERROR_SEVERITY );
+      && ( $value eq $ERROR_SEVERITY
+        || $value eq $INFO_SEVERITY );
 }
 
 =head2 is_remark

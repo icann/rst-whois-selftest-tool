@@ -131,14 +131,14 @@ sub validate2 {
     };
 
     # Validate rule
-    my ( $result, $rule_errors ) = _rule( $state, key => $rule, quantifier => 'required' );
+    my ( $result, $rule_remarks ) = _rule( $state, key => $rule, quantifier => 'required' );
 
     # Pick up validation warnings
-    my @errors;
+    my @remarks;
     if ( defined $result ) {
-        ( ref $rule_errors eq 'ARRAY' ) or croak 'unexpected return value from _rule()';
+        ( ref $rule_remarks eq 'ARRAY' ) or croak 'unexpected return value from _rule()';
 
-        @errors = @{$rule_errors};
+        @remarks = @{$rule_remarks};
     }
 
     # Check status of parsed input
@@ -147,14 +147,14 @@ sub validate2 {
 
     # Pick up fatal validation errors
     unless ( defined $result && $token eq 'EOF' ) {
-        if ( !@errors ) {
+        if ( !@remarks ) {
             my $description = _describe_line( $token, $token_value );
-            push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, "$description not allowed here" );
+            push @remarks, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, "$description not allowed here" );
         }
-        push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, 'validation aborted, no validation was perfomed beyond this line' );
+        push @remarks, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, 'validation aborted, no validation was perfomed beyond this line' );
     }
 
-    return @errors;
+    return @remarks;
 }
 
 sub _describe_line {
@@ -324,7 +324,7 @@ sub _occurances {
 
 Parse a single occurance of a grammar rule or a line type with the given $key.
 
-    my ( $token, $errors ) = _rule( $state, key => 'field', type => 'hostname', quantifier => 'required' );
+    my ( $token, $remarks ) = _rule( $state, key => 'field', type => 'hostname', quantifier => 'required' );
 
 Returns:
 
@@ -354,11 +354,11 @@ sub _rule {
     my $keytype    = $args{'keytype'};
 
     if ( defined $line || defined $type ) {
-        my ( $rule_token, $rule_errors ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
+        my ( $rule_token, $rule_remarks ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
         ref $rule_token eq '' or croak 'unexpected return value from _line()';
-        ( !defined $rule_errors || ref $rule_errors eq 'ARRAY' ) or croak 'unexpected return value from _line()';
+        ( !defined $rule_remarks || ref $rule_remarks eq 'ARRAY' ) or croak 'unexpected return value from _line()';
 
-        return ( $rule_token, $rule_errors || [] );
+        return ( $rule_token, $rule_remarks || [] );
     }
     elsif ( my $section_rule = $state->{grammar}->{$key} ) {
         if ( ref $section_rule eq 'ARRAY' ) {
@@ -432,7 +432,7 @@ sub _rule {
 
 Parse a line of an expected type.
 
-    my ( $token, $errors ) = _line( $state, key => 'field', type => 'hostname', quantifier => 'required' );
+    my ( $token, $remarks ) = _line( $state, key => 'field', type => 'hostname', quantifier => 'required' );
 
 Returns one of the following:
 
@@ -470,17 +470,17 @@ sub _line {
 
     my $token;
     my $token_value;
-    my $errors;
+    my $remarks;
     my $subtype;
 
     if ( defined $type ) {
-        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line2();
+        ( $token, $token_value, $remarks ) = $state->{lexer}->peek_line2();
 
         if ( !defined $token || $token ne 'field' ) {
             return;
         }
 
-        ref $errors eq 'ARRAY'      or confess;
+        ref $remarks eq 'ARRAY'     or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;
@@ -502,7 +502,7 @@ sub _line {
         }
     }
     else {
-        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line2();
+        ( $token, $token_value, $remarks ) = $state->{lexer}->peek_line2();
 
         if ( !defined $token ) {
             return;
@@ -520,7 +520,7 @@ sub _line {
             return;
         }
 
-        ref $errors eq 'ARRAY' or confess;
+        ref $remarks eq 'ARRAY' or confess;
     }
 
     if ( $line eq 'any line' || $line eq 'non-empty line' ) {
@@ -543,19 +543,19 @@ sub _line {
             my @keytype_errors = _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
 
             if ( @keytype_errors ) {
-                push @$errors, @keytype_errors;
+                push @$remarks, @keytype_errors;
             }
             elsif ( !defined $type && $subtype eq 'field' ) {
-                push @$errors, new_remark( $INFO_SEVERITY, $state->{lexer}->line_no, qq{found an additional field: "$key"} );
+                push @$remarks, new_remark( $INFO_SEVERITY, $state->{lexer}->line_no, qq{found an additional field: "$key"} );
             }
         }
 
         for my $translation ( @$translations ) {
-            push @$errors, _validate_type( $state, type_name => 'key translation', value => $translation, prefix => "invalid key translation for field '$key', " );
+            push @$remarks, _validate_type( $state, type_name => 'key translation', value => $translation, prefix => "invalid key translation for field '$key', " );
         }
 
         if ( $type && $subtype eq 'field' ) {
-            push @$errors, _validate_type( $state, type_name => $type, value => $value, prefix => "invalid value for field '$key', " );
+            push @$remarks, _validate_type( $state, type_name => $type, value => $value, prefix => "invalid value for field '$key', " );
         }
 
     }
@@ -565,15 +565,15 @@ sub _line {
 
         my ( $roid, $hostname ) = @$token_value;
 
-        push @$errors, _validate_type( $state, type_name => 'roid', value => $roid );
+        push @$remarks, _validate_type( $state, type_name => 'roid', value => $roid );
 
-        push @$errors, _validate_type( $state, type_name => 'hostname', value => $hostname );
+        push @$remarks, _validate_type( $state, type_name => 'hostname', value => $hostname );
     }
     elsif ( $token eq 'last update line' ) {
         ( $token_value && ref $token_value eq '' ) or croak "assertion error";
         my $timestamp = $token_value;
 
-        push @$errors, _validate_type( $state, type_name => 'time stamp', value => $timestamp );
+        push @$remarks, _validate_type( $state, type_name => 'time stamp', value => $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
@@ -581,7 +581,7 @@ sub _line {
 
     $state->{lexer}->next_line();
 
-    return $subtype, $errors;
+    return $subtype, $remarks;
 }
 
 =head2 B<_set_empty_kind( $state, kind, quantifier, key, line_no )>

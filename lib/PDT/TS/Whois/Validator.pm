@@ -6,10 +6,15 @@ use 5.014;
 
 use Carp;
 
+use PDT::TS::Whois::Remark qw( new_remark $ERROR_SEVERITY $INFO_SEVERITY );
+
 require Exporter;
 
 our @ISA       = 'Exporter';
-our @EXPORT_OK = qw( validate );
+our @EXPORT_OK = qw(
+  validate
+  validate2
+);
 
 =head1 NAME
 
@@ -26,26 +31,56 @@ This module exports a single function called L<validate>.
 
 =head2 validate
 
+I<Deprecated>, use L<validate2> instead.
+
+L<validate> is identical to L<validate2>, except it returns strings like
+C<"line 1: error: Boom!"> instead of L<PDT::TS::Whois::Remark> hashrefs.
+
+=cut
+
+sub validate {
+    my %args = @_;
+
+    croak "lexer: missing argument"       unless defined $args{lexer};
+    croak "grammar: missing argument"     unless defined $args{grammar};
+    croak "types: missing argument"       unless defined $args{types};
+    croak "rule: missing argument"        unless defined $args{rule};
+    croak "key translation: missing type" unless $args{types}->has_type( 'key translation' );
+    croak "time stamp: missing type"      unless $args{types}->has_type( 'time stamp' );
+    croak "roid: missing type"            unless $args{types}->has_type( 'roid' );
+    croak "hostname: missing type"        unless $args{types}->has_type( 'hostname' );
+
+    my @remarks = validate2(
+        lexer   => $args{lexer},
+        grammar => $args{grammar},
+        types   => $args{types},
+        rule    => $args{rule},
+    );
+    return map { sprintf "line %d: %s", $_->{lineno}, $_->{message} } @remarks;
+}
+
+=head2 validate2
+
 Reads line tokens from a lexer, matching them against grammar rules.  When a
 line token is matched with a grammar rule, its token value is matched against a
 type derived from the matched grammar rule.  The result of a validation is the
 combined grammar and type mismatches and validation errors reported by the
 lexer.
 
-    use PDT::TS::Whois::Validator qw( validate );
+    use PDT::TS::Whois::Remark qw( remark_string $ERROR_SEVERITY );
+    use PDT::TS::Whois::Validator qw( validate2 );
 
-    my @errors = validate(
+    my @remarks = validate2(
         rule    => 'rule name',
         lexer   => $lexer,
         grammar => $grammar,
         types   => $types,
     );
-    if (@errors) {
-        for my $message (@errors) {
-            say "error: $message";
-        }
+
+    for my $remark ( @remarks ) {
+        say remark_string( $remark );
     }
-    else {
+    if ( !grep { $_->severity eq $ERROR_SEVERITY } @remarks ) {
         say "ok";
     }
 
@@ -73,7 +108,7 @@ be an object with the interface of PDT::TS::Whois::Types.
 
 =cut
 
-sub validate {
+sub validate2 {
     my %args = @_;
 
     croak "lexer: missing argument"       unless defined $args{lexer};
@@ -96,29 +131,30 @@ sub validate {
     };
 
     # Validate rule
-    my ( $result, $rule_errors ) = _rule( $state, key => $rule, quantifier => 'required' );
+    my ( $result, $rule_remarks ) = _rule( $state, key => $rule, quantifier => 'required' );
 
     # Pick up validation warnings
-    my @errors;
+    my @remarks;
     if ( defined $result ) {
-        ref $rule_errors eq 'ARRAY' or croak 'unexpected return value from _rule()';
-        @errors = @{$rule_errors};
+        ( ref $rule_remarks eq 'ARRAY' ) or croak 'unexpected return value from _rule()';
+
+        @remarks = @{$rule_remarks};
     }
 
     # Check status of parsed input
-    my ( $token, $token_value ) = $state->{lexer}->peek_line();
-    defined $token or confess 'unexpected return value from peek_line()';
+    my ( $token, $token_value ) = $state->{lexer}->peek_line2();
+    defined $token or confess 'unexpected return value from peek_line2()';
 
     # Pick up fatal validation errors
     unless ( defined $result && $token eq 'EOF' ) {
-        if ( !@errors ) {
+        if ( !@remarks ) {
             my $description = _describe_line( $token, $token_value );
-            push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
+            push @remarks, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, "$description not allowed here" );
         }
-        push @errors, sprintf 'line %d: validation aborted, no validation was perfomed beyond this line', $state->{lexer}->line_no();
+        push @remarks, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, 'validation aborted, no validation was perfomed beyond this line' );
     }
 
-    return @errors;
+    return @remarks;
 }
 
 sub _describe_line {
@@ -222,13 +258,13 @@ sub _occurances {
             my $line_after = $state->{lexer}->line_no;
             push @errors, @$parsed_errors;
             if ( $parsed eq 'empty field' ) {
-                push @pending_empty_error, sprintf( "line %d: empty field in repetition '%s'", $line_after - 1, $key );
+                push @pending_empty_error, new_remark( $ERROR_SEVERITY, $line_after - 1, "empty field in repetition '$key'" );
                 if ( !$first ) {
                     push @errors, @pending_empty_error;
                     @pending_empty_error = ();
                 }
                 elsif ( $quantifier =~ /^required$|^repeatable|^optional-repeatable|^omitted-constrained$|^optional-not-empty$/ ) {
-                    push @errors, sprintf( "line %d: field '%s' is %s and must not be present as an empty field", $line_after - 1, $key, $quantifier );
+                    push @errors, new_remark( $ERROR_SEVERITY, $line_after - 1, "field '$key' is $quantifier and must not be present as an empty field" );
                 }
                 elsif ( $quantifier =~ /^optional-constrained$|^empty-constrained$/ ) {
                     push @errors,
@@ -288,7 +324,7 @@ sub _occurances {
 
 Parse a single occurance of a grammar rule or a line type with the given $key.
 
-    my ( $token, $errors ) = _rule( $state, key => 'field', type => 'hostname', quantifier => 'required' );
+    my ( $token, $remarks ) = _rule( $state, key => 'field', type => 'hostname', quantifier => 'required' );
 
 Returns:
 
@@ -318,11 +354,11 @@ sub _rule {
     my $keytype    = $args{'keytype'};
 
     if ( defined $line || defined $type ) {
-        my ( $rule_token, $rule_errors ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
+        my ( $rule_token, $rule_remarks ) = _line( $state, line => $line, key => $key, type => $type, quantifier => $quantifier, keytype => $keytype );
         ref $rule_token eq '' or croak 'unexpected return value from _line()';
-        ( !defined $rule_errors || ref $rule_errors eq 'ARRAY' ) or croak 'unexpected return value from _line()';
+        ( !defined $rule_remarks || ref $rule_remarks eq 'ARRAY' ) or croak 'unexpected return value from _line()';
 
-        return ( $rule_token, $rule_errors || [] );
+        return ( $rule_token, $rule_remarks || [] );
     }
     elsif ( my $section_rule = $state->{grammar}->{$key} ) {
         if ( ref $section_rule eq 'ARRAY' ) {
@@ -349,14 +385,14 @@ sub _rule {
                     push @errors, @{$result};
                 }
                 else {
-                    my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line();
+                    my ( $token, $token_value, $token_errors ) = $state->{lexer}->peek_line2();
                     defined $token or croak 'unexpected return value';
                     ref $token_errors eq 'ARRAY' or croak 'unexpected return value';
 
                     push @errors, @{$token_errors};
 
                     my $description = _describe_line( $token, $token_value );
-                    push @errors, sprintf( "line %d: %s not allowed here", $state->{lexer}->line_no, $description );
+                    push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, "$description not allowed here" );
                     return ( undef, \@errors );
                 }
             }
@@ -396,7 +432,7 @@ sub _rule {
 
 Parse a line of an expected type.
 
-    my ( $token, $errors ) = _line( $state, key => 'field', type => 'hostname', quantifier => 'required' );
+    my ( $token, $remarks ) = _line( $state, key => 'field', type => 'hostname', quantifier => 'required' );
 
 Returns one of the following:
 
@@ -434,17 +470,17 @@ sub _line {
 
     my $token;
     my $token_value;
-    my $errors;
+    my $remarks;
     my $subtype;
 
     if ( defined $type ) {
-        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
+        ( $token, $token_value, $remarks ) = $state->{lexer}->peek_line2();
 
         if ( !defined $token || $token ne 'field' ) {
             return;
         }
 
-        ref $errors eq 'ARRAY'      or confess;
+        ref $remarks eq 'ARRAY'     or confess;
         ref $token_value eq 'ARRAY' or confess;
 
         my ( $field_key, $field_translations, $field_value ) = @$token_value;
@@ -466,7 +502,7 @@ sub _line {
         }
     }
     else {
-        ( $token, $token_value, $errors ) = $state->{lexer}->peek_line();
+        ( $token, $token_value, $remarks ) = $state->{lexer}->peek_line2();
 
         if ( !defined $token ) {
             return;
@@ -484,7 +520,7 @@ sub _line {
             return;
         }
 
-        ref $errors eq 'ARRAY' or confess;
+        ref $remarks eq 'ARRAY' or confess;
     }
 
     if ( $line eq 'any line' || $line eq 'non-empty line' ) {
@@ -507,19 +543,19 @@ sub _line {
             my @keytype_errors = _validate_type( $state, type_name => $keytype, value => $key, prefix => "invalid field key '$key', " );
 
             if ( @keytype_errors ) {
-                push @$errors, @keytype_errors;
+                push @$remarks, @keytype_errors;
             }
             elsif ( !defined $type && $subtype eq 'field' ) {
-                push @$errors, ( sprintf( 'line %s: found an additional field: "%s"', $state->{lexer}->line_no, $key ) );
+                push @$remarks, new_remark( $INFO_SEVERITY, $state->{lexer}->line_no, qq{found an additional field: "$key"} );
             }
         }
 
         for my $translation ( @$translations ) {
-            push @$errors, _validate_type( $state, type_name => 'key translation', value => $translation, prefix => "invalid key translation for field '$key', " );
+            push @$remarks, _validate_type( $state, type_name => 'key translation', value => $translation, prefix => "invalid key translation for field '$key', " );
         }
 
         if ( $type && $subtype eq 'field' ) {
-            push @$errors, _validate_type( $state, type_name => $type, value => $value, prefix => "invalid value for field '$key', " );
+            push @$remarks, _validate_type( $state, type_name => $type, value => $value, prefix => "invalid value for field '$key', " );
         }
 
     }
@@ -529,15 +565,15 @@ sub _line {
 
         my ( $roid, $hostname ) = @$token_value;
 
-        push @$errors, _validate_type( $state, type_name => 'roid', value => $roid );
+        push @$remarks, _validate_type( $state, type_name => 'roid', value => $roid );
 
-        push @$errors, _validate_type( $state, type_name => 'hostname', value => $hostname );
+        push @$remarks, _validate_type( $state, type_name => 'hostname', value => $hostname );
     }
     elsif ( $token eq 'last update line' ) {
         ( $token_value && ref $token_value eq '' ) or croak "assertion error";
         my $timestamp = $token_value;
 
-        push @$errors, _validate_type( $state, type_name => 'time stamp', value => $timestamp );
+        push @$remarks, _validate_type( $state, type_name => 'time stamp', value => $timestamp );
     }
     elsif ( $token ne 'any line' && $token ne 'empty line' && $token ne 'non-empty line' && $token ne 'multiple name servers line' && $token ne 'awip line' && $token ne 'EOF' ) {
         croak "unhandled line type: $token";
@@ -545,7 +581,7 @@ sub _line {
 
     $state->{lexer}->next_line();
 
-    return $subtype, $errors;
+    return $subtype, $remarks;
 }
 
 =head2 B<_set_empty_kind( $state, kind, quantifier, key, line_no )>
@@ -702,7 +738,7 @@ sub _get_empty_kind_error_message {
         croak sprintf( "missing explanation for empty kind '%s' and quantifier '%s'", $kind, $quantifier );
     }
 
-    return sprintf( "line %d: field of type %s '%s' (%s): %s", $line_no, $quantifier, $key, $kind, $explanation );
+    return new_remark( $ERROR_SEVERITY, $line_no, "field of type $quantifier '$key' ($kind): $explanation" );
 }
 
 sub _is_acceptable_key {
@@ -723,7 +759,7 @@ sub _validate_type {
 
     my @errors;
     for my $error ( $state->{types}->validate_type( $type_name, $value ) ) {
-        push @errors, sprintf( "line %s: %s%s", $state->{lexer}->line_no, $prefix, $error );
+        push @errors, new_remark( $ERROR_SEVERITY, $state->{lexer}->line_no, $prefix . $error );
     }
     return @errors;
 }

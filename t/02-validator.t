@@ -7,7 +7,8 @@ use Test::Differences;
 use Test::MockObject;
 
 require_ok('PDT::TS::Whois::Validator');
-use PDT::TS::Whois::Validator qw( validate );
+use PDT::TS::Whois::Remark qw( new_remark remark_string $ERROR_SEVERITY );
+use PDT::TS::Whois::Validator qw( validate validate2 );
 
 my $grammar = {
     'Required field' => [
@@ -131,7 +132,7 @@ sub make_mock_lexer {
     my @tokens = @_;
     my $line_no = 1;
     my $lexer = Test::MockObject->new();
-    $lexer->mock('peek_line', sub {
+    $lexer->mock('peek_line2', sub {
             if (exists $tokens[$line_no - 1]) {
                 return @{ $tokens[$line_no - 1] };
             }
@@ -366,11 +367,12 @@ subtest 'Error propagation' => sub {
     plan tests => 1;
 
     my $lexer = make_mock_lexer (
-        ['field', ['Domain Name', [], 'DOMAIN.EXAMPLE'], ['BOOM!']],
-        ['EOF', undef, []],
+        [ 'field', [ 'Domain Name', [], 'DOMAIN.EXAMPLE' ], [ new_remark $ERROR_SEVERITY, 1, 'BOOM!' ] ],
+        [ 'EOF', undef, [] ],
     );
-    my @errors = validate( rule => 'Required field', lexer => $lexer, grammar => $grammar, types => $types );
-    eq_or_diff \@errors, ['BOOM!'], 'Should propagate errors from lexer';
+    my @remarks = validate2( rule => 'Required field', lexer => $lexer, grammar => $grammar, types => $types );
+    my @strings = map { remark_string( $_ ) } @remarks;
+    eq_or_diff \@strings, ['line 1: error: BOOM!'], 'Should propagate errors from lexer';
 };
 
 subtest 'Optional repeatable subrule' => sub {

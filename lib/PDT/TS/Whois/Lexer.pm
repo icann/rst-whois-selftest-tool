@@ -6,6 +6,8 @@ use 5.014;
 
 use Carp;
 
+use PDT::TS::Whois::Remark qw( new_remark $ERROR_SEVERITY );
+
 =head1 NAME
 
 PDT::TS::Whois::Lexer - Consumes a string and produces a token/value/errors
@@ -78,7 +80,28 @@ sub line_no {
 
 =head2 peek_line
 
-    my ($token, $token_value, $errors) = $lexer->peek_line();
+I<Deprecated>, use L<peek_line2> instead.
+
+L<peek_line> is identical to L<peek_line2>, except it returns strings like
+C<"line 1: Boom!"> instead of L<PDT::TS::Whois::Remark> hashrefs.
+
+=cut
+
+sub peek_line {
+    my $self = shift;
+
+    my ( $key, $translations, $remark ) = $self->peek_line2();
+    if ( defined $remark ) {
+        return ( $key, $translations, [ map { sprintf( "line %d: %s", $_->{lineno}, $_->{message} ) } @{$remark} ] );
+    }
+    else {
+        return ( $key, $translations, undef );
+    }
+}
+
+=head2 peek_line2
+
+    my ($token, $token_value, $remarks) = $lexer->peek_line();
 
 Get the token present at the current line, together with its value and any
 validation errors.
@@ -124,7 +147,7 @@ Value: undef
 
 =cut
 
-sub peek_line {
+sub peek_line2 {
     my $self = shift;
 
     if ( !defined $self->{_lookahead} ) {
@@ -167,7 +190,7 @@ sub next_line {
     my @errors;
     if ( !defined $self->{_line_no} && $text =~ /^\N{U+FEFF}/ ) {
         $text =~ s/^\N{U+FEFF}//;
-        push @errors, "line 1: found BOM";
+        push @errors, new_remark( $ERROR_SEVERITY, 1, "found BOM" );
     }
 
     if ( $self->{_text} eq '' ) {
@@ -194,7 +217,7 @@ sub next_line {
     if ( $eol ne "\r\n" ) {
         $eol =~ s/\r/CR/m;
         $eol =~ s/\n/LF/m;
-        push @errors, sprintf( "line %d: expected CRLF, got '$eol'", $self->{_line_no} );
+        push @errors, new_remark( $ERROR_SEVERITY, $self->{_line_no}, "expected CRLF, got '$eol'" );
     }
 
     # Homogenize whitespace
@@ -202,14 +225,14 @@ sub next_line {
     $line =~ s/\s/ /g;
     my $whitespace_count = () = $line =~ / /g;
     if ( $whitespace_count > $space_count ) {
-        push @errors, sprintf( "line %d: whitespace other than SPACE (U+0020)", $self->{_line_no} );
+        push @errors, new_remark( $ERROR_SEVERITY, $self->{_line_no}, "whitespace other than SPACE (U+0020)" );
     }
 
     # Strip leading space
     $line =~ s/^( *)//;
     my $lead_space = $1;
     if ( length $lead_space > 9 ) {
-        push @errors, sprintf( "line %d: too much leading space", $self->{_line_no} );
+        push @errors, new_remark( $ERROR_SEVERITY, $self->{_line_no}, "too much leading space" );
     }
 
     # Strip trailing space
@@ -237,7 +260,7 @@ sub next_line {
 
         # Note: validation is out of place here; move elsewhere if added complexity can be avoided
         if ( $url ne 'https://icann.org/epp' && $url ne 'https://www.icann.org/resources/pages/epp-status-codes-2014-06-16-en' ) {
-            push @errors, sprintf( 'line %d: illegal url', $self->{_line_no} );
+            push @errors, new_remark( $ERROR_SEVERITY, $self->{_line_no}, 'illegal url' );
         }
 
         $token       = 'awip line';
@@ -267,7 +290,7 @@ sub next_line {
     }
 
     if ( length $trail_space > 0 ) {
-        push @errors, sprintf( "line %d: trailing space not allowed", $self->{_line_no} );
+        push @errors, new_remark( $ERROR_SEVERITY, $self->{_line_no}, "trailing space not allowed" );
     }
 
     $self->{_lookahead_line} = $line;

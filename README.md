@@ -33,6 +33,7 @@ Version history
 * v1.3.1 - No public release
 * v1.4.2 - Updated public release (2017-03-23, on Github 2017-08-24)
 * v1.4.3 - Updated public release (2018-10-09)
+* v1.4.4 - Updated public release (2018-12-05)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs 
 in the version 2.9 document release. It also handles the issue with IDN in the 
@@ -67,6 +68,7 @@ The v1.4.2 release now refer to the RST documents.
 The v1.4.3 release adapts the requirements to GDPR and 
 "[Temporary Specification for gTLD Registration Data]".
 
+The v1.4.4 release removes incorrect rejection of Whois replies with additional fields.
 
 Specification compatibility matrix
 ----------------------------------
@@ -86,6 +88,7 @@ v1.3.1   |2.10 plus two updates described above|J  |H                 |-
 v1.4.2   |2.11            |K                |I                        |-
 v1.4.2   |3.0             |-                |-                        |B
 v1.4.3   |3.1             |-                |-                        |C
+v1.4.4   |3.1             |-                |-                        |C
 
 Roadmap
 =======

@@ -3,6 +3,7 @@ lib/PDT/TS/Whois.pm
 lib/PDT/TS/Whois/Grammar.pm
 lib/PDT/TS/Whois/Lexer.pm
 lib/PDT/TS/Whois/Redaction.pm
+lib/PDT/TS/Whois/Remark.pm
 lib/PDT/TS/Whois/Types.pm
 lib/PDT/TS/Whois/UnicodeData.pm
 lib/PDT/TS/Whois/UnicodeIDNA630.pm

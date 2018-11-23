@@ -1,3 +1,18 @@
+libwhois-selftest-tool-perl (1.4.4-1) precise; urgency=low
+
+  * Release 1.4.4
+
+  d265917 Add packaging instruction
+  6ae5d74 Add file to MANIFEST
+  919bb6d Updated README.md for the 1.4.4 release (RST-254).
+  c91ffa5 RST-229: Update references
+  3e107c5 RST-43: Rename variables
+  9f8f48f RST-43: More consistent internal representation of remarks
+  8be9d84 RST-43: Lower severity of additional field remarks to info
+  ff714e2 RST-43: Introduce validate2 with a better return value structure
+
+ -- Mattias Päivärinta <mattias.paivarinta@iis.se>  Wed, 07 Nov 2018 12:13:15 +0100
+
 libwhois-selftest-tool-perl (1.4.3-1) precise; urgency=medium
 
   * Release 1.4.3

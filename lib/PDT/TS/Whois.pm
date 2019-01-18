@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use version; our $VERSION = qv( 1.4.0 );
+use version; our $VERSION = qv( 1.4.4 );
 
 =pod
 
@@ -72,7 +72,7 @@ Validates the output of a lexer according to a grammar and types.
 
 =head1 AUTHOR
 
-Mattias Päivärinta, <mattias.paivarinta@doxwork.com>
+Mattias Päivärinta, <mattias.paivarinta@iis.se>
 
 =head1 LICENSE AND COPYRIGHT
 

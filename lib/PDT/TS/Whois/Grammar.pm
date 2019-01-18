@@ -252,61 +252,61 @@ Domain name details subsection 4:
   - DNSSEC: { line: field, type: dnssec }
   - Additional field: { quantifier: optional-repeatable, line: field, keytype: domain name object additional field key }
 Domain registrant contact section:
-  - Registry Registrant ID: { line: field, type: roid }
-  - Registrant Name: { line: field, type: postal line }
+  - Registry Registrant ID: { quantifier: optional-free, line: field, type: roid or redacted }
+  - Registrant Name: { quantifier: optional-free, line: field, type: postal line }
   - Registrant Organization: { quantifier: optional-constrained, line: field, type: postal line }
-  - Registrant Street: { quantifier: repeatable, line: field, type: postal line }
-  - Registrant City: { line: field, type: postal line }
+  - Registrant Street: { quantifier: optional-repeatable, line: field, type: postal line }
+  - Registrant City: { quantifier: optional-free, line: field, type: postal line }
   - Registrant State/Province: { quantifier: optional-constrained, line: field, type: postal line }
-  - Registrant Postal Code: { quantifier: optional-constrained, line: field, type: postal code }
+  - Registrant Postal Code: { quantifier: optional-free, line: field, type: postal code or redacted }
   - Registrant Country: { line: field, type: country code }
-  - Registrant Phone: { line: field, type: phone number }
-  - Registrant Phone Ext: { quantifier: optional-constrained, line: field, type: token }
-  - Registrant Fax: { quantifier: optional-constrained, line: field, type: phone number }
-  - Registrant Fax Ext: { quantifier: optional-constrained, line: field, type: token }
-  - Registrant Email: { line: field, type: email address }
+  - Registrant Phone: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Registrant Phone Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Registrant Fax: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Registrant Fax Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Registrant Email: { line: field, type: email web or redacted }
 Domain admin contact section:
-  - Registry Admin ID: { line: field, type: roid }
-  - Admin Name: { line: field, type: postal line }
-  - Admin Organization: { quantifier: optional-constrained, line: field, type: postal line }
-  - Admin Street: { quantifier: repeatable, line: field, type: postal line }
-  - Admin City: { line: field, type: postal line }
-  - Admin State/Province: { quantifier: optional-constrained, line: field, type: postal line }
-  - Admin Postal Code: { quantifier: optional-constrained, line: field, type: postal code }
-  - Admin Country: { line: field, type: country code }
-  - Admin Phone: { line: field, type: phone number }
-  - Admin Phone Ext: { quantifier: optional-constrained, line: field, type: token }
-  - Admin Fax: { quantifier: optional-constrained, line: field, type: phone number }
-  - Admin Fax Ext: { quantifier: optional-constrained, line: field, type: token }
-  - Admin Email: { line: field, type: email address }
+  - Registry Admin ID: { quantifier: optional-free, line: field, type: roid or redacted }
+  - Admin Name: { quantifier: optional-free, line: field, type: postal line }
+  - Admin Organization: { quantifier: optional-free, line: field, type: postal line }
+  - Admin Street: { quantifier: optional-repeatable, line: field, type: postal line }
+  - Admin City: { quantifier: optional-free, line: field, type: postal line }
+  - Admin State/Province: { quantifier: optional-free, line: field, type: postal line }
+  - Admin Postal Code: { quantifier: optional-free, line: field, type: postal code or redacted }
+  - Admin Country: { quantifier: optional-free, line: field, type: country code or redacted }
+  - Admin Phone: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Admin Phone Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Admin Fax: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Admin Fax Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Admin Email: { line: field, type: email web or redacted }
 Domain tech contact section:
-  - Registry Tech ID: { line: field, type: roid }
-  - Tech Name: { line: field, type: postal line }
-  - Tech Organization: { quantifier: optional-constrained, line: field, type: postal line }
-  - Tech Street: { quantifier: repeatable, line: field, type: postal line }
-  - Tech City: { line: field, type: postal line }
-  - Tech State/Province: { quantifier: optional-constrained, line: field, type: postal line }
-  - Tech Postal Code: { quantifier: optional-constrained, line: field, type: postal code }
-  - Tech Country: { line: field, type: country code }
-  - Tech Phone: { line: field, type: phone number }
-  - Tech Phone Ext: { quantifier: optional-constrained, line: field, type: token }
-  - Tech Fax: { quantifier: optional-constrained, line: field, type: phone number }
-  - Tech Fax Ext: { quantifier: optional-constrained, line: field, type: token }
-  - Tech Email: { line: field, type: email address }
+  - Registry Tech ID: { quantifier: optional-free, line: field, type: roid or redacted }
+  - Tech Name: { quantifier: optional-free, line: field, type: postal line }
+  - Tech Organization: { quantifier: optional-free, line: field, type: postal line }
+  - Tech Street: { quantifier: optional-repeatable, line: field, type: postal line }
+  - Tech City: { quantifier: optional-free, line: field, type: postal line }
+  - Tech State/Province: { quantifier: optional-free, line: field, type: postal line }
+  - Tech Postal Code: { quantifier: optional-free, line: field, type: postal code or redacted }
+  - Tech Country: { quantifier: optional-free, line: field, type: country code or redacted }
+  - Tech Phone: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Tech Phone Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Tech Fax: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Tech Fax Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Tech Email: { line: field, type: email web or redacted }
 Domain billing contact section:
-  - Registry Billing ID: { line: field, type: roid }
-  - Billing Name: { line: field, type: postal line }
+  - Registry Billing ID: { quantifier: optional-free, line: field, type: roid or redacted }
+  - Billing Name: { quantifier: optional-free, line: field, type: postal line }
   - Billing Organization: { quantifier: optional-free, line: field, type: postal line }
-  - Billing Street: { quantifier: repeatable, line: field, type: postal line }
-  - Billing City: { line: field, type: postal line }
+  - Billing Street: { quantifier: optional-repeatable, line: field, type: postal line }
+  - Billing City: { quantifier: optional-free, line: field, type: postal line }
   - Billing State/Province: { quantifier: optional-free, line: field, type: postal line }
-  - Billing Postal Code: { quantifier: optional-free, line: field, type: postal code }
-  - Billing Country: { line: field, type: country code }
-  - Billing Phone: { line: field, type: phone number }
-  - Billing Phone Ext: { quantifier: optional-free, line: field, type: token }
-  - Billing Fax: { quantifier: optional-free, line: field, type: phone number }
-  - Billing Fax Ext: { quantifier: optional-free, line: field, type: token }
-  - Billing Email: { line: field, type: email address }
+  - Billing Postal Code: { quantifier: optional-free, line: field, type: postal code or redacted }
+  - Billing Country: { quantifier: optional-free, line: field, type: country code or redacted }
+  - Billing Phone: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Billing Phone Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Billing Fax: { quantifier: optional-free, line: field, type: phone number or redacted }
+  - Billing Fax Ext: { quantifier: optional-free, line: field, type: token or redacted }
+  - Billing Email: { line: field, type: email web or redacted }
 Domain abuse contact section:
   - Registrar Abuse Contact Email: { line: field, type: email address }
   - Registrar Abuse Contact Phone: { line: field, type: phone number }

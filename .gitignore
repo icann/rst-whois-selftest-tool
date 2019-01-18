@@ -15,3 +15,5 @@ PDT-TS-Whois-*
 .DS_Store
 MYMETA.json
 MYMETA.yml
+debian/files
+debian/libwhois-selftest-tool-perl*

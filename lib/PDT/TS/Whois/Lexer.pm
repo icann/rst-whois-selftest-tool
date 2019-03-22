@@ -43,11 +43,13 @@ current line number and to advance onto the next line.
 
 Constructs a new Lexer instance.
 
+The C<check_eol> setting is initialized to true.
+
 =cut
 
 sub new {
-    my $class = shift;
-    my $text  = shift;
+    my $class     = shift;
+    my $text      = shift;
 
     croak "text: missing argument" unless defined $text;
 
@@ -55,12 +57,46 @@ sub new {
         _line_no   => undef,
         _lookahead => undef,
         _text      => $text,
+        _check_eol => 1,
     }, $class;
 
     return $self;
 }
 
 =head1 INSTANCE METHODS
+
+=head2 check_eol
+
+Get or set the value of the B<check_eol> setting.
+
+This setting controls whether warnings should be generated for unexpected EOL representations.
+
+The expected EOL representation is C<"\r\n">.
+C<"\n"> and C<"\r"> on their own are also recognized as EOL representations,
+but they are seen as unexpected.
+
+    my $lexer = PDT::TS::Whois::Lexer->new("    line 1\n    line 2\r");
+    $lexer->check_eol( 1 );
+
+If no argument is given or if it is C<undef>, the current value is returned.
+
+Otherwise the argument is interpreted using the normal rules for booleans,
+the setting is updated to either C<1> for true or C<0> for false,
+and the old value is returned.
+
+=cut
+
+sub check_eol {
+    my $self  = shift;
+    my $value = shift;
+
+    my $old_value = $self->{_check_eol};
+    if ( defined $value ) {
+        $self->{_check_eol} = $value ? 1 : 0;
+    }
+
+    return $old_value;
+}
 
 =head2 line_no
 
@@ -217,7 +253,8 @@ sub next_line {
     if ( $eol ne "\r\n" ) {
         $eol =~ s/\r/CR/m;
         $eol =~ s/\n/LF/m;
-        push @errors, new_remark( $ERROR_SEVERITY, $self->{_line_no}, "expected CRLF, got '$eol'" );
+        push @errors, new_remark( $ERROR_SEVERITY, $self->{_line_no}, "expected CRLF, got '$eol'" )
+          if $self->{_check_eol};
     }
 
     # Homogenize whitespace

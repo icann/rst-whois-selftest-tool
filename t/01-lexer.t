@@ -2,7 +2,7 @@ use 5.014;
 use strict;
 use warnings;
 
-use Test::More tests => 7;
+use Test::More tests => 8;
 use Test::Differences;
 
 require_ok('PDT::TS::Whois::Lexer');
@@ -49,6 +49,50 @@ subtest 'Line separators' => sub {
         my ($token, $value, $errors) = $lexer->peek_line();
         is($token, 'EOF', 'EOF is indicated');
         eq_or_diff($errors, [], 'Should report no error');
+    }
+};
+
+subtest 'Check_eol setting' => sub {
+    plan tests => 13;
+    {
+        my $lexer = PDT::TS::Whois::Lexer->new('');
+        is $lexer->check_eol, 1, 'Enabled by default';
+        $lexer->check_eol( 0 );
+        is $lexer->check_eol, 0, 'Disable setting';
+        $lexer->check_eol( 1 );
+        is $lexer->check_eol, 1, 'Enable setting';
+        $lexer->check_eol( '' );
+        is $lexer->check_eol, 0, 'Normalize false value';
+        $lexer->check_eol( "I am a banana!" );
+        is $lexer->check_eol, 1, 'Normalize true value';
+        is $lexer->check_eol( 1 ), 1, 'Return old value when staying enabled';
+        is $lexer->check_eol( 0 ), 1, 'Return old value when disabling';
+        is $lexer->check_eol( 0 ), 0, 'Return old value when staying disabled';
+        is $lexer->check_eol( 1 ), 0, 'Return old value when enabling';
+    }
+    {
+        my $lexer = PDT::TS::Whois::Lexer->new("line 1\r\nline 2\nline 3\rline 4");
+        $lexer->check_eol( 0 );
+        {
+            my (undef, undef, $errors) = $lexer->peek_line();
+            eq_or_diff($errors, [], 'Should report no error for CRLF with check_eol disabled');
+            $lexer->next_line();
+        }
+        {
+            my (undef, undef, $errors) = $lexer->peek_line();
+            eq_or_diff($errors, [], 'Should report no error for LF with check_eol disabled');
+            $lexer->next_line();
+        }
+        {
+            my (undef, undef, $errors) = $lexer->peek_line();
+            eq_or_diff($errors, [], 'Should report no error for CR with check_eol disabled');
+            $lexer->next_line();
+        }
+        {
+            my (undef, undef, $errors) = $lexer->peek_line();
+            eq_or_diff($errors, [], 'Should report no error for EOF with check_eol disabled');
+            $lexer->next_line();
+        }
     }
 };
 

@@ -64,6 +64,11 @@ A L</redaction string database> to import additional allowed redaction strings
 from.
 The database format is described in the full man page.
 
+=item B<--[no-]check-eol>
+
+Controls whether warnings should be generated when line separators violate the
+F<Test Area Whois.pdf>.  Enabled by default.
+
 =item B<FILE>
 
 The reply input file to read. If C<-> is specified, the reply is read from
@@ -74,7 +79,7 @@ standard input.
 =head1 DESCRIPTION
 
 B<whois-test> reads Whois output from a file or C<STDIN>, validates it according
-to the F<PDT_Whois_TP.pdf> document and reports errors and feedback on
+to the F<Test Area Whois.pdf> document and reports errors and feedback on
 additional tasks that need to be performed.
 
 Some validation errors prevents the detection of further (possibly more serious)
@@ -122,6 +127,12 @@ server at IP address C<128.66.0.1>.
 
 Make a request for registrar objects matching C<128.66.99.234> to the Whois
 server at IP address C<128.66.0.1>.
+
+=item C<whois domain.example E<gt> queryoutput.txt>
+
+Make a request using the a traditional whois querying tool.
+Note that some traditional whois querying tools transform the line separators before outputting,
+whereas nc outputs the server response exactly as it was received.
 
 =back
 
@@ -333,6 +344,7 @@ my $opt_nameserver_ip;
 my $opt_epp_repo_id;
 my $opt_stdin;
 my $opt_redaction_db;
+my $opt_check_eol = 1;
 
 sub scrub_hostname {
     my $value = shift;
@@ -406,6 +418,7 @@ sub main {
         "nameserver-ip|i=s" => sub { $opt_nameserver_ip = scrub_ip_address( $_[1] ) or die "nameserver-ip argument must be valid nameserver IP" },
         "epp-repo-id|e=s"   => sub { $opt_epp_repo_id = scrub_roid_suffix( $_[1] ) or die "epp-repo-id must be valid ROID suffix" },
         "redaction-db=s"    => sub { $opt_redaction_db = scrub_readable_file( $_[1] ) or die "redaction-db must be readable file" },
+        "check-eol!"        => \$opt_check_eol,
         ""                  => \$opt_stdin,
     ) or pod2usage( 2 );
     pod2usage( 1 ) if $opt_help;
@@ -434,6 +447,7 @@ sub main {
     }
 
     my $lexer = PDT::TS::Whois::Lexer->new( $text );
+    $lexer->check_eol( $opt_check_eol );
     my @errors;
     my $rule;
 

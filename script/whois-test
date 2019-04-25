@@ -103,27 +103,27 @@ Examples:
 
 =over 4
 
-=item C<echo -n "domain.example\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "domain.example\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for domain name objects matching C<domain.example> to the Whois
 server at IP address C<128.66.0.1>.
 
-=item C<echo -n "roid abc123-IIS\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "roid abc123-IIS\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for the object with ROID C<abc123-IIS> to the Whois server at IP address
 C<128.66.0.1>.
 
-=item C<echo -n "registrar Partial Registrar Name\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "registrar Partial Registrar Name\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for registrar objects matching C<Partial Registrar Name> to the
 Whois server at IP address C<128.66.0.1>.
 
-=item C<echo -n "nameserver ns1.domain.example\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "nameserver ns1.domain.example\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for registrar objects matching C<ns1.domain.example> to the Whois
 server at IP address C<128.66.0.1>.
 
-=item C<echo -n "nameserver 128.66.99.234\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "nameserver 128.66.99.234\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for registrar objects matching C<128.66.99.234> to the Whois
 server at IP address C<128.66.0.1>.
@@ -133,10 +133,11 @@ server at IP address C<128.66.0.1>.
 Make a request using the a traditional whois querying tool.
 Note that some traditional whois querying tools transform the line separators before outputting,
 whereas nc outputs the server response exactly as it was received.
+See the B<--no-check-eol> option.
 
 =back
 
-Note: The C<echo>, C<nc>, C<file> and C<iconv> commands are general tools
+Note: The C<printf>, C<nc>, C<file> and C<iconv> commands are general tools
 available on all Unix, Linux or Mac computers.
 
 Note: The C<whois> command is not recommended for this task since it does not

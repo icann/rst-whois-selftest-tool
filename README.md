@@ -34,6 +34,7 @@ Version history
 * v1.4.2 - Updated public release (2017-03-23, on Github 2017-08-24)
 * v1.4.3 - Updated public release (2018-10-09)
 * v1.4.4 - Updated public release (2019-01-18)
+* v1.4.5 - Updated public release (2019-05-02)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs 
 in the version 2.9 document release. It also handles the issue with IDN in the 
@@ -70,6 +71,9 @@ The v1.4.3 release adapts the requirements to GDPR and
 
 The v1.4.4 release removes incorrect rejection of Whois responses with additional fields.
 
+The v1.4.5 release adds an option to `whois-test` to make it ignore any line ending
+errors. It also corrects the examples in the man page.
+
 Specification compatibility matrix
 ----------------------------------
 Refer to this compatibility matrix when deciding which version of Whois Selftest
@@ -89,6 +93,7 @@ v1.4.2   |2.11            |K                |I                        |-
 v1.4.2   |3.0             |-                |-                        |B
 v1.4.3   |3.1             |-                |-                        |C
 v1.4.4   |3.1             |-                |-                        |C
+v1.4.5   |3.1             |-                |-                        |C
 
 Roadmap
 =======
@@ -120,7 +125,7 @@ The [Registry System Testing]
 site at ICANN hosts the RST documents relevant to the Whois Selftest Tool. 
 
 * Find the _RST Test Specifications_ zip file.
-* The _**RST Whois Test Area Specification**_, within the zip file, specifies the
+* The _RST Whois Test Area Specification_, within the zip file, specifies the
   test cases the the Whois Selftest Tool partially implements. It also
   contains the format specification that the Whois Selftest Tool implements.
 

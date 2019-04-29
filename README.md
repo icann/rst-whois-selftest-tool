@@ -81,19 +81,22 @@ Tool to use. Use the latest version of Whois Selftest Tool to match the latest
 version of the _[RST Whois Test Area Specification]_ document.
 
 Whois Selftest Tool |PDT/RST Document Release |[PDT Whois Test Plan] |[PDT Whois CLI Test Cases] |[RST Whois Test Area]
-:--------|:---------------|:----------------|:------------------------|:--------------------
-v1.0.0   |2.8             |                 |                         |
-v1.1.0   |2.9             |                 |                         |
-v1.2.0   |2.10            |                 |                         |
-v1.3.0   |2.10 plus two updates described above|J  |H                 |-
-v1.4.0   |2.11            |K                |I                        |-
-v1.4.1   |2.11            |K                |I                        |-
-v1.3.1   |2.10 plus two updates described above|J  |H                 |-
-v1.4.2   |2.11            |K                |I                        |-
-v1.4.2   |3.0             |-                |-                        |B
-v1.4.3   |3.1             |-                |-                        |C
-v1.4.4   |3.1             |-                |-                        |C
-v1.4.5   |3.1             |-                |-                        |C
+:-------------------|:------------------------|:---------------------|:--------------------------|:--------------------
+v1.0.0              |2.8                      |                      |                           |
+v1.1.0              |2.9                      |                      |                           |
+v1.2.0              |2.10                     |                      |                           |
+v1.3.0              |See note below.          |J                     |H                          |-
+v1.4.0              |2.11                     |K                     |I                          |-
+v1.4.1              |2.11                     |K                     |I                          |-
+v1.3.1              |See note below.          |J                     |H                          |-
+v1.4.2              |2.11                     |K                     |I                          |-
+v1.4.2              |3.0                      |-                     |-                          |B
+v1.4.3              |3.1                      |-                     |-                          |C
+v1.4.4              |3.1                      |-                     |-                          |C
+v1.4.5              |3.1                      |-                     |-                          |C
+
+Note: Whois Selftest Tool versions v1.3.0 and v1.3.1 are based on PDT Document 
+Release 2.10 plus two additional updates described above. 
 
 Roadmap
 =======

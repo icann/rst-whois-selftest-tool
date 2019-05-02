@@ -1,3 +1,15 @@
+libwhois-selftest-tool-perl (1.4.5-1) precise; urgency=low
+
+  * Release 1.4.5
+
+  c8b20a2 Editorial updates.
+  37db490 Updated README for 1.4.5 release
+  64b7308 RST-313: Fix example commands
+  e67a6dd RST-300: Add --no-check-eol option
+  36128e3 RST-300: Silencing of Lexer on unexpected EOL representation
+
+ -- Mattias Päivärinta <mattias.paivarinta@iis.se>  Thu, 02 May 2019 16:52:23 +0200
+
 libwhois-selftest-tool-perl (1.4.4-1) precise; urgency=low
 
   * Release 1.4.4

@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use 5.014;
 
-use version; our $VERSION = qv( 1.4.4 );
+use version; our $VERSION = qv( 1.4.5 );
 
 =pod
 

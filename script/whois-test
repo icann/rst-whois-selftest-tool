@@ -64,6 +64,11 @@ A L</redaction string database> to import additional allowed redaction strings
 from.
 The database format is described in the full man page.
 
+=item B<--[no-]check-eol>
+
+Controls whether warnings should be generated when line separators violate the
+F<Test Area Whois.pdf>.  Enabled by default.
+
 =item B<FILE>
 
 The reply input file to read. If C<-> is specified, the reply is read from
@@ -74,7 +79,7 @@ standard input.
 =head1 DESCRIPTION
 
 B<whois-test> reads Whois output from a file or C<STDIN>, validates it according
-to the F<PDT_Whois_TP.pdf> document and reports errors and feedback on
+to the F<Test Area Whois.pdf> document and reports errors and feedback on
 additional tasks that need to be performed.
 
 Some validation errors prevents the detection of further (possibly more serious)
@@ -98,34 +103,41 @@ Examples:
 
 =over 4
 
-=item C<echo -n "domain.example\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "domain.example\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for domain name objects matching C<domain.example> to the Whois
 server at IP address C<128.66.0.1>.
 
-=item C<echo -n "roid abc123-IIS\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "roid abc123-IIS\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for the object with ROID C<abc123-IIS> to the Whois server at IP address
 C<128.66.0.1>.
 
-=item C<echo -n "registrar Partial Registrar Name\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "registrar Partial Registrar Name\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for registrar objects matching C<Partial Registrar Name> to the
 Whois server at IP address C<128.66.0.1>.
 
-=item C<echo -n "nameserver ns1.domain.example\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "nameserver ns1.domain.example\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for registrar objects matching C<ns1.domain.example> to the Whois
 server at IP address C<128.66.0.1>.
 
-=item C<echo -n "nameserver 128.66.99.234\r\n" | nc -q10 128.66.0.1 E<gt> queryoutput.txt>
+=item C<printf "nameserver 128.66.99.234\r\n" | nc -q10 128.66.0.1 43 E<gt> queryoutput.txt>
 
 Make a request for registrar objects matching C<128.66.99.234> to the Whois
 server at IP address C<128.66.0.1>.
 
+=item C<whois domain.example E<gt> queryoutput.txt>
+
+Make a request using the a traditional whois querying tool.
+Note that some traditional whois querying tools transform the line separators before outputting,
+whereas nc outputs the server response exactly as it was received.
+See the B<--no-check-eol> option.
+
 =back
 
-Note: The C<echo>, C<nc>, C<file> and C<iconv> commands are general tools
+Note: The C<printf>, C<nc>, C<file> and C<iconv> commands are general tools
 available on all Unix, Linux or Mac computers.
 
 Note: The C<whois> command is not recommended for this task since it does not
@@ -333,6 +345,7 @@ my $opt_nameserver_ip;
 my $opt_epp_repo_id;
 my $opt_stdin;
 my $opt_redaction_db;
+my $opt_check_eol = 1;
 
 sub scrub_hostname {
     my $value = shift;
@@ -406,6 +419,7 @@ sub main {
         "nameserver-ip|i=s" => sub { $opt_nameserver_ip = scrub_ip_address( $_[1] ) or die "nameserver-ip argument must be valid nameserver IP" },
         "epp-repo-id|e=s"   => sub { $opt_epp_repo_id = scrub_roid_suffix( $_[1] ) or die "epp-repo-id must be valid ROID suffix" },
         "redaction-db=s"    => sub { $opt_redaction_db = scrub_readable_file( $_[1] ) or die "redaction-db must be readable file" },
+        "check-eol!"        => \$opt_check_eol,
         ""                  => \$opt_stdin,
     ) or pod2usage( 2 );
     pod2usage( 1 ) if $opt_help;
@@ -434,6 +448,7 @@ sub main {
     }
 
     my $lexer = PDT::TS::Whois::Lexer->new( $text );
+    $lexer->check_eol( $opt_check_eol );
     my @errors;
     my $rule;
 

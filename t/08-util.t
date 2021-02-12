@@ -20,8 +20,10 @@ subtest 'scrub_u_label' => sub {
     );
     plan tests => scalar keys %data;
 
-    while ( my ( $input, $expected_output ) = each( %data ) ) {
-        my @actual_output = PDT::TS::Whois::Util::scrub_u_label( $input );
-        eq_or_diff \@actual_output, $expected_output;
+    for my $input ( sort keys %data ) {
+        my $expected_output = $data{$input};
+        my @actual_output   = PDT::TS::Whois::Util::scrub_u_label( $input );
+        my $escaped_input   = $input =~ s/([^[:ascii:]])/sprintf "\\x{%04X}", ord $1/egr;
+        eq_or_diff \@actual_output, $expected_output, "scrubbing of $escaped_input";
     }
 };

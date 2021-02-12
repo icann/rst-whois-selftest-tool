@@ -17,6 +17,7 @@ subtest 'scrub_u_label' => sub {
         'smÖrgÅs.购物.tube'  => [],
         'smörgås．购物.tube' => [],
         'smörgås｡购物.tube'  => [],
+        'SANDWICH.购物.tube'  => ['sandwich.xn--g2xx48c.tube'],
     );
     plan tests => scalar keys %data;
 

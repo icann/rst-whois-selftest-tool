@@ -14,6 +14,7 @@ require_ok( 'PDT::TS::Whois::Util' );
 subtest 'scrub_u_label' => sub {
     my %data = (
         'smörgås.购物.tube'  => ['xn--smrgs-pra0j.xn--g2xx48c.tube'],
+        'SMöRGåS.购物.tube'  => [],
         'smÖrgÅs.购物.tube'  => [],
         'smörgås．购物.tube' => [],
         'smörgås｡购物.tube'  => [],

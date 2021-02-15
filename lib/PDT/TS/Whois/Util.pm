@@ -82,7 +82,7 @@ sub scrub_u_label {
     my $value = shift;
     ref $value eq '' or croak 'Argument must be scalar: $value';
 
-    $value =~ s/([[:ascii:]])/lc $1/eg;
+    $value =~ s/((?:^|\.)[[:ascii:]]+(?:$|\.))/lc $1/eg;    # Convert ASCII-only labels to lowercase
 
     for my $char ( split //, $value ) {
         return () unless $char eq '.' || is_pvalid( $char ) || is_contextj( $char ) || is_contexto( $char );

@@ -35,6 +35,7 @@ Version history
 * v1.4.3 - Updated public release (2018-10-09)
 * v1.4.4 - Updated public release (2019-01-18)
 * v1.4.5 - Updated public release (2019-05-02)
+* v1.4.6 - Updated public release (2021-03-19)
 
 The v1.1.0 release primarily matches the updates to the PDT Whois TP and TCs 
 in the version 2.9 document release. It also handles the issue with IDN in the 
@@ -74,6 +75,10 @@ The v1.4.4 release removes incorrect rejection of Whois responses with additiona
 The v1.4.5 release adds an option to `whois-test` to make it ignore any line ending
 errors. It also corrects the examples in the man page.
 
+The v1.4.6 release corrects the comparison between "Domain Name" field and the "Internationalized
+Domain Name" field with the latter contains an ASCII label in upper case.
+
+
 Specification compatibility matrix
 ----------------------------------
 Refer to this compatibility matrix when deciding which version of Whois Selftest
@@ -85,15 +90,16 @@ Whois Selftest Tool |PDT/RST Document Release |[PDT Whois Test Plan] |[PDT Whois
 v1.0.0              |2.8                      |                      |                           |
 v1.1.0              |2.9                      |                      |                           |
 v1.2.0              |2.10                     |                      |                           |
-v1.3.0              |See note below.          |J                     |H                          |-
+v1.3.0              |See note above.          |J                     |H                          |-
 v1.4.0              |2.11                     |K                     |I                          |-
 v1.4.1              |2.11                     |K                     |I                          |-
-v1.3.1              |See note below.          |J                     |H                          |-
+v1.3.1              |See note above.          |J                     |H                          |-
 v1.4.2              |2.11                     |K                     |I                          |-
 v1.4.2              |3.0                      |-                     |-                          |B
 v1.4.3              |3.1                      |-                     |-                          |C
 v1.4.4              |3.1                      |-                     |-                          |C
 v1.4.5              |3.1                      |-                     |-                          |C
+v1.4.6              |3.1                      |-                     |-                          |C
 
 Note: Whois Selftest Tool versions v1.3.0 and v1.3.1 are based on PDT Document 
 Release 2.10 plus two additional updates described above. 
@@ -159,9 +165,9 @@ Dependencies
    * YAML::Syck
  * wget
 
-The Whois Selftest Tool has been developed on Unbuntu Linux, but we have tried to
-avoid Linux specific coding. There is, however, no guarantee that it works on
-other OSs.
+The Whois Selftest Tool has been developed on Unbuntu Linux and CentOS 7, but we
+have tried to avoid Linux specific coding. There is, however, no guarantee that
+it works on other OSs.
 
 Installation
 ============

@@ -13,15 +13,20 @@ require_ok( 'PDT::TS::Whois::Util' );
 
 subtest 'scrub_u_label' => sub {
     my %data = (
-        'smörgås.购物.tube'  => ['xn--smrgs-pra0j.xn--g2xx48c.tube'],
-        'smÖrgÅs.购物.tube'  => [],
-        'smörgås．购物.tube' => [],
-        'smörgås｡购物.tube'  => [],
+        'smörgås.购物.tube'         => ['xn--smrgs-pra0j.xn--g2xx48c.tube'],
+        'SMöRGåS.购物.tube'         => [],
+        'smÖrgÅs.购物.tube'         => [],
+        'smörgås．购物.tube'        => [],
+        'smörgås｡购物.tube'         => [],
+        'SANDWICH.购物.tube'        => ['sandwich.xn--g2xx48c.tube'],
+        'SANDWICH.XN--G2XX48C.tube' => ['sandwich.xn--g2xx48c.tube'],
     );
     plan tests => scalar keys %data;
 
-    while ( my ( $input, $expected_output ) = each( %data ) ) {
-        my @actual_output = PDT::TS::Whois::Util::scrub_u_label( $input );
-        eq_or_diff \@actual_output, $expected_output;
+    for my $input ( sort keys %data ) {
+        my $expected_output = $data{$input};
+        my @actual_output   = PDT::TS::Whois::Util::scrub_u_label( $input );
+        my $escaped_input   = $input =~ s/([^[:ascii:]])/sprintf "\\x{%04X}", ord $1/egr;
+        eq_or_diff \@actual_output, $expected_output, "scrubbing of $escaped_input";
     }
 };
